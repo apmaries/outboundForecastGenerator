@@ -89,6 +89,14 @@
     </form>
 
     <script>
+      function getParameterByName(name) {
+        name = name.replace(/[\\[]/, "\\[").replace(/[\]]/, "\\]");
+        var regex = new RegExp("[\\#&]" + name + "=([^&#]*)"),
+          results = regex.exec(location.hash);
+        return results === null
+          ? ""
+          : decodeURIComponent(results[1].replace(/\+/g, " "));
+      }
       // this has been added - not sure if it works. Need to check with AB how he authenticates in client applications
       //clear session storage
       sessionStorage.clear();
