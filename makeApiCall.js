@@ -88,5 +88,3 @@ async function fetchDataWithRetry(
   }
   terminal(`Maximum retry count exceeded!`, "ERROR");
 }
-
-export { fetchDataWithRetry };

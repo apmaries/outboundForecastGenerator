@@ -1,6 +1,3 @@
-// scheduler.js
-import { fetchDataWithRetry } from "./makeApiCall";
-
 async function runScheduler(
   businessUnitId,
   selectedBuTimeZone,

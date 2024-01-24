@@ -5,8 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Outbound Scheduler</title>
 
+    <!-- Genesys stuff -->
+    <link
+      href="https://dhqbrvplips7x.cloudfront.net/common-ui-docs/genesys-webcomponents/3.8.1-178/genesys-webcomponents/genesys-webcomponents.css"
+      rel="stylesheet"
+    />
+    <script
+      type="module"
+      src="https://dhqbrvplips7x.cloudfront.net/common-ui-docs/genesys-webcomponents/3.8.1-178/genesys-webcomponents/genesys-webcomponents.esm.js"
+    ></script>
+    <script src="https://sdk-cdn.mypurecloud.com/javascript/latest/purecloud-platform-client-v2.min.js"></script>
+
+    <!-- External -->
     <script src="https://moment.github.io/luxon/global/luxon.min.js"></script>
-    <script src="scheduler.mjs"></script>
+
+    <!-- Project -->
+    <script src="scheduler.js"></script>
+    <script src="makeApiCall.js"></script>
 
     <style>
       body {
@@ -51,7 +66,7 @@
   <body>
     <h1>Outbound Scheduler</h1>
 
-    <form id="calculatorForm">
+    <form id="schedulerForm">
       <label for="businessUnit">Business Unit:</label>
       <select
         id="businessUnit"
@@ -84,8 +99,54 @@
     </form>
 
     <script>
+      // this has been added - not sure if it works. Need to check with AB how he authenticates in client applications
+      //clear session storage
+      sessionStorage.clear();
+      console.log("Outbound Scheduler initiated");
+
       var selectedBuId;
       var selectedBuTimeZone;
+
+      // Set Genesys Cloud objects
+      const platformClient = require("platformClient");
+      const client = platformClient.ApiClient.instance;
+
+      const oapi = new platformClient.OrganizationApi();
+      const uapi = new platformClient.UsersApi();
+
+      async function authenticate() {
+        const clientId = document.getElementById("clientIdInput").value;
+        const environment = document.getElementById("clientRegionInput").value;
+        const redirectUri = "https://storage.googleapis.com/wem_pt/wpt.html";
+
+        console.log(
+          "WPT: Setting client id and environment session storage items"
+        );
+
+        sessionStorage.setItem("clientId", clientId);
+        sessionStorage.setItem("environment", environment);
+
+        client.setEnvironment(environment);
+        client.setPersistSettings(true, "_mm_");
+
+        let state;
+        try {
+          console.log("WPT: Logging in to GC");
+          const response = await client.loginImplicitGrant(
+            clientId,
+            redirectUri,
+            {
+              state: state,
+            }
+          );
+          if (response) {
+            const jsonResponse = await response.json();
+            console.log(jsonResponse);
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      }
 
       // Simulate fetching Business Unit values from an API
       function fetchBusinessUnits() {
