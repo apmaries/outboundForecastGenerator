@@ -1,10 +1,9 @@
-async function runScheduler(
+async function runHelper(
   businessUnitId,
   selectedBuTimeZone,
   weekStart,
   numContacts,
-  historicalWeeks,
-  shrinkage
+  historicalWeeks
 ) {
   // Function to subscribe to notifications channel
   async function subscribeToNotificationsChannel(businessUnitId) {
@@ -33,7 +32,6 @@ async function runScheduler(
   console.log("Week Start:", weekStart);
   console.log("Number of Contacts:", numContacts);
   console.log("Historical Weeks:", historicalWeeks);
-  console.log("Shrinkage:", shrinkage + "%");
 
   // Function to get planning groups from BU id
   async function getPlanningGroups() {
