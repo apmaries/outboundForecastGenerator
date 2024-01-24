@@ -66,6 +66,14 @@ async function runHelper(
     return queriesArray;
   }
 
+  // Function to execute queries
+  async function executeQueries() {
+    const queryResults = [];
+    console.log(`Executing queries`);
+    console.log(businessUnitId);
+    return queryResults;
+  }
+
   // Use Promise.all to run getPlanningGroups and getCampaigns concurrently
   var [planningGroups, campaigns] = await Promise.all([
     getPlanningGroups(),
@@ -78,5 +86,8 @@ async function runHelper(
   // Execute queryBuilder after queueCampaignMatcher complete
   var queriesArray = await queryBuilder(queueCampaignsResult);
 
-  // Continue with the rest of your logic using planningGroups, campaigns, and queriesArray
+  // Execute historical data queries
+  var queryResults = await executeQueries(queriesArray);
+
+  // Continue with the rest of the logic
 }
