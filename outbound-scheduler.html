@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Outbound Scheduler</title>
+
+    <script src="https://moment.github.io/luxon/global/luxon.min.js"></script>
+    <script src="scheduler.js"></script>
+
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      form {
+        display: grid;
+        grid-gap: 10px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 5px;
+      }
+
+      input,
+      select {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 5px;
+      }
+
+      button {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 10px;
+        background-color: #4caf50;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+      }
+
+      .error {
+        border: 2px solid red;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Outbound Scheduler</h1>
+
+    <form id="calculatorForm">
+      <label for="businessUnit">Business Unit:</label>
+      <select
+        id="businessUnit"
+        onchange="updateBusinessUnitSettings()"
+        required
+      ></select>
+
+      <label for="weekStart">Week Start:</label>
+      <input type="date" id="weekStart" required />
+
+      <label for="numContacts">Number of Contacts:</label>
+      <input type="number" id="numContacts" min="0" value="0" required />
+
+      <label for="historicalWeeks">Historical Weeks:</label>
+      <input type="number" id="historicalWeeks" min="0" max="8" required />
+
+      <label for="shrinkage">Shrinkage (%):</label>
+      <input
+        type="number"
+        id="shrinkage"
+        min="-100"
+        step="1"
+        value="0"
+        required
+      />
+
+      <button type="button" onclick="runSchedulerButton()">
+        Run Scheduler
+      </button>
+    </form>
+
+    <script>
+      var selectedBuId;
+      var selectedBuTimeZone;
+
+      // Simulate fetching Business Unit values from an API
+      function fetchBusinessUnits() {
+        // Replace this with an actual API call
+        return [
+          {
+            "id": "7e5d7b10-9086-4c53-8458-xxxxxxxxxxxx",
+            "name": "amBluthCo",
+            "settings": {
+              "startDayOfWeek": "Monday",
+              "timeZone": "Australia/Sydney",
+              "shortTermForecasting": {
+                "defaultHistoryWeeks": 6,
+              },
+            },
+          },
+          // Add more Business Units as needed
+        ];
+      }
+
+      // Populate Business Unit dropdown options
+      function populateBusinessUnits() {
+        var businessUnitDropdown = document.getElementById("businessUnit");
+        var businessUnits = fetchBusinessUnits();
+
+        businessUnits.forEach(function (unit) {
+          var option = document.createElement("option");
+          option.value = unit.id;
+          option.textContent = unit.name;
+          businessUnitDropdown.appendChild(option);
+        });
+      }
+
+      // Update selected Business Unit settings
+      function updateBusinessUnitSettings() {
+        var businessUnitDropdown = document.getElementById("businessUnit");
+        var selectedIndex = businessUnitDropdown.selectedIndex;
+        selectedBuId = businessUnitDropdown.options[selectedIndex].value;
+        var buSettings = fetchBusinessUnits().find(
+          (unit) => unit.id === selectedBuId
+        ).settings;
+        selectedBuTimeZone = buSettings.timeZone;
+
+        // Restrict weekStart input to the selected BU's startDayOfWeek
+        var startDayOfWeek = buSettings.startDayOfWeek;
+        document.getElementById("weekStart").min = startDayOfWeek;
+
+        // Set default value for weekStart to the next occurrence of startDayOfWeek in the specified time zone
+        var currentDate = luxon.DateTime.now({ zone: selectedBuTimeZone });
+        var currentDayOfWeek = getDayOfWeek(currentDate.weekdayLong);
+
+        // Adjust for Monday as the start of the week
+        var daysUntilNextStartDay =
+          (getDayOfWeek(startDayOfWeek) - currentDayOfWeek + 7) % 7;
+        var nextStartDay = currentDate.plus({ days: daysUntilNextStartDay });
+
+        document.getElementById("weekStart").valueAsDate =
+          nextStartDay.toJSDate();
+      }
+
+      // Helper function to get day of week index (0-6) from day name
+      function getDayOfWeek(dayName) {
+        var days = [
+          "Sunday",
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+        ];
+        return days.indexOf(dayName);
+      }
+
+      // Populate default values on page load
+      window.onload = function () {
+        populateBusinessUnits();
+        updateBusinessUnitSettings();
+
+        // Set default value for historicalWeeks
+        document.getElementById("historicalWeeks").value =
+          fetchBusinessUnits().find(
+            (unit) => unit.id === selectedBuId
+          ).settings.shortTermForecasting.defaultHistoryWeeks;
+      };
+
+      // Run scheduler function
+      function runSchedulerButton() {
+        // Get input values
+        var weekStartInput = document.getElementById("weekStart");
+        var numContactsInput = document.getElementById("numContacts");
+        var historicalWeeks = document.getElementById("historicalWeeks").value;
+
+        // Check if weekStart day of week matches selected BU's startDayOfWeek
+        var selectedBuStartDayOfWeek = fetchBusinessUnits().find(
+          (unit) => unit.id === selectedBuId
+        ).settings.startDayOfWeek;
+        var selectedWeekStart = new Date(weekStartInput.value);
+        if (
+          selectedWeekStart.getDay() !== getDayOfWeek(selectedBuStartDayOfWeek)
+        ) {
+          alert(
+            "Week Start day must match Business Unit's startDayOfWeek (" +
+              selectedBuStartDayOfWeek +
+              ")."
+          );
+          highlightInputError(weekStartInput);
+          return;
+        } else {
+          removeInputError(weekStartInput);
+        }
+
+        // Check if numContacts is 0
+        if (numContactsInput.value === "0") {
+          alert("Number of Contacts must be greater than 0.");
+          highlightInputError(numContactsInput);
+          return;
+        } else {
+          removeInputError(numContactsInput);
+        }
+
+        // Check if numContacts is a positive integer
+        if (!/^\d+$/.test(numContactsInput.value)) {
+          alert("Number of Contacts must be a positive integer.");
+          highlightInputError(numContactsInput);
+          return;
+        } else {
+          removeInputError(numContactsInput);
+        }
+
+        // Perform calculations or any other desired actions
+        // For demonstration, just log the values to the console
+        /*console.log("Selected BU ID:", selectedBuId);
+        console.log("Selected BU TimeZone:", selectedBuTimeZone);
+        console.log("Week Start:", weekStartInput.value);
+        console.log("Number of Contacts:", numContactsInput.value);
+        console.log("Historical Weeks:", historicalWeeks);
+        console.log("Shrinkage:", shrinkage.value + "%");*/
+
+        runScheduler(
+          selectedBuId,
+          selectedBuTimeZone,
+          weekStartInput.value,
+          numContactsInput.value,
+          historicalWeeks,
+          shrinkage.value
+        );
+      }
+
+      // Helper function to highlight input error
+      function highlightInputError(inputElement) {
+        inputElement.classList.add("error");
+      }
+
+      // Helper function to remove input error highlight
+      function removeInputError(inputElement) {
+        inputElement.classList.remove("error");
+      }
+    </script>
+  </body>
+</html>
