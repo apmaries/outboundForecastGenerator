@@ -42,7 +42,13 @@
           // Redirect the user to the authorization URL
           window.location.href = authorizationUrl;
         } else {
-          console.error("Referrer does not start with the expected prefix.");
+          alert(
+            `Referrer '${referrer}' does not start with the expected prefix.`
+          );
+          console.error(
+            "OWH: Referrer does not start with the expected prefix."
+          );
+          console.log(`OWH: Referrer = ${referrer}`);
         }
       }
       // Call the authorize function when the page loads
