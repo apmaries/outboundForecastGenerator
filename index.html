@@ -15,30 +15,41 @@
           "https://apmaries.github.io/outboundScheduler/wfm-outbound.html";
 
         // Get the domain of the parent page from the referrer
-        const referrerDomain = document.referrer
-          ? new URL(document.referrer).origin
-          : "";
-
+        const referrer = document.referrer;
+        const prefix = "https://apps.";
         // Strip subdomains and add the 'login' prefix
         const strippedDomain = referrerDomain.replace(
           /^[^\.]+\.([^.]+)\..*$/,
           "$1"
         );
 
-        const authorizationUrl = `https://login.${strippedDomain}/oauth/authorize?client_id=${clientId}&response_type=token&redirect_uri=${redirectUri}`;
+        // Ensure that the referrer starts with the expected prefix
+        if (referrer.startsWith(prefix)) {
+          // Find the index of the first '/' after the prefix
+          const firstSlashIndex = referrer.indexOf("/", prefix.length);
 
-        // Log the modified domain and the constructed authorization URL to the console for demonstration
-        console.log(`OWH: App environment: ${strippedDomain}`);
-        console.log(`OWH: Authorization URL:" ${authorizationUrl}`);
+          // Extract the substring between the prefix and the first '/'
+          const strippedDomain = referrer.substring(
+            prefix.length,
+            firstSlashIndex
+          );
 
-        // Set session storage
-        sessionStorage.setItem("environment", strippedDomain);
-        sessionStorage.setItem("clientId", clientId);
+          const authorizationUrl = `https://login.${strippedDomain}/oauth/authorize?client_id=${clientId}&response_type=token&redirect_uri=${redirectUri}`;
 
-        // Redirect the user to the authorization URL
-        window.location.href = authorizationUrl;
+          // Log the modified domain and the constructed authorization URL to the console for demonstration
+          console.log(`OWH: App environment: ${strippedDomain}`);
+          console.log(`OWH: Authorization URL:" ${authorizationUrl}`);
+
+          // Set session storage
+          sessionStorage.setItem("environment", strippedDomain);
+          sessionStorage.setItem("clientId", clientId);
+
+          // Redirect the user to the authorization URL
+          window.location.href = authorizationUrl;
+        } else {
+          console.error("Referrer does not start with the expected prefix.");
+        }
       }
-
       // Call the authorize function when the page loads
       authorize();
     </script>
