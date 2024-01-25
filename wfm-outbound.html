@@ -23,8 +23,9 @@
     <script src="https://moment.github.io/luxon/global/luxon.min.js"></script>
 
     <!-- Project -->
-    <script src="main.js"></script>
-    <script src="makeApiCall.js"></script>
+    <script src="./src/session.js"></script>
+    <script src="./src/main.js"></script>
+    <script src="./src/makeApiCall.js"></script>
 
     <style>
       body {
@@ -99,6 +100,7 @@
           : decodeURIComponent(results[1].replace(/\+/g, " "));
       }
 
+      /*
       // start of AB snippet
       // this has been added - not sure if it works. Need to check with AB how he authenticates in client applications
       let debug = true; //localStorage.getItem('gc_debug') //Enables user to set debug mode
@@ -151,7 +153,7 @@
 
         if (debug) console.log("key retreived: ", key);
       }
-      // end of AB snippet
+      // end of AB snippet*/
 
       //clear session storage
       sessionStorage.clear();
