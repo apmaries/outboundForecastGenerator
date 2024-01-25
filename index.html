@@ -25,6 +25,8 @@
           "$1"
         );
 
+        const authorizationUrl = `https://login.${strippedDomain}/oauth/authorize?client_id=${clientId}&response_type=token&redirect_uri=${redirectUri}`;
+
         // Log the modified domain and the constructed authorization URL to the console for demonstration
         console.log(`OWH: App environment: ${strippedDomain}`);
         console.log(`OWH: Authorization URL:" ${authorizationUrl}`);
@@ -32,8 +34,6 @@
         // Set session storage
         sessionStorage.setItem("environment", strippedDomain);
         sessionStorage.setItem("clientId", clientId);
-
-        const authorizationUrl = `https://login.${strippedDomain}/oauth/authorize?client_id=${clientId}&response_type=token&redirect_uri=${redirectUri}`;
 
         // Redirect the user to the authorization URL
         window.location.href = authorizationUrl;
