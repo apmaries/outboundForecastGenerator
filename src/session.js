@@ -5,11 +5,11 @@ const clientId = sessionStorage.getItem("clientId");
 function internalUserCheck(emailAddress) {
   const domain = emailAddress.split("@")[1];
   if (domain.toLowerCase() === "genesys.com") {
-    console.log("WPT: Authorised user");
+    console.log("OWH: Authorised user");
   } else {
-    console.log("WPT: Unauthorised user!");
+    console.log("OWH: Unauthorised user!");
     alert("Unauthorised user!");
-    window.location.replace("https://storage.googleapis.com/wem_pt/index.html");
+    window.location.replace("./not-authorized.html");
   }
 }
 
@@ -23,7 +23,7 @@ function getParameterByName(name) {
 }
 
 if (window.location.hash) {
-  console.log("WPT: Retrieving access token");
+  console.log("OWH: Retrieving access token");
 
   const token = getParameterByName("access_token");
   sessionStorage.setItem("token", token);
@@ -37,7 +37,7 @@ if (window.location.hash) {
         xhr.setRequestHeader("Authorization", "bearer " + token);
       },
       success: function (udata) {
-        console.log("WPT: User details returned");
+        console.log("OWH: User details returned");
         console.log(udata);
         const userName = udata.name;
         const userId = udata.id;
@@ -60,11 +60,11 @@ if (window.location.hash) {
         xhr.setRequestHeader("Authorization", "bearer " + token);
       },
       success: function (odata) {
-        console.log("WPT: org details returned");
+        console.log("OWH: org details returned");
         console.log(odata);
         const orgName = odata.name;
         sessionStorage.setItem("orgName", orgName);
-        console.log("WPT: Updating subheader");
+        console.log("OWH: Updating subheader");
         const authText = document.getElementById("authenticatedSubHeader");
         authText.innerHTML = `Authenticated in: ${orgName}`;
       },
@@ -78,7 +78,7 @@ if (window.location.hash) {
         xhr.setRequestHeader("Authorization", "bearer " + token);
       },
       success: function (cdata) {
-        console.log("WPT: oatuh client details returned");
+        console.log("OWH: oatuh client details returned");
         console.log(cdata);
         const clientName = cdata.name;
         const clientScope = cdata.scope;
@@ -95,7 +95,7 @@ if (window.location.hash) {
         xhr.setRequestHeader("Authorization", "bearer " + token);
       },
       success: function (ddata) {
-        console.log("WPT: Divisions data returned");
+        console.log("OWH: Divisions data returned");
         console.log(ddata);
 
         sessionStorage.setItem("divisionsList", JSON.stringify(ddata.entities));
@@ -111,7 +111,7 @@ if (window.location.hash) {
         xhr.setRequestHeader("Content-Type", "application/json");
       },
       success: function (cdata) {
-        console.log("WPT: notifications channel opened");
+        console.log("OWH: notifications channel opened");
         console.log(cdata);
         const notificationsUri = cdata.connectUri;
         const notificationsId = cdata.id;
@@ -138,7 +138,7 @@ function timeout() {
       xhr.setRequestHeader("Authorization", "bearer " + token);
     },
     success: function (cdata) {
-      console.log("WPT: notifications channel subscriptions removed");
+      console.log("OWH: notifications channel subscriptions removed");
 
       x = $.ajax({
         url: `https://api.${environment}/api/v2/tokens/me`,
@@ -148,7 +148,7 @@ function timeout() {
         },
       }).always(function (jqXHR, textStatus) {
         if (jqXHR.status === 200) {
-          console.log("WPT: Session closed");
+          console.log("OWH: Session closed");
           sessionStorage.clear;
           alert("Session closed");
           window.location.replace(
@@ -163,7 +163,7 @@ function timeout() {
       });
     },
   });
-  console.log("WPT: Timeout due to inactivity.");
+  console.log("OWH: Timeout due to inactivity.");
 }
 
 // Function to reset the activity timer
