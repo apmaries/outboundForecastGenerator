@@ -7,12 +7,9 @@
     <meta name="robots" content="noindex" />
   </head>
   <body>
-    <h1>Welcome to My App</h1>
-    <p>Click the button below to authorize the app:</p>
-
-    <button onclick="authorize()">Authorize</button>
-
     <script>
+      /*stash-logger.js:233  ["PureCloud Client Apps - API - App posted message from invalid origin.",{"appUrl":"https://apmaries.github.io/outboundScheduler/index.html","origin":"https://apps.usw2.pure.cloud","expectedOrigin":"https://apmaries.github.io/outboundScheduler/index.html","remoteData":{"appId":"2304444a-e81e-46e0-8394-71b99523d8f5"}},{"activeConversations":[]}]*/
+
       function authorize() {
         // Replace these values with your actual OAuth configuration
         const clientId = "6f99c63b-3dfb-43cf-9792-a9b5c295d0ca";
@@ -22,7 +19,9 @@
           "https://apps.usw2.pure.cloud/admin/#/admin/oauth/authorizations/6f99c63b-3dfb-43cf-9792-a9b5c295d0ca";
 
         // Construct the authorization URL
-        const authorizationUrl = `${authorizationEndpoint}?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token`;
+        //const authorizationUrl = `${authorizationEndpoint}?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token`;
+
+        const authorizationUrl = `https://login.usw2.pure.cloud/oauth/authorize?client_id=${clientId}&response_type=token&redirect_uri=${redirectUri}`;
 
         // Redirect the user to the authorization URL
         window.location.href = authorizationUrl;
