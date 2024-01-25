@@ -7,7 +7,6 @@
     <meta name="robots" content="noindex" />
   </head>
   <body>
-    <h1>Test</h1>
     <script>
       function authorize() {
         // OAuth configuration
@@ -18,11 +17,6 @@
         // Get the domain of the parent page from the referrer
         const referrer = document.referrer;
         const prefix = "https://apps.";
-        // Strip subdomains and add the 'login' prefix
-        const strippedDomain = referrerDomain.replace(
-          /^[^\.]+\.([^.]+)\..*$/,
-          "$1"
-        );
 
         // Ensure that the referrer starts with the expected prefix
         if (referrer.startsWith(prefix)) {
