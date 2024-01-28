@@ -28,53 +28,51 @@
     <script src="./src/makeApiCall.js"></script>
 
     <style>
-      body {
-        font-family: Arial, sans-serif;
-        max-width: 600px;
-        margin: 0 auto;
-        padding: 20px;
+      .slotted {
+        font-family: Roboto, sans-serif;
+        font-weight: 700;
+        font-size: 12px;
+        line-height: 16px;
       }
-
-      form {
-        display: grid;
-        grid-gap: 10px;
-      }
-
-      label {
-        display: block;
-        margin-bottom: 5px;
-      }
-
-      input,
-      select {
-        width: 100%;
-        box-sizing: border-box;
-        padding: 5px;
-      }
-
-      button {
-        width: 100%;
-        box-sizing: border-box;
-        padding: 10px;
-        background-color: #4caf50;
-        color: #fff;
-        border: none;
-        cursor: pointer;
-      }
-
       .error {
         border: 2px solid red;
+      }
+
+      .form-container {
+        display: inline-flex;
+        flex-direction: column;
+        width: 400px;
+      }
+
+      .width {
+        width: 100%;
+      }
+
+      .row {
+        display: flex;
+        gap: 10px;
+      }
+
+      .row .width {
+        flex: 1;
+      }
+
+      .align-right {
+        margin-left: auto;
       }
     </style>
   </head>
   <body>
-    <h1>Outbound Thingy</h1>
+    <h1>Outbound Forecast Generator</h1>
 
-    <fieldset>
-      <legend>Ummm</legend>
-      <gux-form-field-dropdown>
+    <fieldset class="form-container">
+      <legend>Parameters</legend>
+      <gux-form-field-dropdown class="width">
         <gux-dropdown>
-          <gux-listbox>
+          <gux-listbox
+            id="businessUnit"
+            onchange="updateBusinessUnitSettings()"
+          >
             <gux-option value="a">Ant</gux-option>
             <gux-option value="b">Bat</gux-option>
             <gux-option value="c">Cat</gux-option>
@@ -83,41 +81,52 @@
         <label slot="label">Business Unit</label>
       </gux-form-field-dropdown>
 
-      <label for="weekStart">Week Start:</label>
-      <gux-datepicker
-        start-day-of-week="1"
-        id="weekStart"
-        format="dd/mm/yyyy"
-        required
-      ></gux-datepicker>
-
-      <gux-form-field-number>
+      <gux-form-field-number style="width: 100%">
         <input
           slot="input"
           type="number"
           id="numContacts"
           min="0"
+          max="100000"
           value="0"
-          required
+          step="500"
         />
-        <label slot="label">Number of contacts</label>
+        <label class="width" slot="label">Number of contacts</label>
       </gux-form-field-number>
 
-      <gux-form-field-number>
-        <input slot="input" type="number" name="c-1" value="10" />
-        <label slot="label">Forecast historical weeks</label>
+      <gux-form-field-number style="width: 100%">
+        <input
+          slot="input"
+          type="number"
+          id="historicalWeeks"
+          value="6"
+          step="1"
+          min="1"
+          max="8"
+        />
+        <label class="width" slot="label">Forecast historical weeks</label>
       </gux-form-field-number>
+
+      <label for="weekStart" class="slotted">Week start</label>
+      <gux-datepicker
+        start-day-of-week="1"
+        id="weekStart"
+        format="dd/mm/yyyy"
+        class="width"
+      ></gux-datepicker>
+
+      <label for="inclSchedule">Generate schedule too?</label>
+      <gux-toggle
+        id="inclSchedule"
+        checked-label="Yes"
+        unchecked-label="No"
+      ></gux-toggle>
+
+      <gux-button accent="primary" onclick="buttonClicked()">Run!</gux-button>
     </fieldset>
 
-    <form id="form">
+    <!-- <form id="form">
       <label for="businessUnit">Business Unit:</label>
-
-      <gux-dropdown
-        filter-type="starts-with"
-        placeholder="Select a Business Unit"
-      >
-        <gux-listbox aria-label="Business Unts"> </gux-listbox>
-      </gux-dropdown>
 
       <select
         id="businessUnit"
@@ -147,8 +156,8 @@
       ></gux-toggle>
 
       <button type="button" onclick="buttonClicked()">Run!</button>
-      <gux-button accent="primary" onclick="buttonClicked()">Run!</gux-button>
-    </form>
+      
+    </form>-->
 
     <script>
       function getParameterByName(name) {
