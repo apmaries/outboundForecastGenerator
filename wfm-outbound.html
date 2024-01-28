@@ -181,40 +181,6 @@
       const oapi = new platformClient.OrganizationApi();
       const uapi = new platformClient.UsersApi();
 
-      async function authenticate() {
-        const clientId = document.getElementById("clientIdInput").value;
-        const environment = document.getElementById("clientRegionInput").value;
-        const redirectUri = "https://storage.googleapis.com/wem_pt/wpt.html";
-
-        console.log(
-          "OFG: Setting client id and environment session storage items"
-        );
-
-        sessionStorage.setItem("clientId", clientId);
-        sessionStorage.setItem("environment", environment);
-
-        client.setEnvironment(environment);
-        client.setPersistSettings(true, "_mm_");
-
-        let state;
-        try {
-          console.log("OFG: Logging in to GC");
-          const response = await client.loginImplicitGrant(
-            clientId,
-            redirectUri,
-            {
-              state: state,
-            }
-          );
-          if (response) {
-            const jsonResponse = await response.json();
-            console.log(jsonResponse);
-          }
-        } catch (error) {
-          console.log(error);
-        }
-      }
-
       // Simulate fetching Business Unit values from an API
       function fetchBusinessUnits() {
         console.log("OFG: Getting WFM Business Units");
@@ -241,7 +207,7 @@
         var businessUnits = fetchBusinessUnits();
 
         businessUnits.forEach(function (unit) {
-          var option = document.createElement("option");
+          var option = document.createElement("gux-option");
           option.value = unit.id;
           option.textContent = unit.name;
           businessUnitDropdown.appendChild(option);
