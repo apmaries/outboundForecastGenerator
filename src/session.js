@@ -64,9 +64,6 @@ if (window.location.hash) {
         console.log(odata);
         const orgName = odata.name;
         sessionStorage.setItem("orgName", orgName);
-        console.log("OWH: Updating subheader");
-        const authText = document.getElementById("authenticatedSubHeader");
-        authText.innerHTML = `Authenticated in: ${orgName}`;
       },
     });
 

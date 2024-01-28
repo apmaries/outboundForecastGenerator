@@ -6,7 +6,7 @@
     <!--Removes Google Crawler from indexing page-->
     <meta name="robots" content="noindex" />
 
-    <title>Outbound Scheduler</title>
+    <title>Outbound Forecast Generator</title>
 
     <!-- Genesys stuff -->
     <link
@@ -68,10 +68,57 @@
     </style>
   </head>
   <body>
-    <h1>Outbound Scheduler</h1>
+    <h1>Outbound Thingy</h1>
 
-    <form id="schedulerForm">
+    <fieldset>
+      <legend>Ummm</legend>
+      <gux-form-field-dropdown>
+        <gux-dropdown>
+          <gux-listbox>
+            <gux-option value="a">Ant</gux-option>
+            <gux-option value="b">Bat</gux-option>
+            <gux-option value="c">Cat</gux-option>
+          </gux-listbox>
+        </gux-dropdown>
+        <label slot="label">Business Unit</label>
+      </gux-form-field-dropdown>
+
+      <label for="weekStart">Week Start:</label>
+      <gux-datepicker
+        start-day-of-week="1"
+        id="weekStart"
+        format="dd/mm/yyyy"
+        required
+      ></gux-datepicker>
+
+      <gux-form-field-number>
+        <input
+          slot="input"
+          type="number"
+          id="numContacts"
+          min="0"
+          value="0"
+          required
+        />
+        <label slot="label">Number of contacts</label>
+      </gux-form-field-number>
+
+      <gux-form-field-number>
+        <input slot="input" type="number" name="c-1" value="10" />
+        <label slot="label">Forecast historical weeks</label>
+      </gux-form-field-number>
+    </fieldset>
+
+    <form id="form">
       <label for="businessUnit">Business Unit:</label>
+
+      <gux-dropdown
+        filter-type="starts-with"
+        placeholder="Select a Business Unit"
+      >
+        <gux-listbox aria-label="Business Unts"> </gux-listbox>
+      </gux-dropdown>
+
       <select
         id="businessUnit"
         onchange="updateBusinessUnitSettings()"
@@ -79,7 +126,12 @@
       ></select>
 
       <label for="weekStart">Week Start:</label>
-      <input type="date" id="weekStart" required />
+      <gux-datepicker
+        start-day-of-week="1"
+        id="weekStart"
+        format="dd/mm/yyyy"
+        required
+      ></gux-datepicker>
 
       <label for="numContacts">Number of Contacts:</label>
       <input type="number" id="numContacts" min="0" value="0" required />
@@ -87,7 +139,15 @@
       <label for="historicalWeeks">Historical Weeks:</label>
       <input type="number" id="historicalWeeks" min="0" max="8" required />
 
+      <label for="inclSchedule">Auto add schedule with forecast?:</label>
+      <gux-toggle
+        id="inclScheduke"
+        checked-label="Yes"
+        unchecked-label="No"
+      ></gux-toggle>
+
       <button type="button" onclick="buttonClicked()">Run!</button>
+      <gux-button accent="primary" onclick="buttonClicked()">Run!</gux-button>
     </form>
 
     <script>
@@ -100,64 +160,9 @@
           : decodeURIComponent(results[1].replace(/\+/g, " "));
       }
 
-      /*
-      // start of AB snippet
-      // this has been added - not sure if it works. Need to check with AB how he authenticates in client applications
-      let debug = true; //localStorage.getItem('gc_debug') //Enables user to set debug mode
-      let gc_region = getParameterByName("gc_region");
-      let gc_clientId = getParameterByName("gc_clientId");
-      let gc_redirectUrl = getParameterByName("gc_redirectUrl");
-      let key = getParameterByName("key");
-
-      let gc_conversationId;
-      let gc_communicationId;
-      let sessionId;
-      let langCode;
-
-      //Getting and setting the GC details from dynamic URL and session storage
-      if (gc_region) {
-        sessionStorage.setItem("gc_region", gc_region);
-        if (debug) console.log("gc_region Saved: ", gc_region);
-      } else {
-        gc_region = sessionStorage.getItem("gc_region");
-
-        if (debug) console.log("gc_region retreived: ", gc_region);
-      }
-
-      if (gc_clientId) {
-        sessionStorage.setItem("gc_clientId", gc_clientId);
-
-        if (debug) console.log("gc_clientId Saved: ", gc_clientId);
-      } else {
-        gc_clientId = sessionStorage.getItem("gc_clientId");
-
-        if (debug) console.log("gc_clientId retreived: ", gc_clientId);
-      }
-
-      if (gc_redirectUrl) {
-        sessionStorage.setItem("gc_redirectUrl", gc_redirectUrl);
-
-        if (debug) console.log("gc_redirectUrl Saved: ", gc_redirectUrl);
-      } else {
-        gc_redirectUrl = sessionStorage.getItem("gc_redirectUrl");
-
-        if (debug) console.log("gc_redirectUrl retreived: ", gc_redirectUrl);
-      }
-
-      if (key) {
-        sessionStorage.setItem("key", key);
-
-        if (debug) console.log("key Saved: ", key);
-      } else {
-        key = sessionStorage.getItem("key");
-
-        if (debug) console.log("key retreived: ", key);
-      }
-      // end of AB snippet*/
-
       //clear session storage
       sessionStorage.clear();
-      console.log("Outbound WFM Helper (OWH) initiated");
+      console.log("Outbound Forecast Generator (OFG) initiated");
 
       var selectedBuId;
       var selectedBuTimeZone;
@@ -175,7 +180,7 @@
         const redirectUri = "https://storage.googleapis.com/wem_pt/wpt.html";
 
         console.log(
-          "OWH: Setting client id and environment session storage items"
+          "OFG: Setting client id and environment session storage items"
         );
 
         sessionStorage.setItem("clientId", clientId);
@@ -186,7 +191,7 @@
 
         let state;
         try {
-          console.log("OWH: Logging in to GC");
+          console.log("OFG: Logging in to GC");
           const response = await client.loginImplicitGrant(
             clientId,
             redirectUri,
@@ -205,7 +210,7 @@
 
       // Simulate fetching Business Unit values from an API
       function fetchBusinessUnits() {
-        console.log("OWH: Getting WFM Business Units");
+        console.log("OFG: Getting WFM Business Units");
         // Replace this with an actual API call
         return [
           {
