@@ -1,5 +1,5 @@
-const environment = sessionStorage.getItem("environment");
-const clientId = sessionStorage.getItem("clientId");
+var environment = sessionStorage.getItem("environment");
+var clientId = sessionStorage.getItem("clientId");
 
 // check if account being used to log in with is internal genesys
 function internalUserCheck(emailAddress) {

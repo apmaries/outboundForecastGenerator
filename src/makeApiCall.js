@@ -1,6 +1,6 @@
-const token = sessionStorage.getItem("token");
-const environment = sessionStorage.getItem("environment");
-const prefix = `https://api.${environment}`;
+var token = sessionStorage.getItem("token");
+var environment = sessionStorage.getItem("environment");
+var prefix = `https://api.${environment}`;
 
 // make api calls
 async function fetchDataWithRetry(
