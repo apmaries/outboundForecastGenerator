@@ -23,9 +23,9 @@
     <script src="https://moment.github.io/luxon/global/luxon.min.js"></script>
 
     <!-- Project -->
+    <script src="./src/makeApiCall.js"></script>
     <script src="./src/session.js"></script>
     <script src="./src/main.js"></script>
-    <script src="./src/makeApiCall.js"></script>
 
     <style>
       .slotted {
@@ -169,8 +169,6 @@
           : decodeURIComponent(results[1].replace(/\+/g, " "));
       }
 
-      //clear session storage
-      sessionStorage.clear();
       console.log("Outbound Forecast Generator (OFG) initiated");
 
       var selectedBuId;
