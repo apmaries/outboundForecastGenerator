@@ -1,0 +1,33 @@
+{
+    "filter": {
+        "type": "and",
+        "clauses": [
+            {
+                "type": "or",
+                "predicates": [
+                    {
+                        "dimension": "outboundCampaignId",
+                        "value": "c1a07179-b2f2-4251-a1fa-9fd9b3219174"
+                    }
+                ]
+            }
+        ],
+        "predicates": [
+            {
+                "dimension": "mediaType",
+                "value": "voice"
+            }
+        ]
+    },
+    "metrics": [
+        "nOutboundAttempted",
+        "nOutboundConnected",
+        "tHandle"
+    ],
+    "groupBy": [
+        "outboundCampaignId",
+        "queueId"
+    ],
+    "granularity": "PT15M",
+    "interval": "2024-01-28T13:00:00.000Z/2024-01-29T13:00:00.000Z"
+}

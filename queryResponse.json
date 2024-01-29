@@ -1,0 +1,854 @@
+{
+    "results": [
+        {
+            "group": {
+                "mediaType": "voice",
+                "outboundCampaignId": "c1a07179-b2f2-4251-a1fa-9fd9b3219174",
+                "queueId": "ca5d69d8-b6e2-46e5-a870-4c3bdecf19b1"
+            },
+            "data": [
+                {
+                    "interval": "2024-01-28T22:00:00.000Z/2024-01-28T22:15:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "nOutboundAttempted",
+                            "stats": {
+                                "count": 13
+                            }
+                        },
+                        {
+                            "metric": "nOutboundConnected",
+                            "stats": {
+                                "count": 5
+                            }
+                        },
+                        {
+                            "metric": "tHandle",
+                            "stats": {
+                                "max": 314625750,
+                                "min": 57884,
+                                "count": 3,
+                                "sum": 314999438
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-28T22:15:00.000Z/2024-01-28T22:30:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "nOutboundAttempted",
+                            "stats": {
+                                "count": 10
+                            }
+                        },
+                        {
+                            "metric": "nOutboundConnected",
+                            "stats": {
+                                "count": 6
+                            }
+                        },
+                        {
+                            "metric": "tHandle",
+                            "stats": {
+                                "max": 1331661,
+                                "min": 48125,
+                                "count": 5,
+                                "sum": 2263863
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-28T22:30:00.000Z/2024-01-28T22:45:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "nOutboundAttempted",
+                            "stats": {
+                                "count": 12
+                            }
+                        },
+                        {
+                            "metric": "nOutboundConnected",
+                            "stats": {
+                                "count": 7
+                            }
+                        },
+                        {
+                            "metric": "tHandle",
+                            "stats": {
+                                "max": 1691315,
+                                "min": 41137,
+                                "count": 7,
+                                "sum": 3989194
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-28T22:45:00.000Z/2024-01-28T23:00:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "nOutboundAttempted",
+                            "stats": {
+                                "count": 21
+                            }
+                        },
+                        {
+                            "metric": "nOutboundConnected",
+                            "stats": {
+                                "count": 11
+                            }
+                        },
+                        {
+                            "metric": "tHandle",
+                            "stats": {
+                                "max": 1339875,
+                                "min": 41407,
+                                "count": 10,
+                                "sum": 4891778
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-28T23:00:00.000Z/2024-01-28T23:15:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "nOutboundAttempted",
+                            "stats": {
+                                "count": 19
+                            }
+                        },
+                        {
+                            "metric": "nOutboundConnected",
+                            "stats": {
+                                "count": 15
+                            }
+                        },
+                        {
+                            "metric": "tHandle",
+                            "stats": {
+                                "max": 1154771,
+                                "min": 17205,
+                                "count": 14,
+                                "sum": 4162663
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-28T23:15:00.000Z/2024-01-28T23:30:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "nOutboundAttempted",
+                            "stats": {
+                                "count": 8
+                            }
+                        },
+                        {
+                            "metric": "nOutboundConnected",
+                            "stats": {
+                                "count": 7
+                            }
+                        },
+                        {
+                            "metric": "tHandle",
+                            "stats": {
+                                "max": 1390156,
+                                "min": 82405,
+                                "count": 7,
+                                "sum": 6222359
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-28T23:30:00.000Z/2024-01-28T23:45:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "nOutboundAttempted",
+                            "stats": {
+                                "count": 9
+                            }
+                        },
+                        {
+                            "metric": "nOutboundConnected",
+                            "stats": {
+                                "count": 6
+                            }
+                        },
+                        {
+                            "metric": "tHandle",
+                            "stats": {
+                                "max": 2463038,
+                                "min": 44956,
+                                "count": 9,
+                                "sum": 8276316
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-28T23:45:00.000Z/2024-01-29T00:00:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "nOutboundAttempted",
+                            "stats": {
+                                "count": 16
+                            }
+                        },
+                        {
+                            "metric": "nOutboundConnected",
+                            "stats": {
+                                "count": 10
+                            }
+                        },
+                        {
+                            "metric": "tHandle",
+                            "stats": {
+                                "max": 1589798,
+                                "min": 20523,
+                                "count": 7,
+                                "sum": 3335903
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-29T00:00:00.000Z/2024-01-29T00:15:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "nOutboundAttempted",
+                            "stats": {
+                                "count": 8
+                            }
+                        },
+                        {
+                            "metric": "nOutboundConnected",
+                            "stats": {
+                                "count": 6
+                            }
+                        },
+                        {
+                            "metric": "tHandle",
+                            "stats": {
+                                "max": 1625407,
+                                "min": 24331,
+                                "count": 6,
+                                "sum": 5382458
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-29T00:15:00.000Z/2024-01-29T00:30:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "nOutboundAttempted",
+                            "stats": {
+                                "count": 6
+                            }
+                        },
+                        {
+                            "metric": "nOutboundConnected",
+                            "stats": {
+                                "count": 5
+                            }
+                        },
+                        {
+                            "metric": "tHandle",
+                            "stats": {
+                                "max": 1580425,
+                                "min": 99498,
+                                "count": 4,
+                                "sum": 3026783
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-29T00:30:00.000Z/2024-01-29T00:45:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "nOutboundAttempted",
+                            "stats": {
+                                "count": 14
+                            }
+                        },
+                        {
+                            "metric": "nOutboundConnected",
+                            "stats": {
+                                "count": 10
+                            }
+                        },
+                        {
+                            "metric": "tHandle",
+                            "stats": {
+                                "max": 2718997,
+                                "min": 5393,
+                                "count": 14,
+                                "sum": 12232397
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-29T00:45:00.000Z/2024-01-29T01:00:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "nOutboundAttempted",
+                            "stats": {
+                                "count": 10
+                            }
+                        },
+                        {
+                            "metric": "nOutboundConnected",
+                            "stats": {
+                                "count": 8
+                            }
+                        },
+                        {
+                            "metric": "tHandle",
+                            "stats": {
+                                "max": 1123487,
+                                "min": 57102,
+                                "count": 5,
+                                "sum": 2520142
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-29T01:00:00.000Z/2024-01-29T01:15:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "nOutboundAttempted",
+                            "stats": {
+                                "count": 26
+                            }
+                        },
+                        {
+                            "metric": "nOutboundConnected",
+                            "stats": {
+                                "count": 10
+                            }
+                        },
+                        {
+                            "metric": "tHandle",
+                            "stats": {
+                                "max": 2036630,
+                                "min": 77932,
+                                "count": 10,
+                                "sum": 6414994
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-29T01:15:00.000Z/2024-01-29T01:30:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "nOutboundAttempted",
+                            "stats": {
+                                "count": 20
+                            }
+                        },
+                        {
+                            "metric": "nOutboundConnected",
+                            "stats": {
+                                "count": 6
+                            }
+                        },
+                        {
+                            "metric": "tHandle",
+                            "stats": {
+                                "max": 1540197,
+                                "min": 63778,
+                                "count": 7,
+                                "sum": 2816240
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-29T01:30:00.000Z/2024-01-29T01:45:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "nOutboundAttempted",
+                            "stats": {
+                                "count": 24
+                            }
+                        },
+                        {
+                            "metric": "nOutboundConnected",
+                            "stats": {
+                                "count": 11
+                            }
+                        },
+                        {
+                            "metric": "tHandle",
+                            "stats": {
+                                "max": 3105620,
+                                "min": 1385,
+                                "count": 15,
+                                "sum": 11723223
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-29T01:45:00.000Z/2024-01-29T02:00:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "nOutboundAttempted",
+                            "stats": {
+                                "count": 16
+                            }
+                        },
+                        {
+                            "metric": "nOutboundConnected",
+                            "stats": {
+                                "count": 6
+                            }
+                        },
+                        {
+                            "metric": "tHandle",
+                            "stats": {
+                                "max": 280150,
+                                "min": 28573,
+                                "count": 4,
+                                "sum": 645676
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-29T02:00:00.000Z/2024-01-29T02:15:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "nOutboundAttempted",
+                            "stats": {
+                                "count": 13
+                            }
+                        },
+                        {
+                            "metric": "nOutboundConnected",
+                            "stats": {
+                                "count": 7
+                            }
+                        },
+                        {
+                            "metric": "tHandle",
+                            "stats": {
+                                "max": 1645370,
+                                "min": 42819,
+                                "count": 7,
+                                "sum": 4407468
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-29T02:15:00.000Z/2024-01-29T02:30:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "nOutboundAttempted",
+                            "stats": {
+                                "count": 11
+                            }
+                        },
+                        {
+                            "metric": "nOutboundConnected",
+                            "stats": {
+                                "count": 5
+                            }
+                        },
+                        {
+                            "metric": "tHandle",
+                            "stats": {
+                                "max": 5733735,
+                                "min": 91554,
+                                "count": 7,
+                                "sum": 11034174
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-29T02:30:00.000Z/2024-01-29T02:45:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "nOutboundAttempted",
+                            "stats": {
+                                "count": 2
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "group": {
+                "mediaType": "voice",
+                "outboundCampaignId": "c1a07179-b2f2-4251-a1fa-9fd9b3219174"
+            },
+            "data": [
+                {
+                    "interval": "2024-01-28T22:30:00.000Z/2024-01-28T22:45:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "nOutboundAttempted",
+                            "stats": {
+                                "count": 1
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-28T22:45:00.000Z/2024-01-28T23:00:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "nOutboundAttempted",
+                            "stats": {
+                                "count": 1
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-28T23:15:00.000Z/2024-01-28T23:30:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "nOutboundAttempted",
+                            "stats": {
+                                "count": 1
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-28T23:30:00.000Z/2024-01-28T23:45:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "nOutboundAttempted",
+                            "stats": {
+                                "count": 2
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-28T23:45:00.000Z/2024-01-29T00:00:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "nOutboundAttempted",
+                            "stats": {
+                                "count": 1
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-29T00:00:00.000Z/2024-01-29T00:15:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "nOutboundAttempted",
+                            "stats": {
+                                "count": 2
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-29T00:15:00.000Z/2024-01-29T00:30:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "nOutboundAttempted",
+                            "stats": {
+                                "count": 2
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-29T00:30:00.000Z/2024-01-29T00:45:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "nOutboundAttempted",
+                            "stats": {
+                                "count": 3
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-29T00:45:00.000Z/2024-01-29T01:00:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "nOutboundAttempted",
+                            "stats": {
+                                "count": 2
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-29T01:15:00.000Z/2024-01-29T01:30:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "nOutboundAttempted",
+                            "stats": {
+                                "count": 1
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-29T02:15:00.000Z/2024-01-29T02:30:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "nOutboundAttempted",
+                            "stats": {
+                                "count": 1
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "group": {
+                "mediaType": "voice",
+                "outboundCampaignId": "c1a07179-b2f2-4251-a1fa-9fd9b3219174",
+                "queueId": "0a40fae9-bc70-4867-9053-f0b25f547cde"
+            },
+            "data": [
+                {
+                    "interval": "2024-01-28T22:15:00.000Z/2024-01-28T22:30:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "tHandle",
+                            "stats": {
+                                "max": 324097,
+                                "min": 324097,
+                                "count": 1,
+                                "sum": 324097
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-28T22:30:00.000Z/2024-01-28T22:45:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "tHandle",
+                            "stats": {
+                                "max": 520642,
+                                "min": 479357,
+                                "count": 2,
+                                "sum": 999999
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-28T22:45:00.000Z/2024-01-28T23:00:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "tHandle",
+                            "stats": {
+                                "max": 643764,
+                                "min": 494111,
+                                "count": 2,
+                                "sum": 1137875
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-28T23:00:00.000Z/2024-01-28T23:15:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "tHandle",
+                            "stats": {
+                                "max": 627334,
+                                "min": 582399,
+                                "count": 2,
+                                "sum": 1209733
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-28T23:15:00.000Z/2024-01-28T23:30:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "tHandle",
+                            "stats": {
+                                "max": 509917,
+                                "min": 270905,
+                                "count": 4,
+                                "sum": 1403074
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-28T23:30:00.000Z/2024-01-28T23:45:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "tHandle",
+                            "stats": {
+                                "max": 377406,
+                                "min": 299955,
+                                "count": 2,
+                                "sum": 677361
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-28T23:45:00.000Z/2024-01-29T00:00:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "tHandle",
+                            "stats": {
+                                "max": 1420605,
+                                "min": 194804,
+                                "count": 5,
+                                "sum": 3489502
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-29T00:15:00.000Z/2024-01-29T00:30:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "tHandle",
+                            "stats": {
+                                "max": 558713,
+                                "min": 291373,
+                                "count": 2,
+                                "sum": 850086
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-29T00:30:00.000Z/2024-01-29T00:45:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "tHandle",
+                            "stats": {
+                                "max": 338562,
+                                "min": 303508,
+                                "count": 3,
+                                "sum": 948106
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-29T00:45:00.000Z/2024-01-29T01:00:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "tHandle",
+                            "stats": {
+                                "max": 1336787,
+                                "min": 268341,
+                                "count": 3,
+                                "sum": 2175121
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-29T01:00:00.000Z/2024-01-29T01:15:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "tHandle",
+                            "stats": {
+                                "max": 494836,
+                                "min": 302027,
+                                "count": 3,
+                                "sum": 1166742
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-29T01:15:00.000Z/2024-01-29T01:30:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "tHandle",
+                            "stats": {
+                                "max": 563744,
+                                "min": 489611,
+                                "count": 2,
+                                "sum": 1053355
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-29T01:30:00.000Z/2024-01-29T01:45:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "tHandle",
+                            "stats": {
+                                "max": 965370,
+                                "min": 137180,
+                                "count": 4,
+                                "sum": 1845570
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-29T01:45:00.000Z/2024-01-29T02:00:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "tHandle",
+                            "stats": {
+                                "max": 1363346,
+                                "min": 785827,
+                                "count": 2,
+                                "sum": 2149173
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-29T02:00:00.000Z/2024-01-29T02:15:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "tHandle",
+                            "stats": {
+                                "max": 398193,
+                                "min": 162968,
+                                "count": 2,
+                                "sum": 561161
+                            }
+                        }
+                    ]
+                },
+                {
+                    "interval": "2024-01-29T02:15:00.000Z/2024-01-29T02:30:00.000Z",
+                    "metrics": [
+                        {
+                            "metric": "tHandle",
+                            "stats": {
+                                "max": 298010,
+                                "min": 298010,
+                                "count": 1,
+                                "sum": 298010
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
