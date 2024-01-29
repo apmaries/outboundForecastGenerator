@@ -168,16 +168,10 @@
     </form>-->
 
     <script>
-      function getParameterByName(name) {
-        name = name.replace(/[\\[]/, "\\[").replace(/[\]]/, "\\]");
-        var regex = new RegExp("[\\#&]" + name + "=([^&#]*)"),
-          results = regex.exec(location.hash);
-        return results === null
-          ? ""
-          : decodeURIComponent(results[1].replace(/\+/g, " "));
-      }
-
       console.log("Outbound Forecast Generator (OFG) initiated");
+
+      var environment = sessionStorage.getItem("environment");
+      var token = sessionStorage.getItem("token");
 
       var selectedBuId;
       var selectedBuTimeZone;
@@ -188,11 +182,30 @@
 
       const oapi = new platformClient.OrganizationApi();
       const uapi = new platformClient.UsersApi();
+      const wapi = new platformClient.WorkforceManagementApi();
 
       // Simulate fetching Business Unit values from an API
       function fetchBusinessUnits() {
         console.log("OFG: Getting WFM Business Units");
         // Replace this with an actual API call
+        wapi
+          .getWorkforcemanagementBusinessunits()
+          .then((data) => {
+            console.log(
+              `getWorkforcemanagementBusinessunits success! data: ${JSON.stringify(
+                data,
+                null,
+                2
+              )}`
+            );
+          })
+          .catch((err) => {
+            console.log(
+              "There was a failure calling getWorkforcemanagementBusinessunits"
+            );
+            console.error(err);
+          });
+
         return [
           {
             "id": "7e5d7b10-9086-4c53-8458-xxxxxxxxxxxx",

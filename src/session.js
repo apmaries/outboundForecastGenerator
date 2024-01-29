@@ -5,9 +5,9 @@ var clientId = sessionStorage.getItem("clientId");
 function internalUserCheck(emailAddress) {
   const domain = emailAddress.split("@")[1];
   if (domain.toLowerCase() === "genesys.com") {
-    console.log("OWH: Authorised user");
+    console.log("OFG: Authorised user");
   } else {
-    console.log("OWH: Unauthorised user!");
+    console.log("OFG: Unauthorised user!");
     alert("Unauthorised user!");
     window.location.replace("./not-authorized.html");
   }
@@ -23,7 +23,7 @@ function getParameterByName(name) {
 }
 
 if (window.location.hash) {
-  console.log("OWH: Retrieving access token");
+  console.log("OFG: Retrieving access token");
 
   const token = getParameterByName("access_token");
   sessionStorage.setItem("token", token);
@@ -37,7 +37,7 @@ if (window.location.hash) {
         xhr.setRequestHeader("Authorization", "bearer " + token);
       },
       success: function (udata) {
-        console.log("OWH: User details returned");
+        console.log("OFG: User details returned");
         console.log(udata);
         const userName = udata.name;
         const userId = udata.id;
@@ -60,7 +60,7 @@ if (window.location.hash) {
         xhr.setRequestHeader("Authorization", "bearer " + token);
       },
       success: function (odata) {
-        console.log("OWH: org details returned");
+        console.log("OFG: org details returned");
         console.log(odata);
         const orgName = odata.name;
         sessionStorage.setItem("orgName", orgName);
@@ -75,7 +75,7 @@ if (window.location.hash) {
         xhr.setRequestHeader("Authorization", "bearer " + token);
       },
       success: function (cdata) {
-        console.log("OWH: oatuh client details returned");
+        console.log("OFG: oatuh client details returned");
         console.log(cdata);
         const clientName = cdata.name;
         const clientScope = cdata.scope;
@@ -92,7 +92,7 @@ if (window.location.hash) {
         xhr.setRequestHeader("Authorization", "bearer " + token);
       },
       success: function (ddata) {
-        console.log("OWH: Divisions data returned");
+        console.log("OFG: Divisions data returned");
         console.log(ddata);
 
         sessionStorage.setItem("divisionsList", JSON.stringify(ddata.entities));
@@ -108,7 +108,7 @@ if (window.location.hash) {
         xhr.setRequestHeader("Content-Type", "application/json");
       },
       success: function (cdata) {
-        console.log("OWH: notifications channel opened");
+        console.log("OFG: notifications channel opened");
         console.log(cdata);
         const notificationsUri = cdata.connectUri;
         const notificationsId = cdata.id;
@@ -135,7 +135,7 @@ function timeout() {
       xhr.setRequestHeader("Authorization", "bearer " + token);
     },
     success: function (cdata) {
-      console.log("OWH: notifications channel subscriptions removed");
+      console.log("OFG: notifications channel subscriptions removed");
 
       x = $.ajax({
         url: `https://api.${environment}/api/v2/tokens/me`,
@@ -145,7 +145,7 @@ function timeout() {
         },
       }).always(function (jqXHR, textStatus) {
         if (jqXHR.status === 200) {
-          console.log("OWH: Session closed");
+          console.log("OFG: Session closed");
           sessionStorage.clear;
           alert("Session closed");
           window.location.replace(
@@ -160,7 +160,7 @@ function timeout() {
       });
     },
   });
-  console.log("OWH: Timeout due to inactivity.");
+  console.log("OFG: Timeout due to inactivity.");
 }
 
 // Function to reset the activity timer
