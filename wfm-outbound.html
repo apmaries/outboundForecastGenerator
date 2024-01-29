@@ -179,6 +179,7 @@
       // Set Genesys Cloud objects
       const platformClient = require("platformClient");
       const client = platformClient.ApiClient.instance;
+      client.setAccessToken(token);
 
       const oapi = new platformClient.OrganizationApi();
       const uapi = new platformClient.UsersApi();
@@ -192,7 +193,7 @@
           .getWorkforcemanagementBusinessunits()
           .then((data) => {
             console.log(
-              `getWorkforcemanagementBusinessunits success! data: ${JSON.stringify(
+              `OFG: getWorkforcemanagementBusinessunits success! data: ${JSON.stringify(
                 data,
                 null,
                 2
@@ -201,7 +202,7 @@
           })
           .catch((err) => {
             console.log(
-              "There was a failure calling getWorkforcemanagementBusinessunits"
+              "OFG: There was a failure calling getWorkforcemanagementBusinessunits"
             );
             console.error(err);
           });
