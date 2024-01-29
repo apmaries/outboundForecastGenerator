@@ -40,8 +40,8 @@
           const authorizationUrl = `https://login.${strippedDomain}/oauth/authorize?client_id=${clientId}&response_type=token&redirect_uri=${redirectUri}`;
 
           // Log the modified domain and the constructed authorization URL to the console for demonstration
-          console.log(`OWH: App environment: ${strippedDomain}`);
-          console.log(`OWH: Authorization URL:" ${authorizationUrl}`);
+          console.log(`OFG: App environment: ${strippedDomain}`);
+          console.log(`OFG: Authorization URL:" ${authorizationUrl}`);
 
           // Set session storage
           sessionStorage.setItem("environment", strippedDomain);
@@ -54,7 +54,7 @@
             `Referrer '${referrer}' does not start with the expected prefix.`
           );
           console.error(
-            "OWH: Referrer does not start with the expected prefix."
+            "OFG: Referrer does not start with the expected prefix."
           );
           console.log(`OWH: Referrer = ${referrer}`);
         }
