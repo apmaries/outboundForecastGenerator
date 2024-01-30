@@ -75,62 +75,74 @@
 
     <fieldset class="form-container">
       <legend>Parameters</legend>
-      <gux-form-field-dropdown class="width">
-        <gux-dropdown>
-          <gux-listbox
-            id="businessUnit"
-            onchange="updateBusinessUnitSettings()"
-          >
-            <gux-option value="a">Ant</gux-option>
-            <gux-option value="b">Bat</gux-option>
-            <gux-option value="c">Cat</gux-option>
-          </gux-listbox>
-        </gux-dropdown>
-        <label slot="label">Business Unit</label>
-      </gux-form-field-dropdown>
-
-      <gux-form-field-number style="width: 100%">
-        <input
-          slot="input"
-          type="number"
-          id="numContacts"
-          min="0"
-          max="100000"
+      <gux-loading-message-beta id="loading-message" style="display: block">
+        <div slot="primary-message">Loading BU data...</div>
+        <gux-radial-progress
+          id="radial-progress"
+          slot="progress"
           value="0"
-          step="500"
-        />
-        <label class="width" slot="label">Number of contacts</label>
-      </gux-form-field-number>
+          max="1000"
+          screenreader-text="loading"
+        ></gux-radial-progress>
+      </gux-loading-message-beta>
+      <div id="parameters" hidden>
+        <gux-form-field-dropdown class="width">
+          <gux-dropdown>
+            <gux-listbox
+              id="businessUnit"
+              onchange="updateBusinessUnitSettings()"
+            >
+              <gux-option value="a">Ant</gux-option>
+              <gux-option value="b">Bat</gux-option>
+              <gux-option value="c">Cat</gux-option>
+            </gux-listbox>
+          </gux-dropdown>
+          <label slot="label">Business Unit</label>
+        </gux-form-field-dropdown>
 
-      <gux-form-field-number style="width: 100%">
-        <input
-          slot="input"
-          type="number"
-          id="historicalWeeks"
-          value="6"
-          step="1"
-          min="1"
-          max="8"
-        />
-        <label class="width" slot="label">Forecast historical weeks</label>
-      </gux-form-field-number>
+        <gux-form-field-number style="width: 100%">
+          <input
+            slot="input"
+            type="number"
+            id="numContacts"
+            min="0"
+            max="100000"
+            value="0"
+            step="500"
+          />
+          <label class="width" slot="label">Number of contacts</label>
+        </gux-form-field-number>
 
-      <label for="weekStart" class="slotted">Week start</label>
-      <gux-datepicker
-        start-day-of-week="1"
-        id="weekStart"
-        format="dd/mm/yyyy"
-        class="width"
-      ></gux-datepicker>
+        <gux-form-field-number style="width: 100%">
+          <input
+            slot="input"
+            type="number"
+            id="historicalWeeks"
+            value="6"
+            step="1"
+            min="1"
+            max="8"
+          />
+          <label class="width" slot="label">Forecast historical weeks</label>
+        </gux-form-field-number>
 
-      <label for="inclSchedule">Generate schedule too?</label>
-      <gux-toggle
-        id="inclSchedule"
-        checked-label="Yes"
-        unchecked-label="No"
-      ></gux-toggle>
+        <label for="weekStart" class="slotted">Week start</label>
+        <gux-datepicker
+          start-day-of-week="1"
+          id="weekStart"
+          format="dd/mm/yyyy"
+          class="width"
+        ></gux-datepicker>
 
-      <gux-button accent="primary" onclick="buttonClicked()">Run!</gux-button>
+        <label for="inclSchedule">Generate schedule too?</label>
+        <gux-toggle
+          id="inclSchedule"
+          checked-label="Yes"
+          unchecked-label="No"
+        ></gux-toggle>
+
+        <gux-button accent="primary" onclick="buttonClicked()">Run!</gux-button>
+      </div>
     </fieldset>
 
     <!-- <form id="form">
@@ -170,14 +182,11 @@
     <script>
       console.log("Outbound Forecast Generator (OFG) initiated");
 
-      var environment = sessionStorage.getItem("environment");
-      var token = sessionStorage.getItem("token");
-
       var selectedBuId;
       var selectedBuTimeZone;
 
       // Set Genesys Cloud objects
-      const platformClient = require("platformClient");
+      /*const platformClient = require("platformClient");
       const client = platformClient.ApiClient.instance;
       client.setAccessToken(token);
 
@@ -221,6 +230,61 @@
           },
           // Add more Business Units as needed
         ];
+      }*/
+
+      async function fetchBusinessUnits(allBuData, nBu) {
+        const buArray = [];
+        // set progress max
+        let radialProgress = document.getElementById("radial-progress");
+        let progressValue = 0;
+        radialProgress.setAttribute("max", nBu.toString());
+
+        let allTzData = await fetchDataWithRetry(
+          `/api/v2/timezones?pageSize=500&pageNumber=1`,
+          "GET"
+        );
+
+        // get individual BU settings
+        console.log(`OFG: Searching BU time zone settings`, "DEBUG");
+        for (let b = 0; b < allBuData.length; b++) {
+          progressValue++;
+          let businessUnitId = allBuData[b].id;
+          let businessUnitName = allBuData[b].name;
+
+          let buData = await fetchDataWithRetry(
+            `/api/v2/workforcemanagement/businessunits/${businessUnitId}?expand=settings.timeZone`,
+            "GET"
+          );
+
+          // increment progress
+          radialProgress.setAttribute("value", progressValue);
+
+          let businessUnitTimeZone = buData.settings.timeZone;
+          let timezoneOffset = allTzData.find(
+            (tz) => tz.id === businessUnitTimeZone
+          );
+          let businessUnitTimeZoneOffset = timezoneOffset.offset;
+
+          let bu = {
+            "name": businessUnitName,
+            "id": businessUnitId,
+            "timeZone": businessUnitTimeZone,
+            "offset": businessUnitTimeZoneOffset,
+          };
+          console.debug(`OFG: ${JSON.stringify(bu)}`);
+          buArray.push(bu);
+        }
+
+        // set session storage
+        sessionStorage.setItem(wfmBuStorage, JSON.stringify(buArray));
+
+        // unhide parameters div
+        const loadingMessageElement =
+          document.getElementById("loading-message");
+        loadingMessageElement.style.display = "none";
+        document.getElementById("parameters").removeAttribute("hidden");
+
+        return buArray;
       }
 
       // Populate Business Unit dropdown options
