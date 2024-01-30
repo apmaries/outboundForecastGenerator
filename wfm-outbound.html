@@ -296,10 +296,8 @@
       }
 
       // Populate Business Unit dropdown options
-      async function populateBusinessUnits() {
+      async function populateBusinessUnits(businessUnits) {
         var businessUnitDropdown = document.getElementById("businessUnit");
-        var businessUnits = sessionStorage.getItem("wfmBuList");
-        //var businessUnits = await fetchBusinessUnits();
 
         businessUnits.forEach(function (unit) {
           var option = document.createElement("gux-option");
@@ -367,8 +365,7 @@
         if (buCount > 0) {
           console.log(`OFG: Found ${buCount} Business Units in WFM`);
           const buArray = fetchBusinessUnits(allBuData, buCount);
-          //await populateBusinessUnits();
-          //updateBusinessUnitSettings();
+          await populateBusinessUnits(buArray);
         } else {
           console.error(`OFG: No business units found in WFM`);
         }
