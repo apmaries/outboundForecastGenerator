@@ -319,10 +319,9 @@
         console.log(`OFG: User selected BU - ${JSON.stringify(selectedBuId)}`);
 
         // up to here
-        var buSettings = buArray.find((unit) => unit.id === selectedBuId);
-        var selectedBuStartDayOfWeek = buSettings.startDayOfWeek;
-        var selectedBuTimeZone = buSettings.timeZone;
-        var selectedBuOffset = buSettings.offset;
+        var buObj = buArray.find((unit) => unit.id === selectedBuId);
+        var selectedBuStartDayOfWeek = buObj.startDayOfWeek;
+        var selectedBuTimeZone = buObj.timeZone;
 
         // Restrict weekStart input to the selected BU's startDayOfWeek
         document.getElementById("weekStart").min = selectedBuStartDayOfWeek;
@@ -333,11 +332,13 @@
 
         // Adjust for Monday as the start of the week
         var daysUntilNextStartDay =
-          (getDayOfWeek(startDayOfWeek) - currentDayOfWeek + 7) % 7;
+          (getDayOfWeek(selectedBuStartDayOfWeek) - currentDayOfWeek + 7) % 7;
         var nextStartDay = currentDate.plus({ days: daysUntilNextStartDay });
 
         document.getElementById("weekStart").valueAsDate =
           nextStartDay.toJSDate();
+
+        return buObj;
       }
 
       // Helper function to get day of week index (0-6) from day name
@@ -385,6 +386,7 @@
       // buttonClicked function
       function buttonClicked() {
         // Get input values
+
         var weekStartInput = document.getElementById("weekStart");
         var numContactsInput = document.getElementById("numContacts");
         var historicalWeeks = document.getElementById("historicalWeeks").value;
