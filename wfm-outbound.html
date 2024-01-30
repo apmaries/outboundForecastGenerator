@@ -313,7 +313,7 @@
       // Update selected Business Unit settings
       function updateBusinessUnitSettings() {
         var businessUnitDropdown = document.getElementById("businessUnit");
-        var selectedBu = businessUnitDropdown;
+        var selectedBu = businessUnitDropdown.value;
         console.log(`OFG: User selected BU - ${JSON.stringify(selectedBu)}`);
 
         // up to here
