@@ -312,7 +312,7 @@
 
       // Update selected Business Unit settings
       function updateBusinessUnitSettings() {
-        const buArray = sessionStorage.getItem(wfmBuStorage);
+        const buArray = JSON.parse(sessionStorage.getItem(wfmBuStorage));
 
         var businessUnitDropdown = document.getElementById("businessUnit");
         var selectedBuId = businessUnitDropdown.value;
