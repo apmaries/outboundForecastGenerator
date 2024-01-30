@@ -30,14 +30,12 @@ if (window.location.hash) {
 
   // get user details
   async function getUser() {
-    let user = await fetchDataWithRetry(
-      `https://api.${environment}/api/v2/users/me`,
-      "GET"
-    )
+    let user = await fetchDataWithRetry(`/api/v2/users/me`, "GET");
     if (user) {
-      console.log(`OFG: User returned. ${JSON.stringify(user)}`)
+      console.log(`OFG: User returned. ${JSON.stringify(user)}`);
+    } else {
+      console.error(`OFG: Error getting user`);
     }
-    else {console.error(`OFG: Error getting user`)}
 
     /*$.ajax({
       url: `https://api.${environment}/api/v2/users/me`,
