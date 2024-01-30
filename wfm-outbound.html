@@ -325,7 +325,7 @@
         var selectedBuOffset = buSettings.offset;
 
         // Restrict weekStart input to the selected BU's startDayOfWeek
-        document.getElementById("weekStart").min = startDayOfWeek;
+        document.getElementById("weekStart").min = selectedBuStartDayOfWeek;
 
         // Set default value for weekStart to the next occurrence of startDayOfWeek in the specified time zone
         var currentDate = luxon.DateTime.now({ zone: selectedBuTimeZone });
