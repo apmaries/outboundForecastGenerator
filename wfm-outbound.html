@@ -183,6 +183,8 @@
     <script>
       console.log("Outbound Forecast Generator (OFG) initiated");
 
+      var token = sessionStorage.getItem("token");
+      const wfmBuStorage = "wfmBuList";
       var selectedBuId;
       var selectedBuTimeZone;
 
@@ -292,7 +294,7 @@
       // Populate Business Unit dropdown options
       async function populateBusinessUnits() {
         var businessUnitDropdown = document.getElementById("businessUnit");
-        var businessUnits = await fetchBusinessUnits();
+        //var businessUnits = await fetchBusinessUnits();
 
         businessUnits.forEach(function (unit) {
           var option = document.createElement("gux-option");
@@ -356,7 +358,7 @@
 
         if (buCount > 0) {
           console.debug(`OFG: Found ${buCount} Business Units in WFM`);
-          await populateBusinessUnits(allBuData, buCount);
+          //await populateBusinessUnits();
           //updateBusinessUnitSettings();
         } else {
           console.error(`OFG: No business units found in WFM`);
