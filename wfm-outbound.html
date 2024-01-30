@@ -299,7 +299,7 @@
         var businessUnitDropdown = document.getElementById("businessUnit");
 
         // Sort the buData array alphabetically based on bu_name
-        buData.sort((a, b) => a.name.localeCompare(b.name));
+        businessUnits.sort((a, b) => a.name.localeCompare(b.name));
 
         for (let i = 0; i < businessUnits.length; i++) {
           const unit = businessUnits[i];
