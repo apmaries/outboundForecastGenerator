@@ -344,8 +344,8 @@
       }
 
       // Populate default values on page load
-      window.onload = function () {
-        populateBusinessUnits();
+      window.onload = async function () {
+        await populateBusinessUnits();
         updateBusinessUnitSettings();
 
         // Set default value for historicalWeeks
