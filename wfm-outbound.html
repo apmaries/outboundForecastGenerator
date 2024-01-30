@@ -299,6 +299,7 @@
         var businessUnitDropdown = document.getElementById("businessUnit");
 
         for (let i = 0; i < businessUnits.length; i++) {
+          const unit = businessUnits[i];
           var option = document.createElement("gux-option");
           option.value = unit.id;
           option.textContent = unit.name;
