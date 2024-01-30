@@ -312,21 +312,19 @@
 
       // Update selected Business Unit settings
       function updateBusinessUnitSettings() {
+        const buArray = sessionStorage.getItem(wfmBuStorage);
+
         var businessUnitDropdown = document.getElementById("businessUnit");
-        var selectedBu = businessUnitDropdown.value;
+        var selectedBuId = businessUnitDropdown.value;
         console.log(`OFG: User selected BU - ${JSON.stringify(selectedBu)}`);
 
         // up to here
-
-        var selectedIndex = businessUnitDropdown.selectedIndex;
-        selectedBuId = businessUnitDropdown.options[selectedIndex].value;
-        var buSettings = fetchBusinessUnits().find(
-          (unit) => unit.id === selectedBuId
-        ).settings;
-        selectedBuTimeZone = buSettings.timeZone;
+        var buSettings = buArray.find((unit) => unit.id === selectedBuId);
+        var selectedBuStartDayOfWeek = buSettings.startDayOfWeek;
+        var selectedBuTimeZone = buSettings.timeZone;
+        var selectedBuOffset = buSettings.offset;
 
         // Restrict weekStart input to the selected BU's startDayOfWeek
-        var startDayOfWeek = buSettings.startDayOfWeek;
         document.getElementById("weekStart").min = startDayOfWeek;
 
         // Set default value for weekStart to the next occurrence of startDayOfWeek in the specified time zone
