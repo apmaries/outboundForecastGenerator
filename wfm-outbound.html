@@ -322,6 +322,12 @@
         var buObj = buArray.find((unit) => unit.id === selectedBuId);
         var selectedBuStartDayOfWeek = buObj.startDayOfWeek;
         var selectedBuTimeZone = buObj.timeZone;
+        var selectedBuDefaultHistoryWeeks = buObj.defaultHistoryWeeks;
+        console.log(JSON.stringify(buObj));
+
+        // Set default value for historicalWeeks
+        document.getElementById("historicalWeeks").value =
+          selectedBuDefaultHistoryWeeks;
 
         // Restrict weekStart input to the selected BU's startDayOfWeek
         document.getElementById("weekStart").min = selectedBuStartDayOfWeek;
@@ -387,14 +393,24 @@
       function buttonClicked() {
         // Get input values
 
+        const buArray = JSON.parse(sessionStorage.getItem(wfmBuStorage));
+
+        var businessUnitDropdown = document.getElementById("businessUnit");
+        var selectedBuId = businessUnitDropdown.value;
+        console.log(`OFG: Running for BU - ${JSON.stringify(selectedBuId)}`);
+
+        // up to here
+        var buObj = buArray.find((unit) => unit.id === selectedBuId);
+        var selectedBuStartDayOfWeek = buObj.startDayOfWeek;
+        var selectedBuTimeZone = buObj.timeZone;
+        var selectedBuDefaultHistoryWeeks = buObj.defaultHistoryWeeks;
+        console.log(JSON.stringify(buObj));
+
         var weekStartInput = document.getElementById("weekStart");
         var numContactsInput = document.getElementById("numContacts");
-        var historicalWeeks = document.getElementById("historicalWeeks").value;
+        var historicalWeeks = document.getElementById("historicalWeeks");
 
         // Check if weekStart day of week matches selected BU's startDayOfWeek
-        var selectedBuStartDayOfWeek = fetchBusinessUnits().find(
-          (unit) => unit.id === selectedBuId
-        ).settings.startDayOfWeek;
         var selectedWeekStart = new Date(weekStartInput.value);
         if (
           selectedWeekStart.getDay() !== getDayOfWeek(selectedBuStartDayOfWeek)
@@ -441,7 +457,7 @@
           selectedBuTimeZone,
           weekStartInput.value,
           numContactsInput.value,
-          historicalWeeks
+          historicalWeeks.value
         );
       }
 
