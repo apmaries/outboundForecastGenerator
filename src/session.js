@@ -43,6 +43,7 @@ if (window.location.hash) {
 
       // Append the <p> element to the parent node
       userWelcomeDiv.appendChild(welcomeParagraph);
+      userWelcomeDiv.removeAttribute("hidden");
     } else {
       console.error(`OFG: Error getting user`);
     }
