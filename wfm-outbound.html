@@ -291,7 +291,6 @@
         loadingMessageElement.style.display = "none";
         document.getElementById("parameters").removeAttribute("hidden");
 
-        console.debug(JSON.stringify(buArray));
         return buArray;
       }
 
@@ -364,7 +363,7 @@
 
         if (buCount > 0) {
           console.log(`OFG: Found ${buCount} Business Units in WFM`);
-          const buArray = fetchBusinessUnits(allBuData, buCount);
+          const buArray = await fetchBusinessUnits(allBuData, buCount);
           await populateBusinessUnits(buArray);
         } else {
           console.error(`OFG: No business units found in WFM`);
