@@ -1,18 +1,6 @@
 var environment = sessionStorage.getItem("environment");
 var clientId = sessionStorage.getItem("clientId");
 
-// check if account being used to log in with is internal genesys
-function internalUserCheck(emailAddress) {
-  const domain = emailAddress.split("@")[1];
-  if (domain.toLowerCase() === "genesys.com") {
-    console.log("OFG: Authorised user");
-  } else {
-    console.log("OFG: Unauthorised user!");
-    alert("Unauthorised user!");
-    window.location.replace("./not-authorized.html");
-  }
-}
-
 function getParameterByName(name) {
   name = name.replace(/[\\[]/, "\\[").replace(/[\]]/, "\\]");
   var regex = new RegExp("[\\#&]" + name + "=([^&#]*)"),
@@ -52,70 +40,45 @@ if (window.location.hash) {
   async function getTheRest() {
     // make sure user is authorised before returning more sensitive data
     await getUser();
-    // get org details
-    $.ajax({
-      url: `https://api.${environment}/api/v2/organizations/me`,
-      type: "GET",
-      beforeSend: function (xhr) {
-        xhr.setRequestHeader("Authorization", "bearer " + token);
-      },
-      success: function (odata) {
-        console.log("OFG: org details returned");
-        console.log(odata);
-        const orgName = odata.name;
-        sessionStorage.setItem("orgName", orgName);
-      },
-    });
 
     //get oauth client details
-    $.ajax({
-      url: `https://api.${environment}/api/v2/oauth/clients/${clientId}`,
-      type: "GET",
-      beforeSend: function (xhr) {
-        xhr.setRequestHeader("Authorization", "bearer " + token);
-      },
-      success: function (cdata) {
-        console.log("OFG: oatuh client details returned");
-        console.log(cdata);
-        const clientName = cdata.name;
-        const clientScope = cdata.scope;
-        sessionStorage.setItem("clientName", clientName);
-        sessionStorage.setItem("clientScope", clientScope);
-      },
-    });
+    let client = fetchDataWithRetry(`/api/v2/oauth/clients/${clientId}`, "GET");
+    if (client) {
+      console.log("OFG: OAuth client details returned");
+      const clientName = client.name;
+      const clientScope = client.scope;
+      sessionStorage.setItem("clientName", clientName);
+      sessionStorage.setItem("clientScope", clientScope);
+    } else {
+      console.error(`OFG: Error getting OAuth client`);
+    }
 
     //get divisions list
-    $.ajax({
-      url: `https://api.${environment}/api/v2/authorization/divisions?pageSize=1000&pageNumber=1`,
-      type: "GET",
-      beforeSend: function (xhr) {
-        xhr.setRequestHeader("Authorization", "bearer " + token);
-      },
-      success: function (ddata) {
-        console.log("OFG: Divisions data returned");
-        console.log(ddata);
-
-        sessionStorage.setItem("divisionsList", JSON.stringify(ddata.entities));
-      },
-    });
+    let divisions = fetchDataWithRetry(
+      `/api/v2/authorization/divisions?pageSize=1000&pageNumber=1`,
+      "GET"
+    );
+    if (divisions) {
+      console.log("OFG: Divisions data returned");
+      sessionStorage.setItem(
+        "divisionsList",
+        JSON.stringify(divisions.entities)
+      );
+    } else {
+      console.error(`OFG: Error getting divisions`);
+    }
 
     //create notification channel
-    $.ajax({
-      url: `https://api.${environment}/api/v2/notifications/channels`,
-      type: "POST",
-      beforeSend: function (xhr) {
-        xhr.setRequestHeader("Authorization", "bearer " + token);
-        xhr.setRequestHeader("Content-Type", "application/json");
-      },
-      success: function (cdata) {
-        console.log("OFG: notifications channel opened");
-        console.log(cdata);
-        const notificationsUri = cdata.connectUri;
-        const notificationsId = cdata.id;
-        sessionStorage.setItem("notificationsUri", notificationsUri);
-        sessionStorage.setItem("notificationsId", notificationsId);
-      },
-    });
+    let channel = fetchDataWithRetry(`/api/v2/notifications/channels`, "POST");
+    if (channel) {
+      console.log("OFG: notifications channel opened");
+      const notificationsUri = channel.connectUri;
+      const notificationsId = channel.id;
+      sessionStorage.setItem("notificationsUri", notificationsUri);
+      sessionStorage.setItem("notificationsId", notificationsId);
+    } else {
+      console.error(`OFG: Error creating notifications channel`);
+    }
   }
   getTheRest();
 }
@@ -128,38 +91,26 @@ function timeout() {
   const token = sessionStorage.getItem("token");
   const environment = sessionStorage.getItem("environment");
   const notificationsId = sessionStorage.getItem("notificationsId");
-  $.ajax({
-    url: `https://api.${environment}/api/v2/notifications/channels/${notificationsId}/subscriptions`,
-    type: "DELETE",
-    beforeSend: function (xhr) {
-      xhr.setRequestHeader("Authorization", "bearer " + token);
-    },
-    success: function (cdata) {
-      console.log("OFG: notifications channel subscriptions removed");
 
-      x = $.ajax({
-        url: `https://api.${environment}/api/v2/tokens/me`,
-        type: "DELETE",
-        beforeSend: function (xhr) {
-          xhr.setRequestHeader("Authorization", "bearer " + token);
-        },
-      }).always(function (jqXHR, textStatus) {
-        if (jqXHR.status === 200) {
-          console.log("OFG: Session closed");
-          sessionStorage.clear;
-          alert("Session closed");
-          window.location.replace(
-            "https://storage.googleapis.com/wem_pt/index.html"
-          );
-        } else {
-          alert("Error: " + textStatus);
-          window.location.replace(
-            "https://storage.googleapis.com/wem_pt/index.html"
-          );
-        }
-      });
-    },
-  });
+  let unsubscribe = fetchDataWithRetry(
+    `/api/v2/notifications/channels`,
+    "DELETE"
+  );
+  if (unsubscribe) {
+    console.log("OFG: notifications channel subscriptions removed");
+    let deleteToken = fetchDataWithRetry(`/api/v2/tokens/me`, "DELETE");
+    if (deleteToken) {
+      console.log("OFG: Session closed");
+      sessionStorage.clear;
+      alert("Session closed");
+      window.location.replace("../index.html");
+    } else {
+      console.error(`OFG: Error deleting token`);
+    }
+  } else {
+    console.error(`OFG: Error removing notification channel subscriptions`);
+  }
+
   console.log("OFG: Timeout due to inactivity.");
 }
 
