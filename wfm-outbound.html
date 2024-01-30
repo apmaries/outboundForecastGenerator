@@ -285,13 +285,14 @@
         loadingMessageElement.style.display = "none";
         document.getElementById("parameters").removeAttribute("hidden");
 
+        console.debug(JSON.stringify(buArray));
         return buArray;
       }
 
       // Populate Business Unit dropdown options
-      function populateBusinessUnits() {
+      async function populateBusinessUnits() {
         var businessUnitDropdown = document.getElementById("businessUnit");
-        var businessUnits = fetchBusinessUnits();
+        var businessUnits = await fetchBusinessUnits();
 
         businessUnits.forEach(function (unit) {
           var option = document.createElement("gux-option");

@@ -71,7 +71,7 @@ if (window.location.hash) {
     //create notification channel
     let channel = fetchDataWithRetry(`/api/v2/notifications/channels`, "POST");
     if (channel) {
-      console.log("OFG: notifications channel opened");
+      console.log("OFG: Notifications channel opened");
       const notificationsUri = channel.connectUri;
       const notificationsId = channel.id;
       sessionStorage.setItem("notificationsUri", notificationsUri);
