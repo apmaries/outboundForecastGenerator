@@ -42,7 +42,10 @@ if (window.location.hash) {
     await getUser();
 
     //get oauth client details
-    let client = fetchDataWithRetry(`/api/v2/oauth/clients/${clientId}`, "GET");
+    let client = await fetchDataWithRetry(
+      `/api/v2/oauth/clients/${clientId}`,
+      "GET"
+    );
     if (client) {
       console.log("OFG: OAuth client details returned");
       const clientName = client.name;
@@ -54,7 +57,7 @@ if (window.location.hash) {
     }
 
     //get divisions list
-    let divisions = fetchDataWithRetry(
+    let divisions = await fetchDataWithRetry(
       `/api/v2/authorization/divisions?pageSize=1000&pageNumber=1`,
       "GET"
     );
@@ -69,7 +72,10 @@ if (window.location.hash) {
     }
 
     //create notification channel
-    let channel = fetchDataWithRetry(`/api/v2/notifications/channels`, "POST");
+    let channel = await fetchDataWithRetry(
+      `/api/v2/notifications/channels`,
+      "POST"
+    );
     if (channel) {
       console.log("OFG: Notifications channel opened");
       const notificationsUri = channel.connectUri;
@@ -97,13 +103,13 @@ function timeout() {
     "DELETE"
   );
   if (unsubscribe) {
-    console.log("OFG: notifications channel subscriptions removed");
+    console.log("OFG: Notifications channel subscriptions removed");
     let deleteToken = fetchDataWithRetry(`/api/v2/tokens/me`, "DELETE");
     if (deleteToken) {
-      console.log("OFG: Session closed");
+      console.log("OFG: Token deleted and session closed");
       sessionStorage.clear;
       alert("Session closed");
-      window.location.replace("../index.html");
+      window.location.replace("./index.html");
     } else {
       console.error(`OFG: Error deleting token`);
     }

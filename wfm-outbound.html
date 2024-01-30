@@ -353,9 +353,9 @@
         );
 
         let buCount = allBuData.length;
-        console.debug(`OFG: Found ${buCount} Business Units in WFM`);
 
         if (buCount > 0) {
+          console.debug(`OFG: Found ${buCount} Business Units in WFM`);
           await populateBusinessUnits(allBuData, buCount);
           //updateBusinessUnitSettings();
         } else {
@@ -363,10 +363,10 @@
         }
 
         // Set default value for historicalWeeks
-        document.getElementById("historicalWeeks").value =
+        /*document.getElementById("historicalWeeks").value =
           fetchBusinessUnits().find(
             (unit) => unit.id === selectedBuId
-          ).settings.shortTermForecasting.defaultHistoryWeeks;
+          ).settings.shortTermForecasting.defaultHistoryWeeks;*/
       };
 
       // buttonClicked function
