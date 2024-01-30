@@ -93,9 +93,6 @@
               id="businessUnit"
               onchange="updateBusinessUnitSettings()"
             >
-              <gux-option value="a">Ant</gux-option>
-              <gux-option value="b">Bat</gux-option>
-              <gux-option value="c">Cat</gux-option>
             </gux-listbox>
           </gux-dropdown>
           <label slot="label">Business Unit</label>
@@ -248,19 +245,24 @@
         );
 
         // get individual BU settings
-        console.log(`OFG: Searching BU time zone settings`, "DEBUG");
+        console.log(`OFG: Searching BU time zone settings`);
         for (let b = 0; b < allBuData.length; b++) {
           progressValue++;
           let businessUnitId = allBuData[b].id;
           let businessUnitName = allBuData[b].name;
 
           let buData = await fetchDataWithRetry(
-            `/api/v2/workforcemanagement/businessunits/${businessUnitId}?expand=settings.timeZone`,
+            `/api/v2/workforcemanagement/businessunits/${businessUnitId}?expand=settings.timeZone,settings.startDayOfWeek,settings.shortTermForecasting`,
             "GET"
           );
 
           // increment progress
           radialProgress.setAttribute("value", progressValue);
+
+          // get bu settings
+          let businessUnitStartDayOfWeek = buData.settings.startDayOfWeek;
+          let businessUnitDefaultHistoryWeeks =
+            buData.settings.shortTermForecasting.defaultHistoryWeeks;
 
           let businessUnitTimeZone = buData.settings.timeZone;
           let timezoneOffset = allTzData.find(
@@ -271,6 +273,8 @@
           let bu = {
             "name": businessUnitName,
             "id": businessUnitId,
+            "startDayOfWeek": businessUnitStartDayOfWeek,
+            "defaultHistoryWeeks": businessUnitDefaultHistoryWeeks,
             "timeZone": businessUnitTimeZone,
             "offset": businessUnitTimeZoneOffset,
           };
@@ -294,6 +298,7 @@
       // Populate Business Unit dropdown options
       async function populateBusinessUnits() {
         var businessUnitDropdown = document.getElementById("businessUnit");
+        var businessUnits = sessionStorage.getItem("wfmBuList");
         //var businessUnits = await fetchBusinessUnits();
 
         businessUnits.forEach(function (unit) {
