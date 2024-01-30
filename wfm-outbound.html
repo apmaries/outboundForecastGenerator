@@ -299,12 +299,12 @@
       async function populateBusinessUnits(businessUnits) {
         var businessUnitDropdown = document.getElementById("businessUnit");
 
-        businessUnits.forEach(function (unit) {
+        for (let i = 0; i < businessUnits.length; i++) {
           var option = document.createElement("gux-option");
           option.value = unit.id;
           option.textContent = unit.name;
           businessUnitDropdown.appendChild(option);
-        });
+        }
       }
 
       // Update selected Business Unit settings
