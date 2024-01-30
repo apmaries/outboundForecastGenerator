@@ -30,7 +30,12 @@ if (window.location.hash) {
 
   // get user details
   async function getUser() {
-    $.ajax({
+    let user = await fetchDataWithRetry(
+      `https://api.${environment}/api/v2/users/me`,
+      "GET"
+    );
+
+    /*$.ajax({
       url: `https://api.${environment}/api/v2/users/me`,
       type: "GET",
       beforeSend: function (xhr) {
@@ -46,7 +51,7 @@ if (window.location.hash) {
         sessionStorage.setItem("userName", userName);
         sessionStorage.setItem("userId", userId);
       },
-    });
+    });*/
   }
 
   async function getTheRest() {
