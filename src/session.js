@@ -33,7 +33,11 @@ if (window.location.hash) {
     let user = await fetchDataWithRetry(
       `https://api.${environment}/api/v2/users/me`,
       "GET"
-    );
+    )
+    if (user) {
+      console.log(`OFG: User returned. ${JSON.stringify(user)}`)
+    }
+    else {console.error(`OFG: Error getting user`)}
 
     /*$.ajax({
       url: `https://api.${environment}/api/v2/users/me`,
