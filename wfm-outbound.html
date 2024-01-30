@@ -345,8 +345,22 @@
 
       // Populate default values on page load
       window.onload = async function () {
-        await populateBusinessUnits();
-        updateBusinessUnitSettings();
+        let buData;
+
+        let allBuData = await fetchDataWithRetry(
+          `/api/v2/workforcemanagement/businessunits`,
+          "GET"
+        );
+
+        let buCount = allBuData.length;
+        console.debug(`OFG: Found ${buCount} Business Units in WFM`);
+
+        if (buCount > 0) {
+          await populateBusinessUnits(allBuData, buCount);
+          //updateBusinessUnitSettings();
+        } else {
+          console.error(`OFG: No business units found in WFM`);
+        }
 
         // Set default value for historicalWeeks
         document.getElementById("historicalWeeks").value =
