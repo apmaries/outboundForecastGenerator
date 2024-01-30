@@ -9,7 +9,7 @@ async function fetchDataWithRetry(
   postData = null,
   maxRetries = 3
 ) {
-  terminal(`Making ${method} request to ${prefix}${endpoint}`, "DEBUG");
+  console.debug(`OFG: Making ${method} request to ${prefix}${endpoint}`);
   let retryCount = 0;
   const headers = {
     "Authorization": "bearer " + token,
@@ -34,13 +34,13 @@ async function fetchDataWithRetry(
         // return entities, results or object only
         if ("entities" in data) {
           // add logic to get next page
-          terminal(`${method} data entities returned`, "DEBUG");
+          console.debug(`OFG: ${method} data entities returned`);
           return data.entities;
         } else if ("results" in data) {
-          terminal(`${method} data results returned`, "DEBUG");
+          console.debug(`OFG: ${method} data results returned`);
           return data.results;
         } else {
-          terminal(`${method} data object returned`, "DEBUG");
+          console.debug(`OFG: ${method} data object returned`);
           return data;
         }
       } else {
@@ -55,14 +55,13 @@ async function fetchDataWithRetry(
           let hasRetrySeconds = message.match(/\[(.*?)\]/);
           if (hasRetrySeconds) {
             let retrySeconds = hasRetrySeconds[1];
-            terminal(
-              `Rate limit breached! Retrying in ${retrySeconds} seconds`,
-              "WARNING"
+            console.warn(
+              `OFG: Rate limit breached! Retrying in ${retrySeconds} seconds`
             );
             await new Promise((resolve) =>
               setTimeout(resolve, retrySeconds * 1000)
             );
-            terminal(`Retrying request`, "INFO");
+            console.log(`OFG: Retrying request`);
             continue;
           }
         } else if (response.status === 401) {
@@ -74,9 +73,8 @@ async function fetchDataWithRetry(
           window.location.href = "../index.html";
         } else {
           // some other error response
-          terminal(
-            `Request failed with status ${response.status}: ${message}`,
-            "ERROR"
+          console.error(
+            `OFG: Request failed with status ${response.status}: ${message}`
           );
           return message;
         }
@@ -86,5 +84,5 @@ async function fetchDataWithRetry(
       return;
     }
   }
-  terminal(`Maximum retry count exceeded!`, "ERROR");
+  console.error(`OFG: Maximum retry count exceeded!`);
 }
