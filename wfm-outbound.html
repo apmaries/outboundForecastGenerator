@@ -347,6 +347,8 @@
 
       // Populate default values on page load
       window.onload = async function () {
+        await getOrgLevelStuff();
+
         let buData;
 
         let allBuData = await fetchDataWithRetry(
