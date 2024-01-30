@@ -360,7 +360,8 @@
         let buCount = allBuData.length;
 
         if (buCount > 0) {
-          console.debug(`OFG: Found ${buCount} Business Units in WFM`);
+          console.log(`OFG: Found ${buCount} Business Units in WFM`);
+          const buArray = fetchBusinessUnits(allBuData, buCount);
           //await populateBusinessUnits();
           //updateBusinessUnitSettings();
         } else {
