@@ -245,7 +245,7 @@
         );
 
         // get individual BU settings
-        console.log(`OFG: Searching BU time zone settings`);
+        console.log(`OFG: Getting BU settings`);
         for (let b = 0; b < allBuData.length; b++) {
           progressValue++;
           let businessUnitId = allBuData[b].id;
@@ -298,6 +298,9 @@
       async function populateBusinessUnits(businessUnits) {
         var businessUnitDropdown = document.getElementById("businessUnit");
 
+        // Sort the buData array alphabetically based on bu_name
+        buData.sort((a, b) => a.name.localeCompare(b.name));
+
         for (let i = 0; i < businessUnits.length; i++) {
           const unit = businessUnits[i];
           var option = document.createElement("gux-option");
@@ -310,6 +313,11 @@
       // Update selected Business Unit settings
       function updateBusinessUnitSettings() {
         var businessUnitDropdown = document.getElementById("businessUnit");
+        var selectedBu = businessUnitDropdown;
+        console.log(`OFG: User selected BU - ${JSON.stringify(selectedBu)}`);
+
+        // up to here
+
         var selectedIndex = businessUnitDropdown.selectedIndex;
         selectedBuId = businessUnitDropdown.options[selectedIndex].value;
         var buSettings = fetchBusinessUnits().find(
