@@ -63,10 +63,7 @@ if (window.location.hash) {
     );
     if (divisions) {
       console.log("OFG: Divisions data returned");
-      sessionStorage.setItem(
-        "divisionsList",
-        JSON.stringify(divisions.entities)
-      );
+      sessionStorage.setItem("divisionsList", JSON.stringify(divisions));
     } else {
       console.error(`OFG: Error getting divisions`);
     }
