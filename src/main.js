@@ -1,33 +1,13 @@
 async function runHelper(
+  businessUnitName,
   businessUnitId,
   selectedBuTimeZone,
   weekStart,
   numContacts,
   historicalWeeks
 ) {
-  // Function to subscribe to notifications channel
-  async function subscribeToNotificationsChannel(businessUnitId) {
-    console.log(
-      `Subscribing to notifications channel for BU ID: ${businessUnitId}`
-    );
-    // Your logic to subscribe to the notifications channel goes here
-    // Return a promise that resolves when the subscription is complete
-    return new Promise((resolve) => {
-      // Simulating asynchronous operation, replace this with actual logic
-      setTimeout(() => {
-        console.log(
-          `Notifications channel subscribed for BU ID: ${businessUnitId}`
-        );
-        resolve();
-      }, 2000); // Simulating a 2-second delay
-    });
-  }
-
-  // Call the function to subscribe to notifications channel
-  await subscribeToNotificationsChannel(businessUnitId);
-
   // Your existing scheduling logic goes here
-  console.log("OFG: Selected BU ID:", businessUnitId);
+  console.log("OFG: Selected BU Name:", businessUnitName);
   console.log("OFG: Selected BU TimeZone:", selectedBuTimeZone);
   console.log("OFG: Week Start:", weekStart);
   console.log("OFG: Number of Contacts:", numContacts);
@@ -37,7 +17,13 @@ async function runHelper(
   async function getPlanningGroups() {
     const planningGroupsArray = [];
     console.log(`Get Planning Groups initiated`);
-    console.log(businessUnitId);
+
+    // Get planning groups
+    planningGroupsArray = await fetchDataWithRetry(
+      `/api/v2/workforcemanagement/businessunits/${businessUnitId}/planninggroups`,
+      "GET"
+    );
+    console.log(JSON.stringify(planningGroupsArray));
     return planningGroupsArray;
   }
 

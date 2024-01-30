@@ -401,6 +401,7 @@
 
         // up to here
         var buObj = buArray.find((unit) => unit.id === selectedBuId);
+        var selectedBuName = buObj.name;
         var selectedBuStartDayOfWeek = buObj.startDayOfWeek;
         var selectedBuTimeZone = buObj.timeZone;
         var selectedBuDefaultHistoryWeeks = buObj.defaultHistoryWeeks;
@@ -420,6 +421,11 @@
               selectedBuStartDayOfWeek +
               ")."
           );
+          console.error(
+            "Week Start day must match Business Unit's startDayOfWeek (" +
+              selectedBuStartDayOfWeek +
+              ")."
+          );
           highlightInputError(weekStartInput);
           return;
         } else {
@@ -429,6 +435,7 @@
         // Check if numContacts is 0
         if (numContactsInput.value === "0") {
           alert("Number of Contacts must be greater than 0.");
+          console.error("Number of Contacts must be greater than 0.");
           highlightInputError(numContactsInput);
           return;
         } else {
@@ -453,6 +460,7 @@
         console.log("Historical Weeks:", historicalWeeks);*/
 
         runHelper(
+          selectedBuName,
           selectedBuId,
           selectedBuTimeZone,
           weekStartInput.value,

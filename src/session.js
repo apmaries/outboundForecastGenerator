@@ -114,6 +114,7 @@ function timeout() {
   }
 
   console.log("OFG: Timeout due to inactivity.");
+  sessionStorage.clear;
 }
 
 // Function to reset the activity timer
