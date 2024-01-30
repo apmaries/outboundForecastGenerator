@@ -39,31 +39,13 @@ if (window.location.hash) {
 
       // Create a <p> element with the welcome message
       const welcomeParagraph = document.createElement("p");
-      userWelcomeDiv.textContent = `Welcome ${userName}`;
+      welcomeParagraph.textContent = `Welcome ${userName}`;
 
       // Append the <p> element to the parent node
-      parentContainer.appendChild(welcomeParagraph);
+      userWelcomeDiv.appendChild(welcomeParagraph);
     } else {
       console.error(`OFG: Error getting user`);
     }
-
-    /*$.ajax({
-      url: `https://api.${environment}/api/v2/users/me`,
-      type: "GET",
-      beforeSend: function (xhr) {
-        xhr.setRequestHeader("Authorization", "bearer " + token);
-      },
-      success: function (udata) {
-        console.log("OFG: User details returned");
-        console.log(udata);
-        const userName = udata.name;
-        const userId = udata.id;
-        const userEmail = udata.email;
-        internalUserCheck(userEmail);
-        sessionStorage.setItem("userName", userName);
-        sessionStorage.setItem("userId", userId);
-      },
-    });*/
   }
 
   async function getTheRest() {
