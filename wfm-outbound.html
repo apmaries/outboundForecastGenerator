@@ -371,7 +371,7 @@
         let buCount = allBuData.length;
 
         if (buCount > 0) {
-          populateBusinessUnits(allBuData);
+          await populateBusinessUnits(allBuData);
           console.log(`OFG: Found ${buCount} Business Units in WFM`);
           const buArray = await fetchBusinessUnits(allBuData, buCount);
         } else {
