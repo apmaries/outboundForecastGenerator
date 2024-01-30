@@ -32,7 +32,17 @@ if (window.location.hash) {
   async function getUser() {
     let user = await fetchDataWithRetry(`/api/v2/users/me`, "GET");
     if (user) {
-      console.log(`OFG: User returned. ${JSON.stringify(user)}`);
+      var userName = user.name;
+      var userId = user.id;
+      console.log(`OFG: User ${userName} (${userId}) returned`);
+      var userWelcomeDiv = document.getElementById("user-welcome");
+
+      // Create a <p> element with the welcome message
+      const welcomeParagraph = document.createElement("p");
+      userWelcomeDiv.textContent = `Welcome ${userName}`;
+
+      // Append the <p> element to the parent node
+      parentContainer.appendChild(welcomeParagraph);
     } else {
       console.error(`OFG: Error getting user`);
     }
