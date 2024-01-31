@@ -15,8 +15,8 @@ async function runHelper(
 
   // Function to get planning groups from BU id
   async function getPlanningGroups() {
-    const planningGroupsArray = [];
-    console.log(`Get Planning Groups initiated`);
+    let planningGroupsArray = [];
+    console.log(`OFG: Get Planning Groups initiated`);
 
     // Get planning groups
     planningGroupsArray = await fetchDataWithRetry(
@@ -29,7 +29,7 @@ async function runHelper(
 
   // Function to get outbound campaigns
   async function getCampaigns() {
-    const campaignsArray = [];
+    let campaignsArray = [];
     console.log(`OFG: Get Campaigns initiated`);
     console.log(businessUnitId);
     return campaignsArray;
@@ -37,7 +37,7 @@ async function runHelper(
 
   // Function to get queue campaigns
   async function queueCampaignMatcher() {
-    const queueCampaignsArray = [];
+    let queueCampaignsArray = [];
     console.log(`OFG: Queue Campaigns initiated`);
     console.log(businessUnitId);
     return queueCampaignsArray;
@@ -45,7 +45,7 @@ async function runHelper(
 
   // Function to build query body
   async function queryBuilder(queueCampaigns) {
-    const queriesArray = [];
+    let queriesArray = [];
     console.log(`OFG: Query Builder initiated`);
     console.log(businessUnitId);
     console.log(historicalWeeks);
@@ -54,7 +54,7 @@ async function runHelper(
 
   // Function to execute queries
   async function executeQueries() {
-    const queryResults = [];
+    let queryResults = [];
     console.log(`OFG: Executing queries`);
     console.log(businessUnitId);
     return queryResults;
