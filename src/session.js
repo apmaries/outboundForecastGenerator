@@ -124,8 +124,8 @@ function resetActivityTimer() {
 }
 
 // Add event listeners to detect user activity
-document.addEventListener("mousemove", resetActivityTimer);
-document.addEventListener("keydown", resetActivityTimer);
+//document.addEventListener("mousemove", resetActivityTimer);
+//document.addEventListener("keydown", resetActivityTimer);
 
 // Start the initial activity timer
-resetActivityTimer();
+//resetActivityTimer();

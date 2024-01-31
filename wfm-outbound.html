@@ -68,114 +68,112 @@
       .align-right {
         margin-left: auto;
       }
+
+      .page {
+        display: none;
+
+        opacity: 0;
+        transition: opacity 0.5s ease-in-out;
+      }
+
+      .page.active {
+        display: block;
+        opacity: 1;
+      }
     </style>
   </head>
   <body>
     <h1>Outbound Forecast Generator</h1>
     <div id="user-welcome" hidden></div>
 
-    <fieldset class="form-container">
-      <legend>Parameters</legend>
-      <gux-loading-message-beta id="loading-message" style="display: block">
-        <div slot="primary-message">Loading BU data...</div>
-        <gux-radial-progress
-          id="radial-progress"
-          slot="progress"
-          value="0"
-          max="1000"
-          screenreader-text="loading"
-        ></gux-radial-progress>
-      </gux-loading-message-beta>
-      <div id="parameters" hidden>
-        <gux-form-field-dropdown class="width">
-          <gux-dropdown>
-            <gux-listbox
-              id="businessUnit"
-              onchange="updateBusinessUnitSettings()"
-            >
-            </gux-listbox>
-          </gux-dropdown>
-          <label slot="label">Business Unit</label>
-        </gux-form-field-dropdown>
-
-        <gux-form-field-number style="width: 100%">
-          <input
-            slot="input"
-            type="number"
-            id="numContacts"
-            min="0"
-            max="100000"
+    <div id="page-one" class="page active">
+      <fieldset class="form-container">
+        <legend>Forecast Parameters</legend>
+        <gux-loading-message-beta id="loading-message">
+          <div slot="primary-message">Loading BU data...</div>
+          <gux-radial-progress
+            id="radial-progress"
+            slot="progress"
             value="0"
-            step="500"
-          />
-          <label class="width" slot="label">Number of contacts</label>
-        </gux-form-field-number>
+            max="1000"
+            screenreader-text="loading"
+          ></gux-radial-progress>
+        </gux-loading-message-beta>
+        <div id="parameters" hidden>
+          <gux-form-field-dropdown class="width">
+            <gux-dropdown>
+              <gux-listbox
+                id="businessUnit"
+                onchange="updateBusinessUnitSettings()"
+              >
+              </gux-listbox>
+            </gux-dropdown>
+            <label slot="label">Business Unit</label>
+          </gux-form-field-dropdown>
 
-        <gux-form-field-number style="width: 100%">
-          <input
-            slot="input"
-            type="number"
-            id="historicalWeeks"
-            value="6"
-            step="1"
-            min="1"
-            max="8"
-          />
-          <label class="width" slot="label">Forecast historical weeks</label>
-        </gux-form-field-number>
+          <gux-form-field-number style="width: 100%">
+            <input
+              slot="input"
+              type="number"
+              id="historicalWeeks"
+              value="6"
+              step="1"
+              min="1"
+              max="8"
+            />
+            <label class="width" slot="label">Forecast historical weeks</label>
+          </gux-form-field-number>
 
-        <label for="weekStart" class="slotted">Week start</label>
-        <gux-datepicker
-          start-day-of-week="1"
-          id="weekStart"
-          format="dd/mm/yyyy"
-          class="width"
-        ></gux-datepicker>
+          <label for="weekStart" class="slotted">Week start</label>
+          <gux-datepicker
+            start-day-of-week="1"
+            id="weekStart"
+            format="dd/mm/yyyy"
+            class="width"
+          ></gux-datepicker>
 
-        <label for="inclSchedule">Generate schedule too?</label>
-        <gux-toggle
-          id="inclSchedule"
-          checked-label="Yes"
-          unchecked-label="No"
-        ></gux-toggle>
+          <label for="inclSchedule">Generate schedule too?</label>
+          <gux-toggle
+            id="inclSchedule"
+            checked-label="Yes"
+            unchecked-label="No"
+          ></gux-toggle>
 
-        <gux-button accent="primary" onclick="buttonClicked()">Run!</gux-button>
-      </div>
-    </fieldset>
+          <gux-button accent="secondary" onclick="nextPage()">Next</gux-button>
+        </div>
+      </fieldset>
+    </div>
 
-    <!-- <form id="form">
-      <label for="businessUnit">Business Unit:</label>
-
-      <select
-        id="businessUnit"
-        onchange="updateBusinessUnitSettings()"
-        required
-      ></select>
-
-      <label for="weekStart">Week Start:</label>
-      <gux-datepicker
-        start-day-of-week="1"
-        id="weekStart"
-        format="dd/mm/yyyy"
-        required
-      ></gux-datepicker>
-
-      <label for="numContacts">Number of Contacts:</label>
-      <input type="number" id="numContacts" min="0" value="0" required />
-
-      <label for="historicalWeeks">Historical Weeks:</label>
-      <input type="number" id="historicalWeeks" min="0" max="8" required />
-
-      <label for="inclSchedule">Auto add schedule with forecast?:</label>
-      <gux-toggle
-        id="inclScheduke"
-        checked-label="Yes"
-        unchecked-label="No"
-      ></gux-toggle>
-
-      <button type="button" onclick="buttonClicked()">Run!</button>
-      
-    </form>-->
+    <div id="page-two" class="page">
+      <fieldset class="form-container">
+        <legend>Planning Groups</legend>
+        <div id="planning-groups">
+          <gux-form-field-number style="width: 100%">
+            <input
+              slot="input"
+              type="number"
+              id="numContacts"
+              min="0"
+              max="100000"
+              value="0"
+              step="500"
+            />
+            <label class="width" slot="label">Number of contacts</label>
+          </gux-form-field-number>
+        </div>
+        <div id="buttons" class="row">
+          <gux-button accent="secondary" class="align-left" onclick="prevPage()"
+            >Back</gux-button
+          >
+          <gux-button
+            accent="primary"
+            class="align-right"
+            onclick="buttonClicked()"
+            >Run!</gux-button
+          >
+        </div>
+      </fieldset>
+    </div>
 
     <script>
       console.log("Outbound Forecast Generator (OFG) initiated");
@@ -192,45 +190,7 @@
 
       const oapi = new platformClient.OrganizationApi();
       const uapi = new platformClient.UsersApi();
-      const wapi = new platformClient.WorkforceManagementApi();
-
-      // Simulate fetching Business Unit values from an API
-      function fetchBusinessUnits() {
-        console.log("OFG: Getting WFM Business Units");
-        // Replace this with an actual API call
-        wapi
-          .getWorkforcemanagementBusinessunits()
-          .then((data) => {
-            console.log(
-              `OFG: getWorkforcemanagementBusinessunits success! data: ${JSON.stringify(
-                data,
-                null,
-                2
-              )}`
-            );
-          })
-          .catch((err) => {
-            console.log(
-              "OFG: There was a failure calling getWorkforcemanagementBusinessunits"
-            );
-            console.error(err);
-          });
-
-        return [
-          {
-            "id": "7e5d7b10-9086-4c53-8458-xxxxxxxxxxxx",
-            "name": "amBluthCo",
-            "settings": {
-              "startDayOfWeek": "Monday",
-              "timeZone": "Australia/Sydney",
-              "shortTermForecasting": {
-                "defaultHistoryWeeks": 6,
-              },
-            },
-          },
-          // Add more Business Units as needed
-        ];
-      }*/
+      const wapi = new platformClient.WorkforceManagementApi();*/
 
       async function fetchBusinessUnits(allBuData, nBu) {
         const buArray = [];
@@ -381,12 +341,6 @@
         } else {
           console.error(`OFG: No business units found in WFM`);
         }
-
-        // Set default value for historicalWeeks
-        /*document.getElementById("historicalWeeks").value =
-          fetchBusinessUnits().find(
-            (unit) => unit.id === selectedBuId
-          ).settings.shortTermForecasting.defaultHistoryWeeks;*/
       };
 
       // buttonClicked function
@@ -477,6 +431,32 @@
       // Helper function to remove input error highlight
       function removeInputError(inputElement) {
         inputElement.classList.remove("error");
+      }
+
+      function nextPage() {
+        const pageOne = document.getElementById("page-one");
+        const pageTwo = document.getElementById("page-two");
+
+        pageOne.classList.remove("active");
+
+        setTimeout(() => {
+          pageTwo.classList.add("active");
+
+          // Add an event listener for the "load" event on the "page-two" element
+          pageTwo.addEventListener("load", function () {
+            // Run another function after "page-two" has loaded
+            var businessUnitDropdown = document.getElementById("businessUnit");
+            var selectedBuId = businessUnitDropdown.value;
+            loadPageTwo(selectedBuId);
+          });
+        }, 100); // Delay for a smoother transition
+      }
+
+      function prevPage() {
+        document.getElementById("page-two").classList.remove("active");
+        setTimeout(() => {
+          document.getElementById("page-one").classList.add("active");
+        }, 100); // Delay for a smoother transition
       }
     </script>
   </body>
