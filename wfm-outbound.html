@@ -149,6 +149,27 @@
       <fieldset class="form-container">
         <legend>Planning Groups</legend>
         <div id="planning-groups">
+          <gux-table resizable-columns id="planning-groups-table">
+            <table slot="data">
+              <thead>
+                <tr>
+                  <th data-column-name="first-name" aria-sort="ascending">
+                    First Name
+                    <gux-sort-control />
+                  </th>
+                  <th data-column-name="last-name">
+                    Last name
+                    <gux-sort-control include-unsorted />
+                  </th>
+                  <th data-column-name="age" data-cell-numeric>
+                    Age
+                    <gux-sort-control />
+                  </th>
+                  <th data-column-name="action" data-cell-action>Action</th>
+                </tr>
+              </thead>
+              <tbody></tbody></table
+          ></gux-table>
           <gux-form-field-number style="width: 100%">
             <input
               slot="input"
@@ -445,11 +466,6 @@
 
           var businessUnitDropdown = document.getElementById("businessUnit");
           var selectedBuId = businessUnitDropdown.value;
-          console.log(
-            `OFG: Page two loading with ${JSON.stringify(
-              selectedBuId
-            )} businessUnitId`
-          );
           loadPageTwo(selectedBuId);
         }, 100); // Delay for a smoother transition
       }

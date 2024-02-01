@@ -9,7 +9,13 @@ async function loadPageTwo(businessUnitId) {
       `/api/v2/workforcemanagement/businessunits/${businessUnitId}/planninggroups`,
       "GET"
     );
-    console.log(JSON.stringify(planningGroupsArray));
+
+    for (let i = 0; i < planningGroupsArray.length; i++) {
+      console.log(
+        `OFG: Found planning group ${i + 1}: ${planningGroupsArray[i].name}`
+      );
+    }
+
     return planningGroupsArray;
   }
 
