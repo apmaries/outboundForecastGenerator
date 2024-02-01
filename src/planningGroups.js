@@ -4,6 +4,10 @@ async function loadPageTwo(businessUnitId) {
     let planningGroupsArray = [];
     console.log(`OFG: Get Planning Groups initiated`);
 
+    const tableBody = document.querySelector("#planning-groups-table tbody");
+    // Clear out any existing rows
+    tableBody.innerHTML = "";
+
     // Get planning groups
     planningGroupsArray = await fetchDataWithRetry(
       `/api/v2/workforcemanagement/businessunits/${businessUnitId}/planninggroups`,
@@ -11,9 +15,22 @@ async function loadPageTwo(businessUnitId) {
     );
 
     for (let i = 0; i < planningGroupsArray.length; i++) {
-      console.log(
-        `OFG: Found planning group ${i + 1}: ${planningGroupsArray[i].name}`
-      );
+      const group = planningGroupsArray[i];
+      console.log(`OFG: Found planning group ${i + 1}: ${group.name}`);
+      const row = document.createElement("tr");
+      const pgNameCell = document.createElement("td");
+      pgNameCell.textContent = group.name;
+      row.appendChild(pgNameCell);
+
+      const campaignNameCell = document.createElement("td");
+      campaignNameCell.textContent = "Campaign Name";
+      row.appendChild(campaignNameCell);
+
+      const nContactsCell = document.createElement("td");
+      nContactsCell.textContent = "1000";
+      row.appendChild(nContactsCell);
+
+      tableBody.appendChild(row);
     }
 
     return planningGroupsArray;
