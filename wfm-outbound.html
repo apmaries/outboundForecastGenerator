@@ -443,18 +443,14 @@
         setTimeout(() => {
           pageTwo.classList.add("active");
 
-          // Add an event listener for the "load" event on the "page-two" element
-          pageTwo.addEventListener("load", function () {
-            // Run another function after "page-two" has loaded
-            var businessUnitDropdown = document.getElementById("businessUnit");
-            var selectedBuId = businessUnitDropdown.value;
-            console.log(
-              `OFG: Page two loading with ${JSON.stringify(
-                selectedBuId
-              )} businessUnitId`
-            );
-            loadPageTwo(selectedBuId);
-          });
+          var businessUnitDropdown = document.getElementById("businessUnit");
+          var selectedBuId = businessUnitDropdown.value;
+          console.log(
+            `OFG: Page two loading with ${JSON.stringify(
+              selectedBuId
+            )} businessUnitId`
+          );
+          loadPageTwo(selectedBuId);
         }, 100); // Delay for a smoother transition
       }
 
