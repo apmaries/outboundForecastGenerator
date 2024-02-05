@@ -409,10 +409,14 @@
           const pgNameCell = row.querySelector("td:first-child");
           const pgName = pgNameCell.textContent;
           const pgId = pgNameCell.dataset.pgId;
+          console.log(`OFG: PG Name - ${pgName}`);
+          console.log(`OFG: PG ID - ${pgId}`);
 
           // Get number of contacts
           const numContactsCell = row.querySelector("td:last-child");
-          const numContacts = numContactsCell.value;
+          const numContactsInput =
+            numContactsCell.querySelector("td:first-child");
+          const numContacts = numContactsInput.value;
 
           let planningGroupContacts = {
             "pgName": pgName,
@@ -420,6 +424,7 @@
             "numContacts": numContacts,
           };
 
+          /*
           // Check if numContacts is 0
           if (numContacts === "0") {
             alert("Number of Contacts must be greater than 0.");
@@ -444,6 +449,7 @@
 
           console.log(`OFG: ${JSON.stringify(planningGroupContacts)}`);
           planningGroupContactsArray.push(planningGroupContacts);
+        */
         }
 
         // Check if weekStart day of week matches selected BU's startDayOfWeek
