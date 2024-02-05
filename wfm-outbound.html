@@ -370,31 +370,80 @@
       // buttonClicked function
       function buttonClicked() {
         // Get input values
-
         const buArray = JSON.parse(sessionStorage.getItem(wfmBuStorage));
 
         var businessUnitDropdown = document.getElementById("businessUnit");
         var selectedBuId = businessUnitDropdown.value;
         console.log(`OFG: Running for BU - ${JSON.stringify(selectedBuId)}`);
 
-        // page one variables
+        // BU variables
         var buObj = buArray.find((unit) => unit.id === selectedBuId);
         var selectedBuName = buObj.name;
         var selectedBuStartDayOfWeek = buObj.startDayOfWeek;
         var selectedBuTimeZone = buObj.timeZone;
         var selectedBuDefaultHistoryWeeks = buObj.defaultHistoryWeeks;
-        //console.log(JSON.stringify(buObj));
+
+        // page one variables
+        var weekStartInput = document.getElementById("weekStart");
+        //var numContactsInput = document.getElementById("numContacts"); // moved to page two
+        var historicalWeeks = document.getElementById("historicalWeeks");
+        var selectedWeekStart = new Date(weekStartInput.value);
 
         // page two variables
-        // insert p2 variables here
-        // for each pg in table, let pgId = pgNameCell.dataset.pgId;
+        planningGroupContactsArray = [];
+        const tableBody = document.querySelector(
+          "#planning-groups-table tbody"
+        );
+        const rows = tableBody.querySelectorAll("tr");
 
-        var weekStartInput = document.getElementById("weekStart");
-        var numContactsInput = document.getElementById("numContacts");
-        var historicalWeeks = document.getElementById("historicalWeeks");
+        // loop through table rows
+        for (let i = 0; i < rows.length; i++) {
+          const row = rows[i];
+
+          // Get PG name and ID
+          const pgNameCell = row.querySelector("[data-column-name=pg-name]");
+          const pgName = pgNameCell.textContent;
+          const pgId = pgNameCell.dataset.pgId;
+
+          // Get number of contacts
+          const numContactsCell = row.querySelector(
+            "[data-column-name=n-contacts]"
+          );
+          const numContacts = numContactsCell.value;
+
+          let planningGroupContacts = {
+            "pgName": pgName,
+            "pgId": pgId,
+            "numContacts": numContacts,
+          };
+
+          // Check if numContacts is 0
+          if (numContacts === "0") {
+            alert("Number of Contacts must be greater than 0.");
+            console.error("OFG: Number of Contacts must be greater than 0.");
+            highlightInputError(numContactsCell);
+            return;
+          } else {
+            removeInputError(numContactsCell);
+          }
+
+          // Check if numContacts is a positive integer
+          if (!/^\d+$/.test(numContacts)) {
+            alert("Number of Contacts must be a positive integer.");
+            console.error(
+              "OFG: Number of Contacts must be a positive integer."
+            );
+            highlightInputError(numContactsCell);
+            return;
+          } else {
+            removeInputError(numContactsCell);
+          }
+
+          console.log(`OFG: ${JSON.stringify(planningGroupContacts)}`);
+          planningGroupContactsArray.push(planningGroupContacts);
+        }
 
         // Check if weekStart day of week matches selected BU's startDayOfWeek
-        var selectedWeekStart = new Date(weekStartInput.value);
         if (
           selectedWeekStart.getDay() !== getDayOfWeek(selectedBuStartDayOfWeek)
         ) {
@@ -404,7 +453,7 @@
               ")."
           );
           console.error(
-            "Week Start day must match Business Unit's startDayOfWeek (" +
+            "OFG: Week Start day must match Business Unit's startDayOfWeek (" +
               selectedBuStartDayOfWeek +
               ")."
           );
@@ -412,25 +461,6 @@
           return;
         } else {
           removeInputError(weekStartInput);
-        }
-
-        // Check if numContacts is 0
-        if (numContactsInput.value === "0") {
-          alert("Number of Contacts must be greater than 0.");
-          console.error("Number of Contacts must be greater than 0.");
-          highlightInputError(numContactsInput);
-          return;
-        } else {
-          removeInputError(numContactsInput);
-        }
-
-        // Check if numContacts is a positive integer
-        if (!/^\d+$/.test(numContactsInput.value)) {
-          alert("Number of Contacts must be a positive integer.");
-          highlightInputError(numContactsInput);
-          return;
-        } else {
-          removeInputError(numContactsInput);
         }
 
         // Perform calculations or any other desired actions
@@ -446,8 +476,8 @@
           selectedBuId,
           selectedBuTimeZone,
           weekStartInput.value,
-          numContactsInput.value,
-          historicalWeeks.value
+          historicalWeeks.value,
+          planningGroupContactsArray
         );
       }
 

@@ -3,15 +3,18 @@ async function runHelper(
   businessUnitId,
   selectedBuTimeZone,
   weekStart,
-  numContacts,
-  historicalWeeks
+  historicalWeeks,
+  planningGroupContactsArray
 ) {
   // Your existing scheduling logic goes here
   console.log("OFG: Selected BU Name:", businessUnitName);
   console.log("OFG: Selected BU TimeZone:", selectedBuTimeZone);
   console.log("OFG: Week Start:", weekStart);
-  console.log("OFG: Number of Contacts:", numContacts);
   console.log("OFG: Historical Weeks:", historicalWeeks);
+  console.log(
+    "OFG: Number of Planning Groups:",
+    planningGroupContactsArray.length
+  );
 
   // Function to build query body
   async function queryBuilder(queueCampaigns) {
