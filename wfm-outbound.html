@@ -441,10 +441,9 @@
           } else {
             removeInputError(numContactsCell);
           }
-
+          */
           console.log(`OFG: ${JSON.stringify(planningGroupContacts)}`);
           planningGroupContactsArray.push(planningGroupContacts);
-        */
         }
 
         // Check if weekStart day of week matches selected BU's startDayOfWeek
@@ -467,15 +466,7 @@
           removeInputError(weekStartInput);
         }
 
-        // Perform calculations or any other desired actions
-        // For demonstration, just log the values to the console
-        /*console.log("Selected BU ID:", selectedBuId);
-        console.log("Selected BU TimeZone:", selectedBuTimeZone);
-        console.log("Week Start:", weekStartInput.value);
-        console.log("Number of Contacts:", numContactsInput.value);
-        console.log("Historical Weeks:", historicalWeeks);*/
-
-        runHelper(
+        runGenerator(
           selectedBuName,
           selectedBuId,
           selectedBuTimeZone,

@@ -1,4 +1,4 @@
-async function runHelper(
+async function runGenerator(
   businessUnitName,
   businessUnitId,
   selectedBuTimeZone,
@@ -17,10 +17,10 @@ async function runHelper(
   );
 
   // Function to build query body
-  async function queryBuilder(queueCampaigns) {
+  async function queryBuilder() {
     let queriesArray = [];
     console.log(`OFG: Query Builder initiated`);
-    console.log(businessUnitId);
+    console.log(planningGroupContactsArray);
     console.log(historicalWeeks);
     return queriesArray;
   }
@@ -34,7 +34,7 @@ async function runHelper(
   }
 
   // Execute queryBuilder after queueCampaignMatcher complete
-  var queriesArray = await queryBuilder(queueCampaignsResult);
+  var queriesArray = await queryBuilder();
 
   // Execute historical data queries
   var queryResults = await executeQueries(queriesArray);
