@@ -43,6 +43,10 @@ async function loadPageTwo(businessUnitId) {
     console.log(`OFG: Get Campaigns initiated`);
     campaigns = await fetchDataWithRetry(`/api/v2/outbound/campaigns`, "GET");
 
+    console.log(
+      `OFG: Found ${campaigns.length} campaigns` + JSON.stringify(campaigns)
+    );
+
     // initiate object to store campaign data
     let campaignObj = {
       "campaignId": "",
