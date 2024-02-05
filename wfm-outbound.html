@@ -345,7 +345,6 @@
 
       // Populate default values on page load
       window.onload = async function () {
-        let test = true;
         await getOrgLevelStuff();
 
         let buData;
@@ -356,14 +355,12 @@
         );
         let buCount = allBuData.length;
 
-        if (!test) {
-          if (buCount > 0) {
-            await populateBusinessUnits(allBuData);
-            console.log(`OFG: Found ${buCount} Business Units in WFM`);
-            const buArray = await fetchBusinessUnits(allBuData, buCount);
-          } else {
-            console.error(`OFG: No business units found in WFM`);
-          }
+        if (buCount > 0) {
+          await populateBusinessUnits(allBuData);
+          console.log(`OFG: Found ${buCount} Business Units in WFM`);
+          const buArray = await fetchBusinessUnits(allBuData, buCount);
+        } else {
+          console.error(`OFG: No business units found in WFM`);
         }
       };
 
