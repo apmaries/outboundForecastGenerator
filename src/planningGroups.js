@@ -151,7 +151,6 @@ async function loadPageTwo(businessUnitId) {
       guxFormFieldNumber.appendChild(input);
       nContactsCell.appendChild(guxFormFieldNumber);
 
-      nContactsCell.textContent = "1000";
       row.appendChild(nContactsCell);
 
       tableBody.appendChild(row);
