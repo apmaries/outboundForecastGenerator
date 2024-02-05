@@ -15,6 +15,10 @@
 
     <title>Outbound Forecast Generator</title>
 
+    <script>
+      console.log("Outbound Forecast Generator (OFG) initiated");
+    </script>
+
     <!-- Genesys stuff -->
     <link
       href="https://app.inindca.com/spark-components/build-assets/4.12.0-85/genesys-webcomponents/genesys-webcomponents.css"
@@ -198,8 +202,6 @@
     </div>
 
     <script>
-      console.log("Outbound Forecast Generator (OFG) initiated");
-
       var token = sessionStorage.getItem("token");
       const wfmBuStorage = "wfmBuList";
       var selectedBuId;
@@ -399,6 +401,8 @@
 
           // log row contents
           console.warn(row);
+
+          //get pg name
 
           // Get PG name and ID
           const pgNameCell = row.querySelector("[data-column-name=pg-name]");

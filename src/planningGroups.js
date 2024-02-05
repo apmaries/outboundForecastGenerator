@@ -94,9 +94,9 @@ async function loadPageTwo(businessUnitId) {
       const groupName = group.pgName;
 
       console.log(
-        `OFG: Matching planning group ${i + 1}: ${
-          group.pgName
-        } with queue id ${groupQueueId}`
+        `OFG: Matching planning group ${
+          i + 1
+        }: ${groupName} with queue id ${groupQueueId}`
       );
 
       // find matching campaign
@@ -148,7 +148,7 @@ async function loadPageTwo(businessUnitId) {
 
       const label = document.createElement("label");
       label.slot = "label";
-      label.textContent = pgName + "number of contacts";
+      label.textContent = groupName + "number of contacts";
 
       // Disable input if no matching campaign found
       if (!matchingCampaign) {
