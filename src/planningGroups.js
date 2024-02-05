@@ -86,6 +86,8 @@ async function loadPageTwo(businessUnitId) {
       // loop through planning groups to link to campaigns and populate table
       const group = planningGroups[i];
       const groupQueueId = group.pgQueueId;
+      const groupId = group.pgId;
+      const groupName = group.pgName;
 
       console.log(
         `OFG: Matching planning group ${i + 1}: ${
@@ -106,8 +108,8 @@ async function loadPageTwo(businessUnitId) {
 
       // populate pg name cell
       const pgNameCell = document.createElement("td");
-      pgNameCell.textContent = group.pgName;
-      pgNameCell.dataset.pgId = group.pgId; // Add the planning group id as a data attribute
+      pgNameCell.textContent = groupName;
+      pgNameCell.dataset.pgId = groupId; // Add the planning group id as a data attribute
       row.appendChild(pgNameCell);
 
       // populate campaign name cell
@@ -126,7 +128,29 @@ async function loadPageTwo(businessUnitId) {
       row.appendChild(campaignNameCell);
 
       // populate nContacts cell
+      const inputId = "nContacts_" + groupId;
       const nContactsCell = document.createElement("td");
+      const guxFormFieldNumber = document.createElement(
+        "gux-form-field-number"
+      );
+      guxFormFieldNumber.style.width = "100%";
+      const input = document.createElement("input");
+      input.slot = "input";
+      input.type = "number";
+      input.id = inputId;
+      input.min = "0";
+      input.max = "100000";
+      input.value = "0";
+      input.step = "500";
+
+      // Disable input if no matching campaign found
+      if (!matchingCampaign) {
+        input.disabled = true;
+      }
+
+      guxFormFieldNumber.appendChild(input);
+      nContactsCell.appendChild(guxFormFieldNumber);
+
       nContactsCell.textContent = "1000";
       row.appendChild(nContactsCell);
 
