@@ -9,6 +9,7 @@ async function loadPageTwo(businessUnitId) {
       `/api/v2/workforcemanagement/businessunits/${businessUnitId}/planninggroups`,
       "GET"
     );
+    console.log(`OFG: Found ${planningGroups.length} planning groups`);
 
     // initate object to store planning group data
     let pgObj = { "pgId": "", "pgName": "", "pgQueueId": "" };
@@ -16,7 +17,7 @@ async function loadPageTwo(businessUnitId) {
     // loop through planning groups to build array of planning group objects
     for (let i = 0; i < planningGroups.length; i++) {
       const group = planningGroups[i];
-      console.log(`OFG: Found planning group ${i + 1}: ${group.name}`);
+      console.log(`OFG: Processing planning group ${i + 1}: ${group.name}`);
 
       // get planning group data
       const groupId = group.id;
@@ -43,9 +44,7 @@ async function loadPageTwo(businessUnitId) {
     console.log(`OFG: Get Campaigns initiated`);
     campaigns = await fetchDataWithRetry(`/api/v2/outbound/campaigns`, "GET");
 
-    console.log(
-      `OFG: Found ${campaigns.length} campaigns` + JSON.stringify(campaigns)
-    );
+    console.log(`OFG: Found ${campaigns.length} campaigns`);
 
     // initiate object to store campaign data
     let campaignObj = {
@@ -58,7 +57,7 @@ async function loadPageTwo(businessUnitId) {
     // loop through campaigns to build array of campaign objects
     for (let i = 0; i < campaigns.length; i++) {
       const campaign = campaigns[i];
-      console.log(`OFG: Found campaign ${i + 1}: ${campaign.name}`);
+      console.log(`OFG: Processing campaign ${i + 1}: ${campaign.name}`);
 
       // get campaign data
       const campaignId = campaign.id;
@@ -98,10 +97,14 @@ async function loadPageTwo(businessUnitId) {
       const group = planningGroups[i];
       const groupQueueId = group.pgQueueId;
 
-      console.log(`OFG: Processing planning group ${i + 1}: ${group.pgName}`);
+      console.log(
+        `OFG: Matching planning group ${i + 1}: ${
+          group.pgName
+        } with queue id ${groupQueueId}`
+      );
 
       // temporary logging
-      console.log(`OFG: Campaigns: ${campaigns}`);
+      console.log(`OFG: Campaigns: ${JSON.stringify(campaigns)}`);
 
       // find matching campaign
       const matchingCampaign = campaigns.find(
