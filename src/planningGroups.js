@@ -148,7 +148,7 @@ async function loadPageTwo(businessUnitId) {
 
       const label = document.createElement("label");
       label.slot = "label";
-      label.textContent = groupName + "number of contacts";
+      label.textContent = groupName + " number of contacts";
 
       // Disable input if no matching campaign found
       if (!matchingCampaign) {

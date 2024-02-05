@@ -401,17 +401,17 @@
           // log row contents
           console.warn(row);
 
-          //get pg name
+          // get textContent of each cell
+          const cells = row.querySelectorAll("td");
+          console.warn(cells);
 
           // Get PG name and ID
-          const pgNameCell = row.querySelector("[data-column-name=pg-name]");
+          const pgNameCell = row.querySelector("td:first-child");
           const pgName = pgNameCell.textContent;
           const pgId = pgNameCell.dataset.pgId;
 
           // Get number of contacts
-          const numContactsCell = row.querySelector(
-            "[data-column-name=n-contacts]"
-          );
+          const numContactsCell = row.querySelector("td:last-child");
           const numContacts = numContactsCell.value;
 
           let planningGroupContacts = {
