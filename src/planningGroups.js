@@ -11,9 +11,6 @@ async function loadPageTwo(businessUnitId) {
     );
     console.log(`OFG: Found ${planningGroups.length} planning groups`);
 
-    // initate object to store planning group data
-    let pgObj = { "pgId": "", "pgName": "", "pgQueueId": "" };
-
     // loop through planning groups to build array of planning group objects
     for (let i = 0; i < planningGroups.length; i++) {
       const group = planningGroups[i];
@@ -25,10 +22,12 @@ async function loadPageTwo(businessUnitId) {
       const groupRpQueue = group.routePaths[0].queue;
       const groupQueueId = groupRpQueue.id;
 
-      // populate planning group object
-      pgObj.pgId = groupId;
-      pgObj.pgName = groupName;
-      pgObj.pgQueueId = groupQueueId;
+      // create a new planning group object
+      let pgObj = {
+        "pgId": groupId,
+        "pgName": groupName,
+        "pgQueueId": groupQueueId,
+      };
 
       // add planning group object to array
       planningGroupsArray.push(pgObj);
@@ -46,14 +45,6 @@ async function loadPageTwo(businessUnitId) {
 
     console.log(`OFG: Found ${campaigns.length} campaigns`);
 
-    // initiate object to store campaign data
-    let campaignObj = {
-      "campaignId": "",
-      "campaignName": "",
-      "campaignQueueId": "",
-      "campaignQueueName": "",
-    };
-
     // loop through campaigns to build array of campaign objects
     for (let i = 0; i < campaigns.length; i++) {
       const campaign = campaigns[i];
@@ -65,11 +56,13 @@ async function loadPageTwo(businessUnitId) {
       const campaignQueueId = campaign.queue.id;
       const campaignQueueName = campaign.queue.name;
 
-      // populate campaign object
-      campaignObj.campaignId = campaignId;
-      campaignObj.campaignName = campaignName;
-      campaignObj.campaignQueueId = campaignQueueId;
-      campaignObj.campaignQueueName = campaignQueueName;
+      // create a new campaign object
+      let campaignObj = {
+        "campaignId": campaignId,
+        "campaignName": campaignName,
+        "campaignQueueId": campaignQueueId,
+        "campaignQueueName": campaignQueueName,
+      };
 
       // add campaign object to array
       campaignsArray.push(campaignObj);
