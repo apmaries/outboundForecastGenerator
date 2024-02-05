@@ -103,9 +103,6 @@ async function loadPageTwo(businessUnitId) {
       // create table row
       const row = document.createElement("tr");
 
-      // assign class for table row
-      row.className = "urbanist fw-400";
-
       // populate pg name cell
       const pgNameCell = document.createElement("td");
       pgNameCell.textContent = groupName;
@@ -133,7 +130,6 @@ async function loadPageTwo(businessUnitId) {
       const guxFormFieldNumber = document.createElement(
         "gux-form-field-number"
       );
-      guxFormFieldNumber.style.width = "100%";
       const input = document.createElement("input");
       input.slot = "input";
       input.type = "number";
