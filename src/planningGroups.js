@@ -96,6 +96,9 @@ async function loadPageTwo(businessUnitId) {
 
       console.log(`OFG: Processing planning group ${i + 1}: ${group.pgName}`);
 
+      // temporary logging
+      console.log(`OFG: Campaigns: ${campaigns}`);
+
       // find matching campaign
       const matchingCampaign = campaigns.find(
         (campaign) => campaign.campaignQueueId === groupQueueId
