@@ -101,6 +101,9 @@ async function loadPageTwo(businessUnitId) {
       // create table row
       const row = document.createElement("tr");
 
+      // assign class for table row
+      row.className = "urbanist fw-400";
+
       // populate pg name cell
       const pgNameCell = document.createElement("td");
       pgNameCell.textContent = group.pgName;
@@ -114,7 +117,7 @@ async function loadPageTwo(businessUnitId) {
         console.log(
           `OFG: Matching campaign found: ${matchingCampaign.campaignName}`
         );
-        campaignNameCell.textContent = matchingCampaign.name;
+        campaignNameCell.textContent = matchingCampaign.campaignName;
       } else {
         // populate empty cell if no matching campaign found
         console.log(`OFG: No matching campaign found`);
