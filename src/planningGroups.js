@@ -69,9 +69,6 @@ async function loadPageTwo(businessUnitId) {
       console.debug(`OFG: Campaign[${i + 1}] = ` + JSON.stringify(campaignObj));
     }
 
-    // temporary logging
-    console.log(`OFG: Campaigns: ${campaignsArray}`);
-
     return campaignsArray;
   }
 
@@ -96,14 +93,10 @@ async function loadPageTwo(businessUnitId) {
         } with queue id ${groupQueueId}`
       );
 
-      // temporary logging
-      console.log(`OFG: Campaigns: ${JSON.stringify(campaigns)}`);
-
       // find matching campaign
       const matchingCampaign = campaigns.find(
         (campaign) => campaign.campaignQueueId === groupQueueId
       );
-      console.log(`OFG: Matching campaign: ${matchingCampaign}`);
 
       // create table row
       const row = document.createElement("tr");
@@ -118,7 +111,9 @@ async function loadPageTwo(businessUnitId) {
       const campaignNameCell = document.createElement("td");
       if (matchingCampaign) {
         // populate campaign name if matching campaign found
-        console.log(`OFG: Matching campaign found: ${matchingCampaign.name}`);
+        console.log(
+          `OFG: Matching campaign found: ${matchingCampaign.campaignName}`
+        );
         campaignNameCell.textContent = matchingCampaign.name;
       } else {
         // populate empty cell if no matching campaign found
