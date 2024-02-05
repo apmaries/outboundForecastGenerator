@@ -31,7 +31,7 @@ async function loadPageTwo(businessUnitId) {
 
       // add planning group object to array
       planningGroupsArray.push(pgObj);
-      console.debug(`OFG: PG[${i + 1}] = ` + pgObj);
+      console.debug(`OFG: PG[${i + 1}] = ` + JSON.stringify(pgObj));
     }
 
     return planningGroupsArray;
@@ -41,10 +41,7 @@ async function loadPageTwo(businessUnitId) {
   async function getCampaigns() {
     let campaignsArray = [];
     console.log(`OFG: Get Campaigns initiated`);
-    campaigns = await fetchDataWithRetry(
-      `/api/v2/outbound/campaigns/all?pageSize=1&pageNumber=10000`,
-      "GET"
-    );
+    campaigns = await fetchDataWithRetry(`/api/v2/outbound/campaigns`, "GET");
 
     // initiate object to store campaign data
     let campaignObj = {
@@ -73,7 +70,7 @@ async function loadPageTwo(businessUnitId) {
 
       // add campaign object to array
       campaignsArray.push(campaignObj);
-      console.debug(`OFG: Campaign[${i + 1}] = ` + campaignObj);
+      console.debug(`OFG: Campaign[${i + 1}] = ` + JSON.stringify(campaignObj));
     }
 
     // temporary logging
