@@ -153,7 +153,17 @@
       <fieldset class="form-container">
         <legend>Planning Groups</legend>
         <div id="planning-groups">
-          <gux-table resizable-columns id="planning-groups-table" compact>
+          <gux-page-loading-spinner
+            id="planning-groups-loading"
+            screenreader-text="Loading..."
+            style="border: 1px dashed gainsboro"
+          ></gux-page-loading-spinner>
+          <gux-table
+            resizable-columns
+            id="planning-groups-table"
+            compact
+            hidden
+          >
             <table slot="data">
               <thead>
                 <tr>
@@ -172,18 +182,6 @@
               </thead>
               <tbody></tbody></table
           ></gux-table>
-          <!-- <gux-form-field-number style="width: 100%">
-            <input
-              slot="input"
-              type="number"
-              id="numContacts"
-              min="0"
-              max="100000"
-              value="0"
-              step="500"
-            />
-            <label class="width" slot="label">Number of contacts</label>
-          </gux-form-field-number> -->
         </div>
         <div id="buttons" class="row" style="padding-top: 20px">
           <gux-button accent="secondary" class="align-left" onclick="prevPage()"
@@ -302,12 +300,11 @@
         var selectedBuId = businessUnitDropdown.value;
         console.log(`OFG: User selected BU - ${JSON.stringify(selectedBuId)}`);
 
-        // up to here
+        // BU variables
         var buObj = buArray.find((unit) => unit.id === selectedBuId);
         var selectedBuStartDayOfWeek = buObj.startDayOfWeek;
         var selectedBuTimeZone = buObj.timeZone;
         var selectedBuDefaultHistoryWeeks = buObj.defaultHistoryWeeks;
-        console.log(JSON.stringify(buObj));
 
         // Set default value for historicalWeeks
         document.getElementById("historicalWeeks").value =
@@ -399,6 +396,9 @@
         // loop through table rows
         for (let i = 0; i < rows.length; i++) {
           const row = rows[i];
+
+          // log row contents
+          console.warn(row);
 
           // Get PG name and ID
           const pgNameCell = row.querySelector("[data-column-name=pg-name]");

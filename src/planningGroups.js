@@ -74,7 +74,11 @@ async function loadPageTwo(businessUnitId) {
 
   // Function to get queue campaigns
   async function queueCampaignMatcher(planningGroups, campaigns) {
-    // define table body
+    // define document elements
+    const loadingSpinner = document.querySelector("#loading-spinner");
+    const planningGroupsTable = document.querySelector(
+      "#planning-groups-table"
+    );
     const tableBody = document.querySelector("#planning-groups-table tbody");
 
     // Clear out any existing rows
@@ -127,9 +131,12 @@ async function loadPageTwo(businessUnitId) {
       // populate nContacts cell
       const inputId = "nContacts_" + groupId;
       const nContactsCell = document.createElement("td");
+
       const guxFormFieldNumber = document.createElement(
         "gux-form-field-number"
       );
+      guxFormFieldNumber.setAttribute("label-position", "screenreader");
+
       const input = document.createElement("input");
       input.slot = "input";
       input.type = "number";
@@ -139,18 +146,26 @@ async function loadPageTwo(businessUnitId) {
       input.value = "0";
       input.step = "500";
 
+      const label = document.createElement("label");
+      label.slot = "label";
+      label.textContent = pgName + "number of contacts";
+
       // Disable input if no matching campaign found
       if (!matchingCampaign) {
         input.disabled = true;
       }
 
       guxFormFieldNumber.appendChild(input);
+      guxFormFieldNumber.appendChild(label);
       nContactsCell.appendChild(guxFormFieldNumber);
 
       row.appendChild(nContactsCell);
 
       tableBody.appendChild(row);
     }
+
+    loadingSpinner.style.display = "none";
+    planningGroupsTable.removeAttribute("hidden");
   }
 
   // Use Promise.all to run getPlanningGroups and getCampaigns concurrently
