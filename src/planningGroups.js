@@ -4,33 +4,34 @@ async function loadPageTwo(businessUnitId) {
     let planningGroupsArray = [];
     console.log(`OFG: Get Planning Groups initiated`);
 
-    const tableBody = document.querySelector("#planning-groups-table tbody");
-    // Clear out any existing rows
-    tableBody.innerHTML = "";
-
     // Get planning groups
-    planningGroupsArray = await fetchDataWithRetry(
+    planningGroups = await fetchDataWithRetry(
       `/api/v2/workforcemanagement/businessunits/${businessUnitId}/planninggroups`,
       "GET"
     );
 
-    for (let i = 0; i < planningGroupsArray.length; i++) {
-      const group = planningGroupsArray[i];
+    // initate object to store planning group data
+    let pgObj = { "pgId": "", "pgName": "", "pgQueueId": "" };
+
+    // loop through planning groups to build array of planning group objects
+    for (let i = 0; i < planningGroups.length; i++) {
+      const group = planningGroups[i];
       console.log(`OFG: Found planning group ${i + 1}: ${group.name}`);
-      const row = document.createElement("tr");
-      const pgNameCell = document.createElement("td");
-      pgNameCell.textContent = group.name;
-      row.appendChild(pgNameCell);
 
-      const campaignNameCell = document.createElement("td");
-      campaignNameCell.textContent = "Campaign Name";
-      row.appendChild(campaignNameCell);
+      // get planning group data
+      const groupId = group.id;
+      const groupName = group.name;
+      const groupRpQueue = group.routePaths[0].queue;
+      const groupQueueId = groupRpQueue.id;
 
-      const nContactsCell = document.createElement("td");
-      nContactsCell.textContent = "1000";
-      row.appendChild(nContactsCell);
+      // populate planning group object
+      pgObj.pgId = groupId;
+      pgObj.pgName = groupName;
+      pgObj.pgQueueId = groupQueueId;
 
-      tableBody.appendChild(row);
+      // add planning group object to array
+      planningGroupsArray.push(pgObj);
+      console.debug(`OFG: PG[${i + 1}] = ` + pgObj);
     }
 
     return planningGroupsArray;
@@ -40,16 +41,90 @@ async function loadPageTwo(businessUnitId) {
   async function getCampaigns() {
     let campaignsArray = [];
     console.log(`OFG: Get Campaigns initiated`);
-    console.log(businessUnitId);
+    campaigns = await fetchDataWithRetry(
+      `/api/v2/outbound/campaigns/all?pageSize=1&pageNumber=10000`,
+      "GET"
+    );
+
+    // initiate object to store campaign data
+    let campaignObj = {
+      "campaignId": "",
+      "campaignName": "",
+      "campaignQueueId": "",
+      "campaignQueueName": "",
+    };
+
+    // loop through campaigns to build array of campaign objects
+    for (let i = 0; i < campaigns.length; i++) {
+      const campaign = campaigns[i];
+      console.log(`OFG: Found campaign ${i + 1}: ${campaign.name}`);
+
+      // get campaign data
+      const campaignId = campaign.id;
+      const campaignName = campaign.name;
+      const campaignQueueId = campaign.queue.id;
+      const campaignQueueName = campaign.queue.name;
+
+      // populate campaign object
+      campaignObj.campaignId = campaignId;
+      campaignObj.campaignName = campaignName;
+      campaignObj.campaignQueueId = campaignQueueId;
+      campaignObj.campaignQueueName = campaignQueueName;
+
+      // add campaign object to array
+      campaignsArray.push(campaignObj);
+      console.debug(`OFG: Campaign[${i + 1}] = ` + campaignObj);
+    }
+
     return campaignsArray;
   }
 
   // Function to get queue campaigns
-  async function queueCampaignMatcher() {
-    let queueCampaignsArray = [];
-    console.log(`OFG: Queue Campaigns initiated`);
-    console.log(businessUnitId);
-    return queueCampaignsArray;
+  async function queueCampaignMatcher(planningGroups, campaigns) {
+    // define table body
+    const tableBody = document.querySelector("#planning-groups-table tbody");
+
+    // Clear out any existing rows
+    tableBody.innerHTML = "";
+
+    console.log(`OFG: Matching queues & campaigns`);
+
+    for (let i = 0; i < planningGroups.length; i++) {
+      // loop through planning groups to link to campaigns and populate table
+      const group = planningGroups[i];
+      const groupQueueId = group.pgQueueId;
+
+      // find matching campaign
+      const matchingCampaign = campaigns.find(
+        (campaign) => campaign.campaignQueueId === groupQueueId
+      );
+
+      // create table row
+      const row = document.createElement("tr");
+
+      // populate pg name cell
+      const pgNameCell = document.createElement("td");
+      pgNameCell.textContent = group.name;
+      row.appendChild(pgNameCell);
+
+      // populate campaign name cell
+      const campaignNameCell = document.createElement("td");
+      if (matchingCampaign) {
+        // populate campaign name if matching campaign found
+        campaignNameCell.textContent = matchingCampaign.name;
+      } else {
+        // populate empty cell if no matching campaign found
+        campaignNameCell.textContent = "";
+      }
+      row.appendChild(campaignNameCell);
+
+      // populate nContacts cell
+      const nContactsCell = document.createElement("td");
+      nContactsCell.textContent = "1000";
+      row.appendChild(nContactsCell);
+
+      tableBody.appendChild(row);
+    }
   }
 
   // Use Promise.all to run getPlanningGroups and getCampaigns concurrently
@@ -59,5 +134,5 @@ async function loadPageTwo(businessUnitId) {
   ]);
 
   // Execute queueCampaignMatcher after getPlanningGroups and getCampaigns complete
-  var queueCampaignsResult = await queueCampaignMatcher();
+  await queueCampaignMatcher(planningGroups, campaigns);
 }
