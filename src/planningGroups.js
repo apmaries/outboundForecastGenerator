@@ -94,6 +94,8 @@ async function loadPageTwo(businessUnitId) {
       const group = planningGroups[i];
       const groupQueueId = group.pgQueueId;
 
+      console.log(`OFG: Processing planning group ${i + 1}: ${group.pgName}`);
+
       // find matching campaign
       const matchingCampaign = campaigns.find(
         (campaign) => campaign.campaignQueueId === groupQueueId
@@ -111,9 +113,11 @@ async function loadPageTwo(businessUnitId) {
       const campaignNameCell = document.createElement("td");
       if (matchingCampaign) {
         // populate campaign name if matching campaign found
+        console.log(`OFG: Matching campaign found: ${matchingCampaign.name}`);
         campaignNameCell.textContent = matchingCampaign.name;
       } else {
         // populate empty cell if no matching campaign found
+        console.log(`OFG: No matching campaign found`);
         campaignNameCell.textContent = "";
       }
       row.appendChild(campaignNameCell);
