@@ -345,6 +345,7 @@
 
       // Populate default values on page load
       window.onload = async function () {
+        let test = true;
         await getOrgLevelStuff();
 
         let buData;
@@ -353,15 +354,16 @@
           `/api/v2/workforcemanagement/businessunits`,
           "GET"
         );
-
         let buCount = allBuData.length;
 
-        if (buCount > 0) {
-          await populateBusinessUnits(allBuData);
-          console.log(`OFG: Found ${buCount} Business Units in WFM`);
-          const buArray = await fetchBusinessUnits(allBuData, buCount);
-        } else {
-          console.error(`OFG: No business units found in WFM`);
+        if (!test) {
+          if (buCount > 0) {
+            await populateBusinessUnits(allBuData);
+            console.log(`OFG: Found ${buCount} Business Units in WFM`);
+            const buArray = await fetchBusinessUnits(allBuData, buCount);
+          } else {
+            console.error(`OFG: No business units found in WFM`);
+          }
         }
       };
 
@@ -409,13 +411,9 @@
           const pgNameCell = row.querySelector("td:first-child");
           const pgName = pgNameCell.textContent;
           const pgId = pgNameCell.dataset.pgId;
-          console.log(`OFG: PG Name - ${pgName}`);
-          console.log(`OFG: PG ID - ${pgId}`);
 
           // Get number of contacts
-          const numContactsCell = row.querySelector("td:last-child");
-          const numContactsInput =
-            numContactsCell.querySelector("td:first-child");
+          const numContactsInput = row.getElementById(`nContacts_${pgId}`);
           const numContacts = numContactsInput.value;
 
           let planningGroupContacts = {
