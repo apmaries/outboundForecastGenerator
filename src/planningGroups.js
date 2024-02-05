@@ -100,13 +100,14 @@ async function loadPageTwo(businessUnitId) {
       const matchingCampaign = campaigns.find(
         (campaign) => campaign.campaignQueueId === groupQueueId
       );
+      console.log(`OFG: Matching campaign: ${matchingCampaign}`);
 
       // create table row
       const row = document.createElement("tr");
 
       // populate pg name cell
       const pgNameCell = document.createElement("td");
-      pgNameCell.textContent = group.name;
+      pgNameCell.textContent = group.pgName;
       row.appendChild(pgNameCell);
 
       // populate campaign name cell
