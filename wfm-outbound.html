@@ -373,13 +373,16 @@
         var selectedBuId = businessUnitDropdown.value;
         console.log(`OFG: Running for BU - ${JSON.stringify(selectedBuId)}`);
 
-        // up to here
+        // page one variables
         var buObj = buArray.find((unit) => unit.id === selectedBuId);
         var selectedBuName = buObj.name;
         var selectedBuStartDayOfWeek = buObj.startDayOfWeek;
         var selectedBuTimeZone = buObj.timeZone;
         var selectedBuDefaultHistoryWeeks = buObj.defaultHistoryWeeks;
-        console.log(JSON.stringify(buObj));
+        //console.log(JSON.stringify(buObj));
+
+        // page two variables
+        // insert p2 variables here
 
         var weekStartInput = document.getElementById("weekStart");
         var numContactsInput = document.getElementById("numContacts");

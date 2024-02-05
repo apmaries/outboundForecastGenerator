@@ -76,6 +76,9 @@ async function loadPageTwo(businessUnitId) {
       console.debug(`OFG: Campaign[${i + 1}] = ` + campaignObj);
     }
 
+    // temporary logging
+    console.log(`OFG: Campaigns: ${campaignsArray}`);
+
     return campaignsArray;
   }
 
@@ -111,6 +114,7 @@ async function loadPageTwo(businessUnitId) {
       // populate pg name cell
       const pgNameCell = document.createElement("td");
       pgNameCell.textContent = group.pgName;
+      pgNameCell.dataset.pgId = group.pgId; // Add the planning group id as a data attribute
       row.appendChild(pgNameCell);
 
       // populate campaign name cell
