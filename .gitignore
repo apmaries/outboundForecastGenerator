@@ -2,4 +2,8 @@
 ./test/getTestData.py
 
 # Ignore specific directory
-./gitignore/
+
+./.env/
+
+# Ignore all files by extension
+*.env
