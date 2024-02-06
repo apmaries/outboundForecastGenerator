@@ -2,7 +2,7 @@
 ./test/getTestData.py
 
 # Ignore specific directory
-./.ignore/
+./.ignored/
 ./.env/
 
 # Ignore all files by extension
