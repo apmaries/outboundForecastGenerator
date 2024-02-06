@@ -92,7 +92,7 @@
     </style>
   </head>
   <body>
-    <h1>Outbound Forecast Generator</h1>
+    <h1 id="heading">Outbound Forecast Generator</h1>
     <div id="user-welcome" hidden></div>
 
     <div id="page-one" class="page active">
@@ -337,7 +337,7 @@
         var daysUntilNextStartDay =
           (getDayOfWeek(selectedBuStartDayOfWeek) - currentDayOfWeek + 7) % 7;
         var nextStartDay = currentDate.plus({ days: daysUntilNextStartDay });
-        var nextStartDayString = nextStartDay.toFormat("YYYY-MM-DD");
+        var nextStartDayString = nextStartDay.toFormat("yyyy-MM-dd");
         weekStartInput.value = nextStartDayString;
 
         // temporary debug
