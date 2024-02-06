@@ -8,7 +8,7 @@ from datetime import datetime as dt
 from datetime import timedelta as td
 from decouple import config
 
-
+#TODO: Make sure this is working / is ignored by Git
 run_time = time.strftime("%y%m%d_%H%M%S", time.localtime())
 directory = os.path.dirname(os.path.abspath(__file__))
 
