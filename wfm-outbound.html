@@ -368,8 +368,17 @@
 
         if (test) {
           console.log("OFG: Running in test mode");
+
+          // add element user welcome
+          var userWelcomeDiv = document.getElementById("user-welcome");
+          const testP = document.createElement("p");
+          testP.textContent = `Running in test mode`;
+          testP.style.color = "red";
+          userWelcomeDiv.appendChild(testP);
+          userWelcomeDiv.removeAttribute("hidden");
+
           testBuList = "./test/wfmBuList.json";
-          var buArray = JSON.parse(testBuList);
+          var buArray = testBuList;
           sessionStorage.setItem(wfmBuStorage, JSON.stringify(buArray));
           populateBusinessUnits(buArray);
         } else {
