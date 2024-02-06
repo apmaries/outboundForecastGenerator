@@ -1,0 +1,103 @@
+{
+    "queueId": "",
+    "data": {
+        "Monday": {
+            "dailyTotals": {
+                "contactRate": [
+                ],
+                "aht": [
+                ]
+            },
+            "intradayValues": {
+                "contactRate": [
+                ],
+                "aht": [
+                ]
+            }
+        },
+        "Tuesday": {
+            "dailyTotals": {
+                "contactRate": [
+                ],
+                "aht": [
+                ]
+            },
+            "intradayValues": {
+                "contactRate": [
+                ],
+                "aht": [
+                ]
+            }
+        },
+        "Wednesday": {
+            "dailyTotals": {
+                "contactRate": [
+                ],
+                "aht": [
+                ]
+            },
+            "intradayValues": {
+                "contactRate": [
+                ],
+                "aht": [
+                ]
+            }
+        },
+        "Thursday": {
+            "dailyTotals": {
+                "contactRate": [
+                ],
+                "aht": [
+                ]
+            },
+            "intradayValues": {
+                "contactRate": [
+                ],
+                "aht": [
+                ]
+            }
+        },
+        "Friday": {
+            "dailyTotals": {
+                "contactRate": [
+                ],
+                "aht": [
+                ]
+            },
+            "intradayValues": {
+                "contactRate": [
+                ],
+                "aht": [
+                ]
+            }
+        },
+        "Saturday": {
+            "dailyTotals": {
+                "contactRate": [
+                ],
+                "aht": [
+                ]
+            },
+            "intradayValues": {
+                "contactRate": [
+                ],
+                "aht": [
+                ]
+            }
+        },
+        "Sunday": {
+            "dailyTotals": {
+                "contactRate": [
+                ],
+                "aht": [
+                ]
+            },
+            "intradayValues": {
+                "contactRate": [
+                ],
+                "aht": [
+                ]
+            }
+        }
+    }
+}

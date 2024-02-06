@@ -303,6 +303,8 @@
 
         // BU variables
         var buObj = buArray.find((unit) => unit.id === selectedBuId);
+        console.debug(`OFG: ${JSON.stringify(buObj)}`);
+
         var selectedBuStartDayOfWeek = buObj.startDayOfWeek;
         var selectedBuTimeZone = buObj.timeZone;
         var selectedBuDefaultHistoryWeeks = buObj.defaultHistoryWeeks;
@@ -311,20 +313,40 @@
         document.getElementById("historicalWeeks").value =
           selectedBuDefaultHistoryWeeks;
 
-        // Restrict weekStart input to the selected BU's startDayOfWeek
-        document.getElementById("weekStart").min = selectedBuStartDayOfWeek;
+        // Set weekStart element
+        var weekStartInput = document.getElementById("weekStart");
+
+        // set weekStartInput start-day-of-week attribute to the selected BU's startDayOfWeek
+        weekStartInput.setAttribute(
+          "start-day-of-week",
+          getDayOfWeek(selectedBuStartDayOfWeek).toString()
+        );
+
+        // temporary debug
+        console.debug(
+          `OFG: start-day-of-week set to ${getDayOfWeek(
+            selectedBuStartDayOfWeek
+          ).toString()}`
+        );
 
         // Set default value for weekStart to the next occurrence of startDayOfWeek in the specified time zone
         var currentDate = luxon.DateTime.now({ zone: selectedBuTimeZone });
         var currentDayOfWeek = getDayOfWeek(currentDate.weekdayLong);
 
+        // temporary debug
+        console.debug(
+          `OFG: currentDayOfWeek is ${currentDayOfWeek} (${currentDate.weekdayLong})`
+        );
+
         // Adjust for Monday as the start of the week
         var daysUntilNextStartDay =
           (getDayOfWeek(selectedBuStartDayOfWeek) - currentDayOfWeek + 7) % 7;
         var nextStartDay = currentDate.plus({ days: daysUntilNextStartDay });
+        weekStartInput.value = nextStartDay.toJSDate();
 
-        document.getElementById("weekStart").valueAsDate =
-          nextStartDay.toJSDate();
+        // temporary debug
+        console.debug(`OFG: daysUntilNextStartDay is ${daysUntilNextStartDay}`);
+        console.debug(`OFG: nextStartDay is ${nextStartDay.toJSDate()}`);
 
         return buObj;
       }
