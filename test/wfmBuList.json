@@ -1,0 +1,402 @@
+[
+  {
+    "name": "*amOB",
+    "id": "595eb389-e150-4492-8825-b764cc9d9bfe",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 6,
+    "timeZone": "Australia/Sydney",
+    "offset": 660
+  },
+  {
+    "name": "amApiTesting",
+    "id": "604aff2e-b25a-4d3b-a476-75f7567bec26",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 4,
+    "timeZone": "Australia/Sydney",
+    "offset": 660
+  },
+  {
+    "name": "amBluthCo",
+    "id": "7e5d7b10-9086-4c53-8458-7a24df8b902b",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 6,
+    "timeZone": "Australia/Sydney",
+    "offset": 660
+  },
+  {
+    "name": "AXA Training",
+    "id": "30bdb46e-c9a5-490a-8fdf-c3969a5d8b6d",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 6,
+    "timeZone": "Asia/Bangkok",
+    "offset": 420
+  },
+  {
+    "name": "BH_BU",
+    "id": "4828857c-faaa-4569-84ba-1a4f9ad6a070",
+    "startDayOfWeek": "Sunday",
+    "defaultHistoryWeeks": 6,
+    "timeZone": "America/Chicago",
+    "offset": -360
+  },
+  {
+    "name": "Bruno BU",
+    "id": "452e295e-2a71-4469-86b0-fa31a2bad79d",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 6,
+    "timeZone": "America/Los_Angeles",
+    "offset": -480
+  },
+  {
+    "name": "BU Example",
+    "id": "243dedb8-93dd-49e3-a848-aed82b776435",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 6,
+    "timeZone": "Australia/Melbourne",
+    "offset": 660
+  },
+  {
+    "name": "CD Auckland BU",
+    "id": "51ecf50c-0eb8-487a-9534-9356c0fde6a4",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 8,
+    "timeZone": "Pacific/Auckland",
+    "offset": 780
+  },
+  {
+    "name": "CD Melbourne BU",
+    "id": "c9fa3c56-e171-48ba-85d7-d39b8d20707b",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 6,
+    "timeZone": "Australia/Sydney",
+    "offset": 660
+  },
+  {
+    "name": "CD test BU",
+    "id": "71391603-2c0d-4d09-a2e0-762645ebe435",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 6,
+    "timeZone": "Australia/Sydney",
+    "offset": 660
+  },
+  {
+    "name": "CD Test BU",
+    "id": "804e9905-1b62-4e63-bd28-65c85af833f7",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 6,
+    "timeZone": "Australia/Sydney",
+    "offset": 660
+  },
+  {
+    "name": "CJ Workforce KL BU",
+    "id": "dd92bdec-394f-432d-a6f5-2d23dfbfcbc6",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 6,
+    "timeZone": "Asia/Kuala_Lumpur",
+    "offset": 480
+  },
+  {
+    "name": "Djay Delhi BU",
+    "id": "58a2bf92-eaf9-46c0-94a6-f1f4cc910217",
+    "startDayOfWeek": "Sunday",
+    "defaultHistoryWeeks": 4,
+    "timeZone": "Asia/Colombo",
+    "offset": 330
+  },
+  {
+    "name": "Docusign ",
+    "id": "c4688850-e237-445d-93cf-f5a8f75c2f51",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 6,
+    "timeZone": "America/Los_Angeles",
+    "offset": -480
+  },
+  {
+    "name": "Dunder Mifflin",
+    "id": "2f5c5f15-8545-470a-8c8e-9289e019d3eb",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 6,
+    "timeZone": "Europe/London",
+    "offset": 0
+  },
+  {
+    "name": "GMF_SL",
+    "id": "5dece68f-1d79-4913-9c4e-55d5b8bd4d24",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 6,
+    "timeZone": "America/Chicago",
+    "offset": -360
+  },
+  {
+    "name": "Iniciativas",
+    "id": "3000d416-a57c-4a0a-9c9d-2de97a47737f",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 6,
+    "timeZone": "America/New_York",
+    "offset": -300
+  },
+  {
+    "name": "JKC Test",
+    "id": "5d57c787-9d76-44b7-a084-3ac4716d4281",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 6,
+    "timeZone": "America/New_York",
+    "offset": -300
+  },
+  {
+    "name": "Joy's BU",
+    "id": "275349cb-46e3-45c8-a331-266ed2e3248c",
+    "startDayOfWeek": "Sunday",
+    "defaultHistoryWeeks": 8,
+    "timeZone": "Asia/Kolkata",
+    "offset": 330
+  },
+  {
+    "name": "Joy's Testing 2 BU",
+    "id": "3af1c91b-c2bd-4476-8070-030b71ef9c0c",
+    "startDayOfWeek": "Sunday",
+    "defaultHistoryWeeks": 8,
+    "timeZone": "Asia/Colombo",
+    "offset": 330
+  },
+  {
+    "name": "KHBU1",
+    "id": "d7d30893-7026-478b-b6d4-69186198583d",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 6,
+    "timeZone": "Australia/Sydney",
+    "offset": 660
+  },
+  {
+    "name": "KS Test BU",
+    "id": "4a7437f9-84a7-4746-939e-24ab0b23a478",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 6,
+    "timeZone": "Australia/Sydney",
+    "offset": 660
+  },
+  {
+    "name": "KS Test BU 2",
+    "id": "3f7df375-b55b-4616-a6f8-d4c7f897b701",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 6,
+    "timeZone": "Australia/Sydney",
+    "offset": 660
+  },
+  {
+    "name": "KS Test BU 3",
+    "id": "eeba7518-9967-4372-90b2-99bdd2ab3989",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 6,
+    "timeZone": "Australia/Sydney",
+    "offset": 660
+  },
+  {
+    "name": "LS_Sales",
+    "id": "4058b85d-83ce-45ec-b240-16586a774794",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 6,
+    "timeZone": "America/New_York",
+    "offset": -300
+  },
+  {
+    "name": "LS_test",
+    "id": "b99e8295-12a8-4e28-ba60-1b4d2188c409",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 6,
+    "timeZone": "America/Los_Angeles",
+    "offset": -480
+  },
+  {
+    "name": "Operation Outcome",
+    "id": "b37714a3-d085-4f9c-96b3-876fa34efbc4",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 6,
+    "timeZone": "America/New_York",
+    "offset": -300
+  },
+  {
+    "name": "Operation Treadstone",
+    "id": "66ec2124-b8b2-459e-bddb-47352749f809",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 8,
+    "timeZone": "America/Bogota",
+    "offset": -300
+  },
+  {
+    "name": "Prog Leasing",
+    "id": "9e3c7574-6c51-4394-b225-0795443c84a7",
+    "startDayOfWeek": "Sunday",
+    "defaultHistoryWeeks": 6,
+    "timeZone": "America/Los_Angeles",
+    "offset": -480
+  },
+  {
+    "name": "RB_Business Unit",
+    "id": "720e8d61-ce07-40aa-a3c5-708deec15d17",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 8,
+    "timeZone": "America/Indiana/Indianapolis",
+    "offset": -300
+  },
+  {
+    "name": "RT Customer Care",
+    "id": "bdfba17c-7b6a-41ad-a4a0-9bfb4d5af8d4",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 3,
+    "timeZone": "Europe/Vienna",
+    "offset": 60
+  },
+  {
+    "name": "RT Shop",
+    "id": "075b8e00-78aa-4569-9ade-a5ac021d12f9",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 6,
+    "timeZone": "Europe/London",
+    "offset": 0
+  },
+  {
+    "name": "SK_Test BU",
+    "id": "d4f5c1db-d47f-42ca-a31f-32f8b765bba2",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 4,
+    "timeZone": "America/Halifax",
+    "offset": -240
+  },
+  {
+    "name": "SK-Test 2",
+    "id": "b7ba114e-f861-462b-9c56-914be1e7061c",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 6,
+    "timeZone": "Pacific/Easter",
+    "offset": -300
+  },
+  {
+    "name": "SL_BU",
+    "id": "aa6ddbbd-2c66-4450-a329-4c9c0584d1f9",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 8,
+    "timeZone": "America/Los_Angeles",
+    "offset": -480
+  },
+  {
+    "name": "SL_RealPage Affordable",
+    "id": "1a10d2a7-40e1-4236-bc7f-321862492892",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 6,
+    "timeZone": "America/Los_Angeles",
+    "offset": -480
+  },
+  {
+    "name": "SL_RealPage Payments",
+    "id": "31449baa-24be-4e09-8c5d-2e130fe5ae6c",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 6,
+    "timeZone": "America/Los_Angeles",
+    "offset": -480
+  },
+  {
+    "name": "SL_Test",
+    "id": "12c8d9a4-5e10-406c-8e41-d43f97ba7e14",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 6,
+    "timeZone": "America/Los_Angeles",
+    "offset": -480
+  },
+  {
+    "name": "SL_Test1",
+    "id": "3a800ede-cfe6-41e9-bccf-5143679e42d6",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 6,
+    "timeZone": "America/Los_Angeles",
+    "offset": -480
+  },
+  {
+    "name": "SL+GMF",
+    "id": "adcd4d33-3bfa-4a07-8d67-9f98dbeb5c56",
+    "startDayOfWeek": "Sunday",
+    "defaultHistoryWeeks": 4,
+    "timeZone": "America/Los_Angeles",
+    "offset": -480
+  },
+  {
+    "name": "STC",
+    "id": "08d2987b-1157-4b51-a690-21443c3b2691",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 6,
+    "timeZone": "Australia/Sydney",
+    "offset": 660
+  },
+  {
+    "name": "sxm test",
+    "id": "b305b138-18fe-4fb3-b5b5-77114bbf3f83",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 6,
+    "timeZone": "America/Los_Angeles",
+    "offset": -480
+  },
+  {
+    "name": "temp",
+    "id": "26d9d2b7-b5d7-4937-8628-b639e1594871",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 6,
+    "timeZone": "America/Indiana/Indianapolis",
+    "offset": -300
+  },
+  {
+    "name": "Test BU",
+    "id": "8d04c64a-728b-4bad-8dc7-78304bad786e",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 6,
+    "timeZone": "Australia/Sydney",
+    "offset": 660
+  },
+  {
+    "name": "Test BU Joy's",
+    "id": "c6d87182-a52a-49e7-87d1-cd9273cb5120",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 8,
+    "timeZone": "Asia/Colombo",
+    "offset": 330
+  },
+  {
+    "name": "Test BU Sarfaraz",
+    "id": "56216b00-ff1b-4a1e-bb43-7862291fd188",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 4,
+    "timeZone": "America/Halifax",
+    "offset": -240
+  },
+  {
+    "name": "Test ITOne BU",
+    "id": "69b6da23-ae38-486d-8147-0c20feb986aa",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 8,
+    "timeZone": "Asia/Kolkata",
+    "offset": 330
+  },
+  {
+    "name": "test PNB",
+    "id": "4f91ad64-82f0-479d-8e2e-436602ce94d5",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 8,
+    "timeZone": "Asia/Kuala_Lumpur",
+    "offset": 480
+  },
+  {
+    "name": "Test UM",
+    "id": "c677f30e-0f36-43c2-b729-12e96ce6f7a3",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 6,
+    "timeZone": "Australia/Brisbane",
+    "offset": 600
+  },
+  {
+    "name": "WW_Amsterdam (BU)",
+    "id": "77452ae5-9cd8-4084-8ddf-7e6b3a2f4cc4",
+    "startDayOfWeek": "Monday",
+    "defaultHistoryWeeks": 6,
+    "timeZone": "Europe/Amsterdam",
+    "offset": 60
+  }
+]

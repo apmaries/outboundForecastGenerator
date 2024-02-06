@@ -201,6 +201,7 @@
     </div>
 
     <script>
+      var test = true;
       var token = sessionStorage.getItem("token");
       const wfmBuStorage = "wfmBuList";
       var selectedBuId;
@@ -267,12 +268,6 @@
 
         // set session storage
         sessionStorage.setItem(wfmBuStorage, JSON.stringify(buArray));
-
-        // unhide parameters div
-        const loadingMessageElement =
-          document.getElementById("loading-message");
-        loadingMessageElement.style.display = "none";
-        document.getElementById("parameters").removeAttribute("hidden");
 
         return buArray;
       }
@@ -371,21 +366,36 @@
       window.onload = async function () {
         await getOrgLevelStuff();
 
-        let buData;
-
-        let allBuData = await fetchDataWithRetry(
-          `/api/v2/workforcemanagement/businessunits`,
-          "GET"
-        );
-        let buCount = allBuData.length;
-
-        if (buCount > 0) {
-          await populateBusinessUnits(allBuData);
-          console.log(`OFG: Found ${buCount} Business Units in WFM`);
-          const buArray = await fetchBusinessUnits(allBuData, buCount);
+        if (test) {
+          console.log("OFG: Running in test mode");
+          testBuList = "./test/wfmBuList.json";
+          var buArray = json.parse(testBuList);
+          sessionStorage.setItem(wfmBuStorage, JSON.stringify(buArray));
+          populateBusinessUnits(buArray);
         } else {
-          console.error(`OFG: No business units found in WFM`);
+          console.log("OFG: Running in production mode");
+          let buData;
+
+          let allBuData = await fetchDataWithRetry(
+            `/api/v2/workforcemanagement/businessunits`,
+            "GET"
+          );
+          let buCount = allBuData.length;
+
+          if (buCount > 0) {
+            await populateBusinessUnits(allBuData);
+            console.log(`OFG: Found ${buCount} Business Units in WFM`);
+            const buArray = await fetchBusinessUnits(allBuData, buCount);
+          } else {
+            console.error(`OFG: No business units found in WFM`);
+          }
         }
+
+        // unhide parameters div
+        const loadingMessageElement =
+          document.getElementById("loading-message");
+        loadingMessageElement.style.display = "none";
+        document.getElementById("parameters").removeAttribute("hidden");
       };
 
       // buttonClicked function
