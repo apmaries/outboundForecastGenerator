@@ -341,12 +341,14 @@
         // Adjust for Monday as the start of the week
         var daysUntilNextStartDay =
           (getDayOfWeek(selectedBuStartDayOfWeek) - currentDayOfWeek + 7) % 7;
-        var nextStartDay = currentDate.plus({ days: daysUntilNextStartDay });
-        weekStartInput.value = nextStartDay.toJSDate();
+        var nextStartDay = currentDate
+          .plus({ days: daysUntilNextStartDay })
+          .toFormat("YYYY-MM-DD");
+        weekStartInput.value = nextStartDay;
 
         // temporary debug
         console.debug(`OFG: daysUntilNextStartDay is ${daysUntilNextStartDay}`);
-        console.debug(`OFG: nextStartDay is ${nextStartDay.toJSDate()}`);
+        console.debug(`OFG: nextStartDay is ${nextStartDay}`);
 
         return buObj;
       }
