@@ -8,10 +8,12 @@ async function runGenerator(
   planningGroupContactsArray
 ) {
   // Your existing scheduling logic goes here
-  console.warn(`OFG: runGenerator() initiated in ${testMode} mode`);
   console.log(
     "OFG: main.js runGenerator() initiated. Listing user variables..."
   );
+  if (testMode) {
+    console.warn(`OFG: Running with test mode: ${testMode}`);
+  }
   console.log("OFG: Selected BU Name:", businessUnitName);
   console.log("OFG: Selected BU TimeZone:", selectedBuTimeZone);
   console.log("OFG: Week Start:", weekStart);
