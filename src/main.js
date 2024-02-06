@@ -41,12 +41,15 @@ async function runGenerator(
     return queryResults;
   }
 
+  // Declare queryResults variable with a default value
+  let queryResults = [];
+
   if (testMode) {
     // load test data
-    fetch("../test/testData.json")
+    fetch("./test/testData.json")
       .then((response) => response.json())
       .then((testData) => {
-        var queryResults = testData;
+        queryResults = testData;
         console.log("OFG: Test data loaded");
       })
       .catch((error) => {
@@ -61,7 +64,7 @@ async function runGenerator(
     var queriesArray = await queryBuilder();
 
     // Execute historical data queries
-    var queryResults = await executeQueries(queriesArray);
+    queryResults = await executeQueries(queriesArray);
   }
 
   // Continue with the rest of the logic
