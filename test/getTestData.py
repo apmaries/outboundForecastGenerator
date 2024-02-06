@@ -16,8 +16,8 @@ directory = os.path.dirname(os.path.abspath(__file__))
 
 # set variables
 source_region = "mypurecloud.com.au"
-source_client_id = "3f18b553-3762-444b-a289-7156b0ff3f06"
-source_client_secret = "WYWQIBf9XSkxq8RYPldyv31m2uBzFgkqTg3skhHnf_Y"
+source_client_id = os.getenv('red_p_client_id')
+source_client_secret = os.getenv('red_p_client_secret')
 
 source_auth_url = "https://login." + source_region
 source_api_url = "https://api." + source_region
