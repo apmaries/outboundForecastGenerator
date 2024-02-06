@@ -378,16 +378,17 @@
           userWelcomeDiv.removeAttribute("hidden");
 
           // load test data
-          const fs = require("fs");
-
-          let rawdata = fs.readFileSync("./test/wfmBuList.json");
-          let testBuList = JSON.parse(rawdata);
-
-          console.log(testBuList);
-
-          var buArray = testBuList;
-          sessionStorage.setItem(wfmBuStorage, JSON.stringify(testBuList));
-          populateBusinessUnits(testBuList);
+          fetch("./test/wfmBuList.json")
+            .then((response) => response.json())
+            .then((testBuList) => {
+              console.log(testBuList);
+              var buArray = testBuList;
+              sessionStorage.setItem(wfmBuStorage, JSON.stringify(testBuList));
+              populateBusinessUnits(testBuList);
+            })
+            .catch((error) => {
+              console.error(error);
+            });
         } else {
           console.log("OFG: Running in production mode");
           let buData;
