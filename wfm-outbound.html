@@ -311,6 +311,7 @@
         // Set weekStart element
         var weekStartInput = document.getElementById("weekStart");
 
+        // TODO: Fix start-day-of-week attribute always defaults to 0 (Sunday)
         // set weekStartInput start-day-of-week attribute to the selected BU's startDayOfWeek
         weekStartInput.setAttribute(
           "start-day-of-week",
@@ -384,8 +385,8 @@
             .then((testBuList) => {
               console.log(testBuList);
               var buArray = testBuList;
-              sessionStorage.setItem(wfmBuStorage, JSON.stringify(testBuList));
-              populateBusinessUnits(testBuList);
+              sessionStorage.setItem(wfmBuStorage, JSON.stringify(buArray));
+              populateBusinessUnits(buArray);
             })
             .catch((error) => {
               console.error(error);
@@ -434,7 +435,6 @@
 
         // page one variables
         var weekStartInput = document.getElementById("weekStart");
-        //var numContactsInput = document.getElementById("numContacts"); // moved to page two
         var historicalWeeks = document.getElementById("historicalWeeks");
         var selectedWeekStart = new Date(weekStartInput.value);
 
@@ -449,12 +449,8 @@
         for (let i = 0; i < rows.length; i++) {
           const row = rows[i];
 
-          // log row contents
-          console.warn(row);
-
           // get textContent of each cell
           const cells = row.querySelectorAll("td");
-          console.warn(cells);
 
           // Get PG name and ID
           const pgNameCell = row.querySelector("td:first-child");
@@ -471,6 +467,7 @@
             "numContacts": numContacts,
           };
 
+          // TODO: Fix data validation
           /*
           // Check if numContacts is 0
           if (numContacts === "0") {
@@ -494,12 +491,13 @@
             removeInputError(numContactsCell);
           }
           */
-          console.log(`OFG: ${JSON.stringify(planningGroupContacts)}`);
+
           planningGroupContactsArray.push(planningGroupContacts);
         }
 
+        // TODO: Fix data validation
         // Check if weekStart day of week matches selected BU's startDayOfWeek
-        if (
+        /*if (
           selectedWeekStart.getDay() !== getDayOfWeek(selectedBuStartDayOfWeek)
         ) {
           alert(
@@ -516,7 +514,7 @@
           return;
         } else {
           removeInputError(weekStartInput);
-        }
+        }*/
 
         runGenerator(
           test,

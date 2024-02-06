@@ -113,6 +113,7 @@ async function loadPageTwo(businessUnitId) {
       pgNameCell.dataset.pgId = groupId; // Add the planning group id as a data attribute
       row.appendChild(pgNameCell);
 
+      // TODO: need to make updates to disable input if no matching campaign found
       // populate campaign name cell
       const campaignNameCell = document.createElement("td");
       if (matchingCampaign) {

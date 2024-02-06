@@ -1,2 +1,5 @@
 # Ignore specific file
 ./test/getTestData.py
+
+# Ignore specific directory
+./gitignore/

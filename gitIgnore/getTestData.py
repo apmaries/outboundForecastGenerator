@@ -18,6 +18,7 @@ directory = os.path.dirname(os.path.abspath(__file__))
 source_region = "mypurecloud.com.au"
 source_client_id = os.getenv('red_p_client_id')
 source_client_secret = os.getenv('red_p_client_secret')
+print(source_client_id)
 
 source_auth_url = "https://login." + source_region
 source_api_url = "https://api." + source_region
@@ -61,7 +62,7 @@ queryBody = {
         "nOutboundConnected",
         "tHandle",
     ],
-    "groupBy": ["outboundCampaignId"],
+    "groupBy": ["outboundCampaignId", "queueId"],
     "granularity": "PT15M",
     "interval": "",
 }
