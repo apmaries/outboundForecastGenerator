@@ -8,6 +8,7 @@ async function runGenerator(
   planningGroupContactsArray
 ) {
   // Your existing scheduling logic goes here
+  console.warn(`OFG: runGenerator() initiated in ${testMode} mode`);
   console.log(
     "OFG: main.js runGenerator() initiated. Listing user variables..."
   );
@@ -42,7 +43,7 @@ async function runGenerator(
 
   if (testMode) {
     // load test data
-    fetch("./test/testData.json")
+    fetch("../test/testData.json")
       .then((response) => response.json())
       .then((testData) => {
         var queryResults = testData;
