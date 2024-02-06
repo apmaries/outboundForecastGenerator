@@ -377,10 +377,17 @@
           userWelcomeDiv.appendChild(testP);
           userWelcomeDiv.removeAttribute("hidden");
 
-          testBuList = "./test/wfmBuList.json";
+          // load test data
+          const fs = require("fs");
+
+          let rawdata = fs.readFileSync("./test/wfmBuList.json");
+          let testBuList = JSON.parse(rawdata);
+
+          console.log(testBuList);
+
           var buArray = testBuList;
-          sessionStorage.setItem(wfmBuStorage, JSON.stringify(buArray));
-          populateBusinessUnits(buArray);
+          sessionStorage.setItem(wfmBuStorage, JSON.stringify(testBuList));
+          populateBusinessUnits(testBuList);
         } else {
           console.log("OFG: Running in production mode");
           let buData;
