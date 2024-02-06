@@ -2,13 +2,11 @@ import base64
 import requests as r
 import sys
 import json
-import csv
 import time
 import os
-import urllib.parse
 from datetime import datetime as dt
 from datetime import timedelta as td
-from datetime import date as d
+from decouple import config
 
 
 run_time = time.strftime("%y%m%d_%H%M%S", time.localtime())
@@ -16,8 +14,8 @@ directory = os.path.dirname(os.path.abspath(__file__))
 
 # set variables
 source_region = "mypurecloud.com.au"
-source_client_id = os.getenv('red_p_client_id')
-source_client_secret = os.getenv('red_p_client_secret')
+source_client_id = config('id')
+source_client_secret = config('secret')
 print(source_client_id)
 
 source_auth_url = "https://login." + source_region
