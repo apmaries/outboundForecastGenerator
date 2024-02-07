@@ -69,11 +69,10 @@ async function runGenerator(
     queryResults = await executeQueries(queriesArray);
   }
 
-  // Continue with the rest of the logic
+  // loop through results and crunch numbers
   for (let i = 0; i < queryResults.length; i++) {
-    resultBlock = queryResults[i];
-
-    console.log(`OFG: resultBlock = ${JSON.stringify(resultBlock)}`);
-    weeklyNumbersCruncher(resultBlock, selectedBuTimeZone);
+    console.log(`OFG: Processing query result ${i + 1}`);
+    console.log(`OFG: ${JSON.stringify(queryResults[i])}`);
+    weeklyNumbersCruncher(queryResults[i], selectedBuTimeZone);
   }
 }
