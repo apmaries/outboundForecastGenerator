@@ -8,7 +8,7 @@ function crunchNumbers(body) {
     var metrics = data[i].metrics;
 
     // convert interval to local time
-    const [startString, _] = intervalString.split("/");
+    const [startString, _] = interval.split("/");
     const startDate = new Date(startString);
     const localDateTimeString = startDate.toLocaleString();
     const utcDateTimeString = startDate.toISOString();
