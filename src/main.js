@@ -53,6 +53,7 @@ async function runGenerator(
       .then((testData) => {
         queryResults = testData;
         console.log("OFG: Test data loaded");
+        processQueryResults(queryResults);
       })
       .catch((error) => {
         console.error(error);
@@ -67,12 +68,15 @@ async function runGenerator(
 
     // Execute historical data queries
     queryResults = await executeQueries(queriesArray);
+    processQueryResults(queryResults);
   }
 
-  // loop through results and crunch numbers
-  for (let i = 0; i < queryResults.length; i++) {
-    console.log(`OFG: Processing query result ${i + 1}`);
-    console.log(`OFG: ${JSON.stringify(queryResults[i])}`);
-    weeklyNumbersCruncher(queryResults[i], selectedBuTimeZone);
+  function processQueryResults(results) {
+    // loop through results and crunch numbers
+    for (let i = 0; i < results.length; i++) {
+      console.log(`OFG: Processing query result ${i + 1}`);
+      console.log(`OFG: ${JSON.stringify(results[i])}`);
+      weeklyNumbersCruncher(results[i], selectedBuTimeZone);
+    }
   }
 }
