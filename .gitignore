@@ -1,9 +1,6 @@
-# Ignore specific file
-./test/getTestData.py
-
-# Ignore specific directory
-./.ignored/
-./.env/
-
 # Ignore all files by extension
 *.env
+*.py
+
+# Ignore all files in a directory
+.ignored/

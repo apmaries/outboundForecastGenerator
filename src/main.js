@@ -74,9 +74,9 @@ async function runGenerator(
   function processQueryResults(results) {
     // loop through results and crunch numbers
     for (let i = 0; i < results.length; i++) {
+      var resultsGroup = results[i];
       console.log(`OFG: Processing query result ${i + 1}`);
-      console.log(`OFG: ${JSON.stringify(results[i])}`);
-      weeklyNumbersCruncher(results[i], selectedBuTimeZone);
+      crunchNumbers(resultsGroup);
     }
   }
 }
