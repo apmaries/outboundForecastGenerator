@@ -88,12 +88,16 @@
       })
     })()"
     >
-      body {
-        max-width: 1100px;
-        margin: 0 auto;
-        padding: 10px;
+      .widget-container {
+        max-width: 1100px; /* Set the maximum width as needed */
+        margin: 0 auto; /* Center the widget within the parent container */
       }
 
+      .form-container {
+        display: inline-flex;
+        flex-direction: column;
+        width: 100%; /* Make the widget take up 100% of the container width */
+      }
       .slotted {
         font-family: Roboto, sans-serif;
         font-weight: 600;
@@ -102,12 +106,6 @@
       }
       .error {
         border: 2px solid red;
-      }
-
-      .form-container {
-        display: inline-flex;
-        flex-direction: column;
-        width: 400px;
       }
 
       .width {
@@ -145,124 +143,131 @@
     </style>
   </head>
   <body>
-    <h1 id="heading" class="align-left">Outbound Forecast Generator</h1>
-    <div id="user-welcome" class="align-left" hidden></div>
+    <div class="widget-container">
+      <h1 id="heading" class="align-left">Outbound Forecast Generator</h1>
+      <div id="user-welcome" class="align-left" hidden></div>
 
-    <div id="page-one" class="page active">
-      <fieldset class="form-container">
-        <legend>Forecast Parameters</legend>
-        <gux-loading-message-beta id="loading-message">
-          <div slot="primary-message">Loading BU data...</div>
-          <gux-radial-progress
-            id="radial-progress"
-            slot="progress"
-            value="0"
-            max="1000"
-            screenreader-text="loading"
-          ></gux-radial-progress>
-        </gux-loading-message-beta>
-        <div id="parameters" hidden>
-          <gux-form-field-dropdown class="width">
-            <gux-dropdown>
-              <gux-listbox
-                id="businessUnit"
-                onchange="updateBusinessUnitSettings()"
+      <div id="page-one" class="page active">
+        <fieldset class="form-container">
+          <legend>Forecast Parameters</legend>
+          <gux-loading-message-beta id="loading-message">
+            <div slot="primary-message">Loading BU data...</div>
+            <gux-radial-progress
+              id="radial-progress"
+              slot="progress"
+              value="0"
+              max="1000"
+              screenreader-text="loading"
+            ></gux-radial-progress>
+          </gux-loading-message-beta>
+          <div id="parameters" hidden>
+            <gux-form-field-dropdown class="width">
+              <gux-dropdown>
+                <gux-listbox
+                  id="businessUnit"
+                  onchange="updateBusinessUnitSettings()"
+                >
+                </gux-listbox>
+              </gux-dropdown>
+              <label slot="label">Business Unit</label>
+            </gux-form-field-dropdown>
+
+            <gux-form-field-number>
+              <input
+                slot="input"
+                type="number"
+                id="historicalWeeks"
+                value="6"
+                step="1"
+                min="1"
+                max="8"
+              />
+              <label class="width" slot="label"
+                >Forecast historical weeks</label
               >
-              </gux-listbox>
-            </gux-dropdown>
-            <label slot="label">Business Unit</label>
-          </gux-form-field-dropdown>
+            </gux-form-field-number>
 
-          <gux-form-field-number style="width: 100%">
-            <input
-              slot="input"
-              type="number"
-              id="historicalWeeks"
-              value="6"
-              step="1"
-              min="1"
-              max="8"
-            />
-            <label class="width" slot="label">Forecast historical weeks</label>
-          </gux-form-field-number>
+            <label for="weekStart" class="slotted">Week start</label>
+            <gux-datepicker
+              start-day-of-week="1"
+              id="weekStart"
+              format="dd/mm/yyyy"
+              class="width"
+            ></gux-datepicker>
 
-          <label for="weekStart" class="slotted">Week start</label>
-          <gux-datepicker
-            start-day-of-week="1"
-            id="weekStart"
-            format="dd/mm/yyyy"
-            class="width"
-          ></gux-datepicker>
+            <label for="inclSchedule">Generate schedule too?</label>
+            <gux-toggle
+              id="inclSchedule"
+              checked-label="Yes"
+              unchecked-label="No"
+            ></gux-toggle>
 
-          <label for="inclSchedule">Generate schedule too?</label>
-          <gux-toggle
-            id="inclSchedule"
-            checked-label="Yes"
-            unchecked-label="No"
-          ></gux-toggle>
+            <gux-button accent="secondary" onclick="nextPage()"
+              >Next</gux-button
+            >
+          </div>
+        </fieldset>
+      </div>
 
-          <gux-button accent="secondary" onclick="nextPage()">Next</gux-button>
-        </div>
-      </fieldset>
-    </div>
+      <div id="page-two" class="page">
+        <fieldset class="form-container">
+          <legend>Planning Groups</legend>
+          <div id="planning-groups">
+            <gux-page-loading-spinner
+              id="planning-groups-loading"
+              screenreader-text="Loading..."
+            ></gux-page-loading-spinner>
+            <gux-table
+              resizable-columns
+              id="planning-groups-table"
+              compact
+              hidden
+            >
+              <table slot="data">
+                <thead>
+                  <tr>
+                    <th data-column-name="pg-name" aria-sort="ascending">
+                      Planning Group name
+                      <gux-sort-control />
+                    </th>
+                    <th data-column-name="campaign-name">
+                      Campaign name
+                      <gux-sort-control include-unsorted />
+                    </th>
+                    <th data-column-name="n-contacts" data-cell-numeric>
+                      Number of contacts
+                    </th>
+                  </tr>
+                </thead>
+                <tbody></tbody></table
+            ></gux-table>
+          </div>
+          <div id="buttons" class="row" style="padding-top: 20px">
+            <gux-button
+              accent="secondary"
+              class="align-left"
+              onclick="prevPage()"
+              >Back</gux-button
+            >
+            <gux-button
+              accent="primary"
+              class="align-right"
+              onclick="buttonClicked()"
+              >Run!</gux-button
+            >
+          </div>
+        </fieldset>
+      </div>
 
-    <div id="page-two" class="page">
-      <fieldset class="form-container">
-        <legend>Planning Groups</legend>
-        <div id="planning-groups">
-          <gux-page-loading-spinner
-            id="planning-groups-loading"
-            screenreader-text="Loading..."
-          ></gux-page-loading-spinner>
-          <gux-table
-            resizable-columns
-            id="planning-groups-table"
-            style="width: 1100px"
-            compact
-            hidden
-          >
-            <table slot="data">
-              <thead>
-                <tr>
-                  <th data-column-name="pg-name" aria-sort="ascending">
-                    Planning Group name
-                    <gux-sort-control />
-                  </th>
-                  <th data-column-name="campaign-name">
-                    Campaign name
-                    <gux-sort-control include-unsorted />
-                  </th>
-                  <th data-column-name="n-contacts" data-cell-numeric>
-                    Number of contacts
-                  </th>
-                </tr>
-              </thead>
-              <tbody></tbody></table
-          ></gux-table>
-        </div>
-        <div id="buttons" class="row" style="padding-top: 20px">
-          <gux-button accent="secondary" class="align-left" onclick="prevPage()"
-            >Back</gux-button
-          >
-          <gux-button
-            accent="primary"
-            class="align-right"
-            onclick="buttonClicked()"
-            >Run!</gux-button
-          >
-        </div>
-      </fieldset>
-    </div>
+      <script>
+        var test = true;
+        var token = sessionStorage.getItem("token");
+        const wfmBuStorage = "wfmBuList";
+        var selectedBuId;
+        var selectedBuTimeZone;
 
-    <script>
-      var test = true;
-      var token = sessionStorage.getItem("token");
-      const wfmBuStorage = "wfmBuList";
-      var selectedBuId;
-      var selectedBuTimeZone;
-
-      // Set Genesys Cloud objects
-      /*const platformClient = require("platformClient");
+        // Set Genesys Cloud objects
+        /*const platformClient = require("platformClient");
       const client = platformClient.ApiClient.instance;
       client.setAccessToken(token);
 
@@ -270,259 +275,265 @@
       const uapi = new platformClient.UsersApi();
       const wapi = new platformClient.WorkforceManagementApi();*/
 
-      async function fetchBusinessUnits(allBuData, nBu) {
-        const buArray = [];
-        // set progress max
-        let radialProgress = document.getElementById("radial-progress");
-        let progressValue = 0;
-        radialProgress.setAttribute("max", nBu.toString());
+        async function fetchBusinessUnits(allBuData, nBu) {
+          const buArray = [];
+          // set progress max
+          let radialProgress = document.getElementById("radial-progress");
+          let progressValue = 0;
+          radialProgress.setAttribute("max", nBu.toString());
 
-        let allTzData = await fetchDataWithRetry(
-          `/api/v2/timezones?pageSize=500&pageNumber=1`,
-          "GET"
-        );
-
-        // get individual BU settings
-        console.log(`OFG: Getting BU settings`);
-        for (let b = 0; b < allBuData.length; b++) {
-          progressValue++;
-          let businessUnitId = allBuData[b].id;
-          let businessUnitName = allBuData[b].name;
-
-          let buData = await fetchDataWithRetry(
-            `/api/v2/workforcemanagement/businessunits/${businessUnitId}?expand=settings.timeZone,settings.startDayOfWeek,settings.shortTermForecasting`,
+          let allTzData = await fetchDataWithRetry(
+            `/api/v2/timezones?pageSize=500&pageNumber=1`,
             "GET"
           );
 
-          // increment progress
-          radialProgress.setAttribute("value", progressValue);
+          // get individual BU settings
+          console.log(`OFG: Getting BU settings`);
+          for (let b = 0; b < allBuData.length; b++) {
+            progressValue++;
+            let businessUnitId = allBuData[b].id;
+            let businessUnitName = allBuData[b].name;
 
-          // get bu settings
-          let businessUnitStartDayOfWeek = buData.settings.startDayOfWeek;
-          let businessUnitDefaultHistoryWeeks =
-            buData.settings.shortTermForecasting.defaultHistoryWeeks;
+            let buData = await fetchDataWithRetry(
+              `/api/v2/workforcemanagement/businessunits/${businessUnitId}?expand=settings.timeZone,settings.startDayOfWeek,settings.shortTermForecasting`,
+              "GET"
+            );
 
-          let businessUnitTimeZone = buData.settings.timeZone;
-          let timezoneOffset = allTzData.find(
-            (tz) => tz.id === businessUnitTimeZone
-          );
-          let businessUnitTimeZoneOffset = timezoneOffset.offset;
+            // increment progress
+            radialProgress.setAttribute("value", progressValue);
 
-          let bu = {
-            "name": businessUnitName,
-            "id": businessUnitId,
-            "startDayOfWeek": businessUnitStartDayOfWeek,
-            "defaultHistoryWeeks": businessUnitDefaultHistoryWeeks,
-            "timeZone": businessUnitTimeZone,
-            "offset": businessUnitTimeZoneOffset,
-          };
-          console.debug(`OFG: ${JSON.stringify(bu)}`);
-          buArray.push(bu);
+            // get bu settings
+            let businessUnitStartDayOfWeek = buData.settings.startDayOfWeek;
+            let businessUnitDefaultHistoryWeeks =
+              buData.settings.shortTermForecasting.defaultHistoryWeeks;
+
+            let businessUnitTimeZone = buData.settings.timeZone;
+            let timezoneOffset = allTzData.find(
+              (tz) => tz.id === businessUnitTimeZone
+            );
+            let businessUnitTimeZoneOffset = timezoneOffset.offset;
+
+            let bu = {
+              "name": businessUnitName,
+              "id": businessUnitId,
+              "startDayOfWeek": businessUnitStartDayOfWeek,
+              "defaultHistoryWeeks": businessUnitDefaultHistoryWeeks,
+              "timeZone": businessUnitTimeZone,
+              "offset": businessUnitTimeZoneOffset,
+            };
+            console.debug(`OFG: ${JSON.stringify(bu)}`);
+            buArray.push(bu);
+          }
+
+          // set session storage
+          sessionStorage.setItem(wfmBuStorage, JSON.stringify(buArray));
+
+          return buArray;
         }
 
-        // set session storage
-        sessionStorage.setItem(wfmBuStorage, JSON.stringify(buArray));
+        // Populate Business Unit dropdown options
+        async function populateBusinessUnits(businessUnits) {
+          var businessUnitDropdown = document.getElementById("businessUnit");
 
-        return buArray;
-      }
+          // Sort the buData array alphabetically based on bu_name
+          businessUnits.sort((a, b) => a.name.localeCompare(b.name));
 
-      // Populate Business Unit dropdown options
-      async function populateBusinessUnits(businessUnits) {
-        var businessUnitDropdown = document.getElementById("businessUnit");
-
-        // Sort the buData array alphabetically based on bu_name
-        businessUnits.sort((a, b) => a.name.localeCompare(b.name));
-
-        for (let i = 0; i < businessUnits.length; i++) {
-          const unit = businessUnits[i];
-          var option = document.createElement("gux-option");
-          option.value = unit.id;
-          option.textContent = unit.name;
-          businessUnitDropdown.appendChild(option);
-        }
-      }
-
-      // Update selected Business Unit settings
-      function updateBusinessUnitSettings() {
-        const buArray = JSON.parse(sessionStorage.getItem(wfmBuStorage));
-
-        var businessUnitDropdown = document.getElementById("businessUnit");
-        var selectedBuId = businessUnitDropdown.value;
-        console.log(`OFG: User selected BU - ${JSON.stringify(selectedBuId)}`);
-
-        // BU variables
-        var buObj = buArray.find((unit) => unit.id === selectedBuId);
-        console.debug(`OFG: ${JSON.stringify(buObj)}`);
-
-        var selectedBuStartDayOfWeek = buObj.startDayOfWeek;
-        var selectedBuTimeZone = buObj.timeZone;
-        var selectedBuDefaultHistoryWeeks = buObj.defaultHistoryWeeks;
-
-        // Set default value for historicalWeeks
-        document.getElementById("historicalWeeks").value =
-          selectedBuDefaultHistoryWeeks;
-
-        // Set weekStart element
-        var weekStartInput = document.getElementById("weekStart");
-
-        // TODO: Fix start-day-of-week attribute always defaults to 0 (Sunday)
-        // set weekStartInput start-day-of-week attribute to the selected BU's startDayOfWeek
-        weekStartInput.setAttribute(
-          "start-day-of-week",
-          getDayOfWeek(selectedBuStartDayOfWeek).toString()
-        );
-
-        // temporary debug
-        console.debug(
-          `OFG: start-day-of-week set to ${getDayOfWeek(
-            selectedBuStartDayOfWeek
-          ).toString()}`
-        );
-        console.debug(weekStartInput);
-
-        // Set default value for weekStart to the next occurrence of startDayOfWeek in the specified time zone
-        var currentDate = luxon.DateTime.now({ zone: selectedBuTimeZone });
-        var currentDayOfWeek = getDayOfWeek(currentDate.weekdayLong);
-
-        // temporary debug
-        console.debug(
-          `OFG: currentDayOfWeek is ${currentDayOfWeek} (${currentDate.weekdayLong})`
-        );
-
-        // Adjust for Monday as the start of the week
-        var daysUntilNextStartDay =
-          (getDayOfWeek(selectedBuStartDayOfWeek) - currentDayOfWeek + 7) % 7;
-        var nextStartDay = currentDate.plus({ days: daysUntilNextStartDay });
-        var nextStartDayString = nextStartDay.toFormat("yyyy-MM-dd");
-        weekStartInput.value = nextStartDayString;
-
-        // temporary debug
-        console.debug(`OFG: daysUntilNextStartDay is ${daysUntilNextStartDay}`);
-        console.debug(`OFG: nextStartDay is ${nextStartDay}`);
-        console.debug(`OFG: nextStartDayString is ${nextStartDayString}`);
-
-        return buObj;
-      }
-
-      // Helper function to get day of week index (0-6) from day name
-      function getDayOfWeek(dayName) {
-        var days = [
-          "Sunday",
-          "Monday",
-          "Tuesday",
-          "Wednesday",
-          "Thursday",
-          "Friday",
-          "Saturday",
-        ];
-        return days.indexOf(dayName);
-      }
-
-      // Populate default values on page load
-      window.onload = async function () {
-        await getOrgLevelStuff();
-
-        if (test) {
-          console.log("OFG: Running in test mode");
-
-          // add element user welcome
-          var userWelcomeDiv = document.getElementById("user-welcome");
-          const testP = document.createElement("p");
-          testP.textContent = `Running in test mode`;
-          testP.style.color = "red";
-          userWelcomeDiv.appendChild(testP);
-          userWelcomeDiv.removeAttribute("hidden");
-
-          // load test data
-          fetch("./test/wfmBuList.json")
-            .then((response) => response.json())
-            .then((testBuList) => {
-              console.log(testBuList);
-              var buArray = testBuList;
-              sessionStorage.setItem(wfmBuStorage, JSON.stringify(buArray));
-              populateBusinessUnits(buArray);
-            })
-            .catch((error) => {
-              console.error(error);
-            });
-        } else {
-          console.log("OFG: Running in production mode");
-          let buData;
-
-          let allBuData = await fetchDataWithRetry(
-            `/api/v2/workforcemanagement/businessunits`,
-            "GET"
-          );
-          let buCount = allBuData.length;
-
-          if (buCount > 0) {
-            await populateBusinessUnits(allBuData);
-            console.log(`OFG: Found ${buCount} Business Units in WFM`);
-            const buArray = await fetchBusinessUnits(allBuData, buCount);
-          } else {
-            console.error(`OFG: No business units found in WFM`);
+          for (let i = 0; i < businessUnits.length; i++) {
+            const unit = businessUnits[i];
+            var option = document.createElement("gux-option");
+            option.value = unit.id;
+            option.textContent = unit.name;
+            businessUnitDropdown.appendChild(option);
           }
         }
 
-        // unhide parameters div
-        const loadingMessageElement =
-          document.getElementById("loading-message");
-        loadingMessageElement.style.display = "none";
-        document.getElementById("parameters").removeAttribute("hidden");
-      };
+        // Update selected Business Unit settings
+        function updateBusinessUnitSettings() {
+          const buArray = JSON.parse(sessionStorage.getItem(wfmBuStorage));
 
-      // buttonClicked function
-      function buttonClicked() {
-        // Get input values
-        const buArray = JSON.parse(sessionStorage.getItem(wfmBuStorage));
+          var businessUnitDropdown = document.getElementById("businessUnit");
+          var selectedBuId = businessUnitDropdown.value;
+          console.log(
+            `OFG: User selected BU - ${JSON.stringify(selectedBuId)}`
+          );
 
-        var businessUnitDropdown = document.getElementById("businessUnit");
-        var selectedBuId = businessUnitDropdown.value;
-        console.log(`OFG: Running for BU - ${JSON.stringify(selectedBuId)}`);
+          // BU variables
+          var buObj = buArray.find((unit) => unit.id === selectedBuId);
+          console.debug(`OFG: ${JSON.stringify(buObj)}`);
 
-        // BU variables
-        var buObj = buArray.find((unit) => unit.id === selectedBuId);
-        var selectedBuName = buObj.name;
-        var selectedBuStartDayOfWeek = buObj.startDayOfWeek;
-        var selectedBuTimeZone = buObj.timeZone;
-        var selectedBuDefaultHistoryWeeks = buObj.defaultHistoryWeeks;
+          var selectedBuStartDayOfWeek = buObj.startDayOfWeek;
+          var selectedBuTimeZone = buObj.timeZone;
+          var selectedBuDefaultHistoryWeeks = buObj.defaultHistoryWeeks;
 
-        // page one variables
-        var weekStartInput = document.getElementById("weekStart");
-        var historicalWeeks = document.getElementById("historicalWeeks");
-        var selectedWeekStart = new Date(weekStartInput.value);
+          // Set default value for historicalWeeks
+          document.getElementById("historicalWeeks").value =
+            selectedBuDefaultHistoryWeeks;
 
-        // page two variables
-        planningGroupContactsArray = [];
-        const tableBody = document.querySelector(
-          "#planning-groups-table tbody"
-        );
-        const rows = tableBody.querySelectorAll("tr");
+          // Set weekStart element
+          var weekStartInput = document.getElementById("weekStart");
 
-        // loop through table rows
-        for (let i = 0; i < rows.length; i++) {
-          const row = rows[i];
+          // TODO: Fix start-day-of-week attribute always defaults to 0 (Sunday)
+          // set weekStartInput start-day-of-week attribute to the selected BU's startDayOfWeek
+          weekStartInput.setAttribute(
+            "start-day-of-week",
+            getDayOfWeek(selectedBuStartDayOfWeek).toString()
+          );
 
-          // get textContent of each cell
-          const cells = row.querySelectorAll("td");
+          // temporary debug
+          console.debug(
+            `OFG: start-day-of-week set to ${getDayOfWeek(
+              selectedBuStartDayOfWeek
+            ).toString()}`
+          );
+          console.debug(weekStartInput);
 
-          // Get PG name and ID
-          const pgNameCell = row.querySelector("td:first-child");
-          const pgName = pgNameCell.textContent;
-          const pgId = pgNameCell.dataset.pgId;
+          // Set default value for weekStart to the next occurrence of startDayOfWeek in the specified time zone
+          var currentDate = luxon.DateTime.now({ zone: selectedBuTimeZone });
+          var currentDayOfWeek = getDayOfWeek(currentDate.weekdayLong);
 
-          // Get number of contacts
-          const numContactsInput = document.getElementById(`nContacts_${pgId}`);
-          const numContacts = numContactsInput.value;
+          // temporary debug
+          console.debug(
+            `OFG: currentDayOfWeek is ${currentDayOfWeek} (${currentDate.weekdayLong})`
+          );
 
-          let planningGroupContacts = {
-            "pgName": pgName,
-            "pgId": pgId,
-            "numContacts": numContacts,
-          };
+          // Adjust for Monday as the start of the week
+          var daysUntilNextStartDay =
+            (getDayOfWeek(selectedBuStartDayOfWeek) - currentDayOfWeek + 7) % 7;
+          var nextStartDay = currentDate.plus({ days: daysUntilNextStartDay });
+          var nextStartDayString = nextStartDay.toFormat("yyyy-MM-dd");
+          weekStartInput.value = nextStartDayString;
 
-          // TODO: Fix data validation
-          /*
+          // temporary debug
+          console.debug(
+            `OFG: daysUntilNextStartDay is ${daysUntilNextStartDay}`
+          );
+          console.debug(`OFG: nextStartDay is ${nextStartDay}`);
+          console.debug(`OFG: nextStartDayString is ${nextStartDayString}`);
+
+          return buObj;
+        }
+
+        // Helper function to get day of week index (0-6) from day name
+        function getDayOfWeek(dayName) {
+          var days = [
+            "Sunday",
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+          ];
+          return days.indexOf(dayName);
+        }
+
+        // Populate default values on page load
+        window.onload = async function () {
+          await getOrgLevelStuff();
+
+          if (test) {
+            console.log("OFG: Running in test mode");
+
+            // add element user welcome
+            var userWelcomeDiv = document.getElementById("user-welcome");
+            const testP = document.createElement("p");
+            testP.textContent = `Running in test mode`;
+            testP.style.color = "red";
+            userWelcomeDiv.appendChild(testP);
+            userWelcomeDiv.removeAttribute("hidden");
+
+            // load test data
+            fetch("./test/wfmBuList.json")
+              .then((response) => response.json())
+              .then((testBuList) => {
+                console.log(testBuList);
+                var buArray = testBuList;
+                sessionStorage.setItem(wfmBuStorage, JSON.stringify(buArray));
+                populateBusinessUnits(buArray);
+              })
+              .catch((error) => {
+                console.error(error);
+              });
+          } else {
+            console.log("OFG: Running in production mode");
+            let buData;
+
+            let allBuData = await fetchDataWithRetry(
+              `/api/v2/workforcemanagement/businessunits`,
+              "GET"
+            );
+            let buCount = allBuData.length;
+
+            if (buCount > 0) {
+              await populateBusinessUnits(allBuData);
+              console.log(`OFG: Found ${buCount} Business Units in WFM`);
+              const buArray = await fetchBusinessUnits(allBuData, buCount);
+            } else {
+              console.error(`OFG: No business units found in WFM`);
+            }
+          }
+
+          // unhide parameters div
+          const loadingMessageElement =
+            document.getElementById("loading-message");
+          loadingMessageElement.style.display = "none";
+          document.getElementById("parameters").removeAttribute("hidden");
+        };
+
+        // buttonClicked function
+        function buttonClicked() {
+          // Get input values
+          const buArray = JSON.parse(sessionStorage.getItem(wfmBuStorage));
+
+          var businessUnitDropdown = document.getElementById("businessUnit");
+          var selectedBuId = businessUnitDropdown.value;
+          console.log(`OFG: Running for BU - ${JSON.stringify(selectedBuId)}`);
+
+          // BU variables
+          var buObj = buArray.find((unit) => unit.id === selectedBuId);
+          var selectedBuName = buObj.name;
+          var selectedBuStartDayOfWeek = buObj.startDayOfWeek;
+          var selectedBuTimeZone = buObj.timeZone;
+          var selectedBuDefaultHistoryWeeks = buObj.defaultHistoryWeeks;
+
+          // page one variables
+          var weekStartInput = document.getElementById("weekStart");
+          var historicalWeeks = document.getElementById("historicalWeeks");
+          var selectedWeekStart = new Date(weekStartInput.value);
+
+          // page two variables
+          planningGroupContactsArray = [];
+          const tableBody = document.querySelector(
+            "#planning-groups-table tbody"
+          );
+          const rows = tableBody.querySelectorAll("tr");
+
+          // loop through table rows
+          for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+
+            // get textContent of each cell
+            const cells = row.querySelectorAll("td");
+
+            // Get PG name and ID
+            const pgNameCell = row.querySelector("td:first-child");
+            const pgName = pgNameCell.textContent;
+            const pgId = pgNameCell.dataset.pgId;
+
+            // Get number of contacts
+            const numContactsInput = document.getElementById(
+              `nContacts_${pgId}`
+            );
+            const numContacts = numContactsInput.value;
+
+            let planningGroupContacts = {
+              "pgName": pgName,
+              "pgId": pgId,
+              "numContacts": numContacts,
+            };
+
+            // TODO: Fix data validation
+            /*
           // Check if numContacts is 0
           if (numContacts === "0") {
             alert("Number of Contacts must be greater than 0.");
@@ -546,12 +557,12 @@
           }
           */
 
-          planningGroupContactsArray.push(planningGroupContacts);
-        }
+            planningGroupContactsArray.push(planningGroupContacts);
+          }
 
-        // TODO: Fix data validation
-        // Check if weekStart day of week matches selected BU's startDayOfWeek
-        /*if (
+          // TODO: Fix data validation
+          // Check if weekStart day of week matches selected BU's startDayOfWeek
+          /*if (
           selectedWeekStart.getDay() !== getDayOfWeek(selectedBuStartDayOfWeek)
         ) {
           alert(
@@ -570,48 +581,49 @@
           removeInputError(weekStartInput);
         }*/
 
-        runGenerator(
-          test,
-          selectedBuName,
-          selectedBuId,
-          selectedBuTimeZone,
-          weekStartInput.value,
-          historicalWeeks.value,
-          planningGroupContactsArray
-        );
-      }
+          runGenerator(
+            test,
+            selectedBuName,
+            selectedBuId,
+            selectedBuTimeZone,
+            weekStartInput.value,
+            historicalWeeks.value,
+            planningGroupContactsArray
+          );
+        }
 
-      // Helper function to highlight input error
-      function highlightInputError(inputElement) {
-        inputElement.classList.add("error");
-      }
+        // Helper function to highlight input error
+        function highlightInputError(inputElement) {
+          inputElement.classList.add("error");
+        }
 
-      // Helper function to remove input error highlight
-      function removeInputError(inputElement) {
-        inputElement.classList.remove("error");
-      }
+        // Helper function to remove input error highlight
+        function removeInputError(inputElement) {
+          inputElement.classList.remove("error");
+        }
 
-      function nextPage() {
-        const pageOne = document.getElementById("page-one");
-        const pageTwo = document.getElementById("page-two");
+        function nextPage() {
+          const pageOne = document.getElementById("page-one");
+          const pageTwo = document.getElementById("page-two");
 
-        pageOne.classList.remove("active");
+          pageOne.classList.remove("active");
 
-        setTimeout(() => {
-          pageTwo.classList.add("active");
+          setTimeout(() => {
+            pageTwo.classList.add("active");
 
-          var businessUnitDropdown = document.getElementById("businessUnit");
-          var selectedBuId = businessUnitDropdown.value;
-          loadPageTwo(selectedBuId);
-        }, 100); // Delay for a smoother transition
-      }
+            var businessUnitDropdown = document.getElementById("businessUnit");
+            var selectedBuId = businessUnitDropdown.value;
+            loadPageTwo(selectedBuId);
+          }, 100); // Delay for a smoother transition
+        }
 
-      function prevPage() {
-        document.getElementById("page-two").classList.remove("active");
-        setTimeout(() => {
-          document.getElementById("page-one").classList.add("active");
-        }, 100); // Delay for a smoother transition
-      }
-    </script>
+        function prevPage() {
+          document.getElementById("page-two").classList.remove("active");
+          setTimeout(() => {
+            document.getElementById("page-one").classList.add("active");
+          }, 100); // Delay for a smoother transition
+        }
+      </script>
+    </div>
   </body>
 </html>
