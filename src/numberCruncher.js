@@ -18,6 +18,8 @@ function crunchNumbers(body) {
     });
 
     // Get interval index number
+    const hours = startDate.getHours();
+    const minutes = startDate.getMinutes();
     const totalMinutes = hours * 60 + minutes;
     const intervalDuration = 15;
     const indexNumber = Math.floor(totalMinutes / intervalDuration);
