@@ -238,9 +238,9 @@ async function runGenerator(
 
   // Log historicalDataByCampaign
   console.warn(historicalDataByCampaign);
+  console.warn(JSON.stringify(historicalDataByCampaign));
 
-  // export historicalDataByCampaign to json file in ./test folder if testMode = true
-  // TODO: Fix this
+  // Download historicalDataByCampaign.json
   if (testMode) {
     var jsonData = JSON.stringify(historicalDataByCampaign);
     var blob = new Blob([jsonData], { type: "application/json" });
