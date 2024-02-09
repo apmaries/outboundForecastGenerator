@@ -7,7 +7,7 @@ async function runGenerator(
   historicalWeeks,
   planningGroupContactsArray
 ) {
-  // Your existing scheduling logic goes here
+  // Log user variables
   console.log(
     "OFG: main.js runGenerator() initiated. Listing user variables..."
   );
@@ -26,6 +26,11 @@ async function runGenerator(
     console.log(`OFG: ${JSON.stringify(planningGroupContactsArray[i])}`);
   }
 
+  // Declare variables
+  let queryResults = [];
+  var historicalDataByCampaign = [];
+
+  // Functions start here
   // Function to build query body
   async function queryBuilder() {
     let queriesArray = [];
@@ -42,37 +47,6 @@ async function runGenerator(
     console.log(businessUnitId);
     return queryResults;
   }
-
-  // Declare queryResults variable with a default value
-  let queryResults = [];
-
-  if (testMode) {
-    // load test data
-    fetch("./test/testData.json")
-      .then((response) => response.json())
-      .then((testData) => {
-        queryResults = testData;
-        console.log("OFG: Test data loaded");
-        processQueryResults(queryResults);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  } else {
-    // TODO: Update for production
-    console.warn(
-      "OFG: Running in live mode - this has not yet been completed!"
-    );
-    // Execute queryBuilder after queueCampaignMatcher complete
-    var queriesArray = await queryBuilder();
-
-    // Execute historical data queries
-    queryResults = await executeQueries(queriesArray);
-    processQueryResults(queryResults);
-  }
-
-  // Declare historicalData variable with a default value
-  var historicalDataByCampaign = [];
 
   // Returns the ISO week of the date.
   function getWeek(date) {
@@ -132,6 +106,28 @@ async function runGenerator(
         historicalDataByCampaign.push(campaignObj);
       }
 
+      // create a baseWeekArray that contains 7 arrays of 96 zeros
+      var baseWeekArray = Array.from({ length: 7 }, () =>
+        Array.from({ length: 96 }, () => 0)
+      );
+
+      // create a new week object
+      let weekObj = {
+        weekNumber: "",
+        dailySummary: {
+          "nAttempted": [0, 0, 0, 0, 0, 0, 0],
+          "nConnected": [0, 0, 0, 0, 0, 0, 0],
+          "tHandle": [0, 0, 0, 0, 0, 0, 0],
+          "nHandled": [0, 0, 0, 0, 0, 0, 0],
+        },
+        intradayValues: {
+          "nAttempted": JSON.parse(JSON.stringify(baseWeekArray)),
+          "nConnected": JSON.parse(JSON.stringify(baseWeekArray)),
+          "tHandle": JSON.parse(JSON.stringify(baseWeekArray)),
+          "nHandled": JSON.parse(JSON.stringify(baseWeekArray)),
+        },
+      };
+
       // for each interval in the data, get the week number and add to the campaign object
       for (let j = 0; j < data.length; j++) {
         var interval = data[j].interval;
@@ -139,8 +135,17 @@ async function runGenerator(
 
         const [startString, _] = interval.split("/");
         const startDate = new Date(startString);
-        //const localDateTimeString = startDate.toLocaleString();
         const weekNumber = getYearWeek(startDate);
+
+        // get weekday index from startDate
+        const dayIndex = startDate.getDay();
+
+        // get interval index from startDate
+        const hours = startDate.getHours();
+        const minutes = startDate.getMinutes();
+        const totalMinutes = hours * 60 + minutes;
+        const intervalDuration = 15;
+        const intervalIndex = Math.floor(totalMinutes / intervalDuration);
 
         var campaignIndex = historicalDataByCampaign.findIndex(
           (campaign) => campaign.campaignId === campaignId
@@ -151,15 +156,85 @@ async function runGenerator(
           campaignIndex
         ].historicalWeeks.some((week) => week.weekNumber === weekNumber);
         if (!weekExists) {
-          let weekObj = {
-            weekNumber: weekNumber,
-            dailySummary: {},
-            intradayValues: [],
-          };
+          weekObj.weekNumber = weekNumber;
           historicalDataByCampaign[campaignIndex].historicalWeeks.push(weekObj);
+        }
+
+        // loop through metrics and add to dailySummary & intradayValues
+        for (let k = 0; k < metrics.length; k++) {
+          var metric = metrics[k];
+          var metricName = metric.metric;
+
+          // nOuotboundAttempted
+          if (metricName === "nOutboundAttempted") {
+            var attempted = metric.stats.count;
+
+            // add nOutboundAttempted stat to dailySummary
+            weekObj.dailySummary["nAttempted"][dayIndex] += attempted;
+
+            // add nOutboundAttempted stat to intradayValues
+            weekObj.intradayValues["nAttempted"][dayIndex][intervalIndex] +=
+              attempted;
+          }
+
+          // nOutboundConnected
+          if (metricName === "nOutboundConnected") {
+            var connected = metric.stats.count;
+
+            // add nOutboundConnected stat to dailySummary
+            weekObj.dailySummary["nConnected"][dayIndex] += connected;
+
+            // add nOutboundConnected stat to intradayValues
+            weekObj.intradayValues["nConnected"][dayIndex][intervalIndex] +=
+              connected;
+          }
+
+          // tHandle
+          if (metricName === "tHandle") {
+            var tHandle = metric.stats.sum / 1000; // convert to seconds
+            var nHandled = metric.stats.count;
+
+            // add tHandle stats to dailySummary
+            weekObj.dailySummary["tHandle"][dayIndex] += tHandle;
+            weekObj.dailySummary["nHandled"][dayIndex] += nHandled;
+
+            // add tHandle stats to intradayValues
+            weekObj.intradayValues["tHandle"][dayIndex][intervalIndex] +=
+              tHandle;
+            weekObj.intradayValues["nHandled"][dayIndex][intervalIndex] +=
+              nHandled;
+          }
         }
       }
     }
-    console.warn(historicalDataByCampaign);
   }
+  // Functions end here
+
+  // Main code starts here
+  if (testMode) {
+    // load test data
+    fetch("./test/testData.json")
+      .then((response) => response.json())
+      .then((testData) => {
+        queryResults = testData;
+        console.log("OFG: Test data loaded");
+        processQueryResults(queryResults);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  } else {
+    // TODO: Update for production
+    console.warn(
+      "OFG: Running in live mode - this has not yet been completed!"
+    );
+    // Execute queryBuilder after queueCampaignMatcher complete
+    var queriesArray = await queryBuilder();
+
+    // Execute historical data queries
+    queryResults = await executeQueries(queriesArray);
+    processQueryResults(queryResults);
+  }
+
+  console.warn(historicalDataByCampaign);
 }
