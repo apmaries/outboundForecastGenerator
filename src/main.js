@@ -160,5 +160,6 @@ async function runGenerator(
         }
       }
     }
+    console.warn(historicalDataByCampaign);
   }
 }
