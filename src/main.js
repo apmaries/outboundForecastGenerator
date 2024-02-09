@@ -83,7 +83,7 @@ async function runGenerator(
     return `${year}-${weekString}`;
   }
 
-  function processQueryResults(results) {
+  async function processQueryResults(results) {
     // loop through results and crunch numbers
     for (let i = 0; i < results.length; i++) {
       var resultsGrouping = results[i];
@@ -215,10 +215,10 @@ async function runGenerator(
     // load test data
     fetch("./test/testData.json")
       .then((response) => response.json())
-      .then((testData) => {
+      .then(async (testData) => {
         queryResults = testData;
         console.log("OFG: Test data loaded");
-        processQueryResults(queryResults);
+        await processQueryResults(queryResults);
       })
       .catch((error) => {
         console.error(error);
@@ -233,8 +233,10 @@ async function runGenerator(
 
     // Execute historical data queries
     queryResults = await executeQueries(queriesArray);
-    processQueryResults(queryResults);
+    await processQueryResults(queryResults);
   }
+
+  // Convert historicalDataByCampaign to JSON
 
   // Log historicalDataByCampaign
   console.warn(historicalDataByCampaign);
@@ -249,6 +251,18 @@ async function runGenerator(
     a.download = "historicalDataByCampaign.json";
     a.href = url;
     a.textContent = "Download historicalDataByCampaign.json";
+    document.body.appendChild(a);
+  }
+
+  // Download historicalDataByCampaign.json
+  if (testMode) {
+    var jsonData = historicalDataByCampaign;
+    var blob = new Blob([jsonData], { type: "application/json" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.download = "historicalDataByCampaign2.json";
+    a.href = url;
+    a.textContent = "Download historicalDataByCampaign2.json";
     document.body.appendChild(a);
   }
 }
