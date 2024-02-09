@@ -12,6 +12,15 @@ function crunchNumbers(body) {
     const startDate = new Date(startString);
     const localDateTimeString = startDate.toLocaleString();
 
+    function getWeek(localDateTime) {
+      const date = new Date(localDateTime);
+      date.setHours(0, 0, 0, 0);
+      date.setDate(date.getDate() + 4 - (date.getDay() || 7));
+      const yearStart = new Date(date.getFullYear(), 0, 1);
+      const weekNumber = Math.ceil(((date - yearStart) / 86400000 + 1) / 7);
+      return weekNumber;
+    }
+
     // Day name en-AU locale
     const dayNameAU = startDate.toLocaleDateString("en-AU", {
       weekday: "long",
