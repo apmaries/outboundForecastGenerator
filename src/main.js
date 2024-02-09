@@ -236,9 +236,11 @@ async function runGenerator(
     processQueryResults(queryResults);
   }
 
+  // Log historicalDataByCampaign
   console.warn(historicalDataByCampaign);
 
   // export historicalDataByCampaign to json file in ./test folder if testMode = true
+  // TODO: Fix this
   if (testMode) {
     var jsonData = JSON.stringify(historicalDataByCampaign);
     var blob = new Blob([jsonData], { type: "application/json" });
