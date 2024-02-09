@@ -237,4 +237,16 @@ async function runGenerator(
   }
 
   console.warn(historicalDataByCampaign);
+
+  // export historicalDataByCampaign to json file in ./test folder if testMode = true
+  if (testMode) {
+    var jsonData = JSON.stringify(historicalDataByCampaign);
+    var blob = new Blob([jsonData], { type: "application/json" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.download = "historicalDataByCampaign.json";
+    a.href = url;
+    a.textContent = "Download historicalDataByCampaign.json";
+    document.body.appendChild(a);
+  }
 }
