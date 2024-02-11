@@ -115,16 +115,16 @@ async function runGenerator(
       let weekObj = {
         weekNumber: "",
         dailySummary: {
-          "nAttempted": [0, 0, 0, 0, 0, 0, 0],
-          "nConnected": [0, 0, 0, 0, 0, 0, 0],
-          "tHandle": [0, 0, 0, 0, 0, 0, 0],
-          "nHandled": [0, 0, 0, 0, 0, 0, 0],
+          nAttempted: Array(7).fill(0),
+          nConnected: Array(7).fill(0),
+          tHandle: Array(7).fill(0),
+          nHandled: Array(7).fill(0),
         },
         intradayValues: {
-          "nAttempted": JSON.parse(JSON.stringify(baseWeekArray)),
-          "nConnected": JSON.parse(JSON.stringify(baseWeekArray)),
-          "tHandle": JSON.parse(JSON.stringify(baseWeekArray)),
-          "nHandled": JSON.parse(JSON.stringify(baseWeekArray)),
+          nAttempted: JSON.parse(JSON.stringify(baseWeekArray)),
+          nConnected: JSON.parse(JSON.stringify(baseWeekArray)),
+          tHandle: JSON.parse(JSON.stringify(baseWeekArray)),
+          nHandled: JSON.parse(JSON.stringify(baseWeekArray)),
         },
       };
 
@@ -166,41 +166,41 @@ async function runGenerator(
           var metricName = metric.metric;
 
           // nOuotboundAttempted
-          if (metricName === nOutboundAttempted) {
+          if (metricName === "nOutboundAttempted") {
             var attempted = metric.stats.count;
 
             // add nOutboundAttempted stat to dailySummary
-            weekObj.dailySummary[nAttempted][dayIndex] += attempted;
+            weekObj.dailySummary.nAttempted[dayIndex] += attempted;
 
             // add nOutboundAttempted stat to intradayValues
-            weekObj.intradayValues[nAttempted][dayIndex][intervalIndex] +=
+            weekObj.intradayValues.nAttempted[dayIndex][intervalIndex] +=
               attempted;
           }
 
           // nOutboundConnected
-          if (metricName === nOutboundConnected) {
+          if (metricName === "nOutboundConnected") {
             var connected = metric.stats.count;
 
             // add nOutboundConnected stat to dailySummary
-            weekObj.dailySummary[nConnected][dayIndex] += connected;
+            weekObj.dailySummary.nConnected[dayIndex] += connected;
 
             // add nOutboundConnected stat to intradayValues
-            weekObj.intradayValues[nConnected][dayIndex][intervalIndex] +=
+            weekObj.intradayValues.nConnected[dayIndex][intervalIndex] +=
               connected;
           }
 
           // tHandle
-          if (metricName === tHandle) {
+          if (metricName === "tHandle") {
             var tHandle = metric.stats.sum / 1000; // convert to seconds
             var nHandled = metric.stats.count;
 
             // add tHandle stats to dailySummary
-            weekObj.dailySummary[tHandle][dayIndex] += tHandle;
-            weekObj.dailySummary[nHandled][dayIndex] += nHandled;
+            weekObj.dailySummary.tHandle[dayIndex] += tHandle;
+            weekObj.dailySummary.nHandled[dayIndex] += nHandled;
 
             // add tHandle stats to intradayValues
-            weekObj.intradayValues[tHandle][dayIndex][intervalIndex] += tHandle;
-            weekObj.intradayValues[nHandled][dayIndex][intervalIndex] +=
+            weekObj.intradayValues.tHandle[dayIndex][intervalIndex] += tHandle;
+            weekObj.intradayValues.nHandled[dayIndex][intervalIndex] +=
               nHandled;
           }
         }
