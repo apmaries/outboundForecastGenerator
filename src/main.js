@@ -166,42 +166,41 @@ async function runGenerator(
           var metricName = metric.metric;
 
           // nOuotboundAttempted
-          if (metricName === "nOutboundAttempted") {
+          if (metricName === nOutboundAttempted) {
             var attempted = metric.stats.count;
 
             // add nOutboundAttempted stat to dailySummary
-            weekObj.dailySummary["nAttempted"][dayIndex] += attempted;
+            weekObj.dailySummary[nAttempted][dayIndex] += attempted;
 
             // add nOutboundAttempted stat to intradayValues
-            weekObj.intradayValues["nAttempted"][dayIndex][intervalIndex] +=
+            weekObj.intradayValues[nAttempted][dayIndex][intervalIndex] +=
               attempted;
           }
 
           // nOutboundConnected
-          if (metricName === "nOutboundConnected") {
+          if (metricName === nOutboundConnected) {
             var connected = metric.stats.count;
 
             // add nOutboundConnected stat to dailySummary
-            weekObj.dailySummary["nConnected"][dayIndex] += connected;
+            weekObj.dailySummary[nConnected][dayIndex] += connected;
 
             // add nOutboundConnected stat to intradayValues
-            weekObj.intradayValues["nConnected"][dayIndex][intervalIndex] +=
+            weekObj.intradayValues[nConnected][dayIndex][intervalIndex] +=
               connected;
           }
 
           // tHandle
-          if (metricName === "tHandle") {
+          if (metricName === tHandle) {
             var tHandle = metric.stats.sum / 1000; // convert to seconds
             var nHandled = metric.stats.count;
 
             // add tHandle stats to dailySummary
-            weekObj.dailySummary["tHandle"][dayIndex] += tHandle;
-            weekObj.dailySummary["nHandled"][dayIndex] += nHandled;
+            weekObj.dailySummary[tHandle][dayIndex] += tHandle;
+            weekObj.dailySummary[nHandled][dayIndex] += nHandled;
 
             // add tHandle stats to intradayValues
-            weekObj.intradayValues["tHandle"][dayIndex][intervalIndex] +=
-              tHandle;
-            weekObj.intradayValues["nHandled"][dayIndex][intervalIndex] +=
+            weekObj.intradayValues[tHandle][dayIndex][intervalIndex] += tHandle;
+            weekObj.intradayValues[nHandled][dayIndex][intervalIndex] +=
               nHandled;
           }
         }
@@ -236,14 +235,9 @@ async function runGenerator(
     await processQueryResults(queryResults);
   }
 
-  // Convert historicalDataByCampaign to JSON
-
-  // Log historicalDataByCampaign
-  console.warn(historicalDataByCampaign);
-  console.warn(JSON.stringify(historicalDataByCampaign));
-
-  // Download historicalDataByCampaign.json
-  if (testMode) {
+  // TODO Fix this... Download historicalDataByCampaign.json
+  //console.warn(JSON.stringify(historicalDataByCampaign));
+  /*if (testMode) {
     var jsonData = JSON.stringify(historicalDataByCampaign);
     var blob = new Blob([jsonData], { type: "application/json" });
     var url = URL.createObjectURL(blob);
@@ -252,17 +246,8 @@ async function runGenerator(
     a.href = url;
     a.textContent = "Download historicalDataByCampaign.json";
     document.body.appendChild(a);
-  }
+  }*/
 
-  // Download historicalDataByCampaign.json
-  if (testMode) {
-    var jsonData = historicalDataByCampaign;
-    var blob = new Blob([jsonData], { type: "application/json" });
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement("a");
-    a.download = "historicalDataByCampaign2.json";
-    a.href = url;
-    a.textContent = "Download historicalDataByCampaign2.json";
-    document.body.appendChild(a);
-  }
+  // Log historicalDataByCampaign
+  console.warn(historicalDataByCampaign);
 }
