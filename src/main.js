@@ -236,8 +236,8 @@ async function runGenerator(
   }
 
   // TODO Fix this... Download historicalDataByCampaign.json
-  //console.warn(JSON.stringify(historicalDataByCampaign));
-  /*if (testMode) {
+  console.warn(JSON.stringify(historicalDataByCampaign));
+  if (testMode) {
     var jsonData = JSON.stringify(historicalDataByCampaign);
     var blob = new Blob([jsonData], { type: "application/json" });
     var url = URL.createObjectURL(blob);
@@ -246,7 +246,7 @@ async function runGenerator(
     a.href = url;
     a.textContent = "Download historicalDataByCampaign.json";
     document.body.appendChild(a);
-  }*/
+  }
 
   // Log historicalDataByCampaign
   console.warn(historicalDataByCampaign);
