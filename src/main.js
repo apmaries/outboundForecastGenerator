@@ -209,7 +209,6 @@ async function runGenerator(
   }
 
   function downloadJson() {
-    // TODO Fix this... Download historicalDataByCampaign.json
     console.warn(JSON.stringify(historicalDataByCampaign));
     if (testMode) {
       var jsonData = JSON.stringify(historicalDataByCampaign);
@@ -223,9 +222,14 @@ async function runGenerator(
     }
   }
 
-  function continueExecution() {
+  async function continueExecution() {
     // Code to be executed after processQueryResults is completed
-    downloadJson(historicalDataByCampaign);
+
+    // send each campaign through prepFcData function
+    for (let i = 0; i < historicalDataByCampaign.length; i++) {
+      var campaign = await historicalDataByCampaign[i];
+      console.log(campaign);
+    }
   }
 
   // Functions end here
@@ -239,6 +243,10 @@ async function runGenerator(
         queryResults = testData;
         console.log("OFG: Test data loaded");
         await processQueryResults(queryResults);
+
+        // added download for testing purposes
+        downloadJson(historicalDataByCampaign);
+
         continueExecution(); // Call the function to continue execution
       })
       .catch((error) => {

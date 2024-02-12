@@ -1,365 +1,94 @@
-async function distributionCalculator(body) {
-  var dailyKey = "dailySummary";
-  var intradayKey = "intradayValues";
+function prepFcMetrics(campaignData) {
+  var historicalWeeks = campaignData.historicalWeeks;
 
-  // body object
-  var body = body;
-  var nAttempted = body.nAttempted; // can be array of arrays or array of values
-  var nConnected = body.nConnected; // can be array of arrays or array of values
-  var tHandle = body.tHandle; // can be array of arrays or array of values
-  var nHandled = body.nHandled; // can be array of arrays or array of values
+  function l2Values(attempted, connected, time, handled) {
+    console.log("L2 initiated");
+    var crValues = [];
+    var crDistribution = [];
+    var ahtValues = [];
 
-  console.log("OFG: Distribution Calculator initiated");
-  // log values
-  console.log(`OFG: nAttempted (${nAttempted.length}): ${nAttempted}`);
-  console.log(`OFG: nConnected (${nConnected.length}): ${nConnected}`);
-  console.log(`OFG: tHandle (${tHandle.length}): ${tHandle}`);
-  console.log(`OFG: nHandled (${nHandled.length}): ${nHandled}`);
-
-  async function arrayLengthChecker(
-    attemptedArray,
-    connectedArray,
-    tHandleArray,
-    nHandledArray
-  ) {
-    // check to make sure all arrays are the same length
-    console.log("OFG: Checking array lengths");
-    if (
-      attemptedArray.length !== connectedArray.length ||
-      connectedArray.length !== tHandleArray.length ||
-      tHandleArray.length !== nHandledArray.length
-    ) {
-      throw new Error(
-        "OFG: Arrays are not the same length. nAttempted: " +
-          attemptedArray.length +
-          ", nConnected: " +
-          connectedArray.length +
-          ", tHandle: " +
-          tHandleArray.length +
-          ", nHandled: " +
-          nHandledArray.length
-      );
-    }
-    return Promise.resolve();
-  }
-
-  /*function l1Arrays(attempted, connected) {
-    // treat array of arrays
-    for (var i = 0; i < attempted.length; i++) {
-      var nAttemptedArray = attempted[i];
-      var nConnectedArray = connected[i];
-    }
-  }*/
-
-  /*function l2Values(attempted, connected) {
-    // treat arrays of values
-    // calculate contact rate from nAttempted and nConnected arrays
-    var contactRateValues = [];
     for (var i = 0; i < attempted.length; i++) {
       var nAttemptedValue = attempted[i];
       var nConnectedValue = connected[i];
 
-      // if nAttempted is 0, contact rate is 0
       if (nAttemptedValue === 0) {
-        contactRateValues.push(0);
+        crValues.push(0);
       } else {
-        contactRateValues.push(nConnectedValue / nAttemptedValue);
+        crValues.push(nConnectedValue / nAttemptedValue);
       }
+    }
 
-      // attach contactRate to the body object
-      body.contactRate = contactRateValues;
+    for (let j = 0; j < time.length; j++) {
+      var tTotalHandleTimeValue = time[j];
+      var nHandledValue = handled[j];
 
-      // calculate contactRate weekly distribution
-      var contactRateSum = contactRateValues.reduce(function (a, b) {
-        return a + b;
-      }, 0);
-
-      var contactRateDistribution = [];
-      for (var i = 0; i < contactRateValues.length; i++) {
-        contactRateDistribution.push(contactRateValues[i] / contactRateSum);
+      if (nHandledValue === 0) {
+        ahtValues.push(0);
+      } else {
+        ahtValues.push(tTotalHandleTimeValue / nHandledValue);
       }
-
-      // attach contactRateDistribution to the body object
-      body.contactRateDistribution = contactRateDistribution;
     }
-  }*/
 
-  if (dailyKey in body) {
-    console.log("OFG: Daily summary detected");
-    var attemptedArray = body.nAttempted;
-    var connectedArray = body.nConnected;
-    var tHandleArray = body.tHandle;
-    var nHandledArray = body.nHandled;
-    try {
-      await arrayLengthChecker(
-        attemptedArray,
-        connectedArray,
-        tHandleArray,
-        nHandledArray
-      ); // check to make sure all arrays are the same length
-    } catch (error) {
-      console.error(error);
-      return Promise.reject(error);
+    var contactRateSum = crValues.reduce(function (a, b) {
+      return a + b;
+    }, 0);
+
+    for (var k = 0; k < crValues.length; k++) {
+      crDistribution.push(crValues[k] / contactRateSum);
     }
-    console.log(body);
-    //l2Values(nAttempted, nConnected);
-  } else if (intradayKey in body) {
-    console.log("OFG: Intraday values detected");
-  } else {
-    console.error("OFG: No daily summary or intraday values detected");
-    return;
+
+    return [crValues, crDistribution, ahtValues];
   }
 
-  return body;
+  function l1Arrays(body) {
+    console.log("L1 initiated");
+    var attempted = body.nAttempted;
+    var connected = body.nConnected;
+    var time = body.tHandle;
+    var handled = body.nHandled;
+
+    for (var i = 0; i < attempted.length; i++) {
+      var nAttemptedArray = attempted[i];
+      var nConnectedArray = connected[i];
+      var tHandleArray = time[i];
+      var nHandledArray = handled[i];
+
+      [body.contactRate, body.contactRateDistribution, body.averHandleTime] =
+        l2Values(nAttemptedArray, nConnectedArray, tHandleArray, nHandledArray);
+    }
+    return body;
+  }
+
+  for (let w = 0; w < historicalWeeks.length; w++) {
+    console.log(
+      `Processing campaign ${campaignData.campaignId} for week ${historicalWeeks[w].weekNumber}`
+    );
+
+    // Check if the higher-level object contains both intradayValues and dailySummary
+    if (
+      !historicalWeeks[w] ||
+      !historicalWeeks[w].intradayValues ||
+      !historicalWeeks[w].dailySummary
+    ) {
+      console.error(
+        "OFG: Both intradayValues and dailySummary are required in the input object."
+      );
+      return;
+    }
+
+    let daily = historicalWeeks[w].dailySummary;
+    let intraday = historicalWeeks[w].intradayValues;
+
+    // Assign the returned values to the corresponding properties of the daily object
+    [daily.contactRate, daily.contactRateDistribution, daily.averHandleTime] =
+      l2Values(
+        daily.nAttempted,
+        daily.nConnected,
+        daily.tHandle,
+        daily.nHandled
+      );
+
+    intraday = l1Arrays(intraday);
+  }
+  return campaignData;
 }
-
-// temp - this will be driven from / by main.js
-function getResults() {
-  var dailySummaryTest = {
-    "dailySummary": {
-      "nAttempted": [0, 513, 955, 953, 898, 700, 246],
-      "nConnected": [0, 222, 339, 337, 253, 236, 72],
-      "tHandle": [
-        0, 168960.198, 236188.337, 223130.882, 198589.723, 174425.247,
-        61557.752,
-      ],
-      "nHandled": [0, 231, 357, 346, 259, 241, 72],
-    },
-  };
-  var intradayValuesTest = {
-    "intradayValues": {
-      "nAttempted": [
-        [
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0,
-        ],
-        [
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 4, 8, 4, 13, 16, 13, 6, 22,
-          23, 30, 18, 25, 17, 13, 15, 12, 6, 15, 6, 9, 6, 6, 10, 10, 7, 23, 24,
-          28, 25, 15, 10, 14, 11, 21, 9, 3, 5, 2, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        ],
-        [
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 14, 9, 4, 27, 23, 14, 30,
-          17, 13, 10, 10, 21, 25, 20, 16, 35, 32, 22, 12, 14, 39, 49, 12, 46,
-          33, 48, 23, 29, 65, 71, 46, 36, 17, 29, 10, 7, 3, 4, 8, 3, 1, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        ],
-        [
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 10, 19, 11, 32, 31, 57, 44,
-          31, 29, 29, 36, 24, 15, 34, 25, 35, 26, 21, 23, 14, 26, 19, 12, 23,
-          21, 22, 22, 27, 26, 44, 24, 33, 26, 35, 29, 5, 3, 3, 3, 1, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        ],
-        [
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13, 9, 5, 15, 70, 98, 20, 31,
-          29, 47, 31, 29, 23, 31, 27, 32, 13, 11, 25, 16, 14, 9, 26, 53, 7, 11,
-          17, 25, 19, 19, 30, 8, 22, 7, 10, 0, 5, 9, 17, 13, 1, 1, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        ],
-        [
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 7, 13, 19, 30, 17, 38,
-          12, 21, 10, 28, 25, 30, 32, 33, 19, 17, 11, 13, 20, 8, 43, 14, 46, 19,
-          14, 8, 19, 12, 6, 19, 33, 24, 18, 7, 3, 5, 3, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        ],
-        [
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 5, 17, 19, 3, 14, 6, 5, 12,
-          11, 3, 7, 4, 4, 4, 1, 8, 6, 1, 4, 3, 13, 24, 10, 9, 21, 4, 8, 1, 2, 3,
-          6, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0,
-        ],
-      ],
-      "nConnected": [
-        [
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0,
-        ],
-        [
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 6, 3, 5, 7, 8, 2, 12, 12,
-          16, 3, 10, 7, 4, 8, 7, 3, 7, 5, 4, 3, 1, 3, 5, 3, 9, 8, 8, 10, 9, 4,
-          4, 6, 7, 4, 1, 2, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0,
-        ],
-        [
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 10, 2, 3, 10, 8, 7, 9, 5, 5,
-          7, 4, 9, 12, 7, 7, 11, 11, 10, 3, 6, 13, 19, 5, 15, 10, 9, 7, 7, 14,
-          18, 17, 17, 7, 9, 5, 5, 1, 4, 5, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0,
-        ],
-        [
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 9, 3, 11, 13, 16, 12, 10,
-          8, 14, 12, 10, 6, 9, 7, 10, 10, 7, 4, 5, 8, 6, 6, 8, 9, 12, 12, 11,
-          11, 18, 9, 16, 8, 12, 5, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0,
-        ],
-        [
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 6, 2, 6, 11, 15, 8, 12, 8,
-          11, 7, 6, 7, 9, 8, 10, 5, 4, 5, 5, 9, 2, 5, 8, 4, 8, 8, 8, 7, 8, 9, 1,
-          7, 4, 3, 0, 2, 3, 4, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0,
-        ],
-        [
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 4, 6, 5, 8, 10, 9, 8, 9,
-          5, 4, 12, 9, 9, 13, 7, 6, 3, 4, 4, 4, 11, 3, 14, 8, 4, 5, 7, 3, 3, 6,
-          10, 8, 8, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0,
-        ],
-        [
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 6, 7, 1, 4, 3, 1, 1, 3,
-          1, 2, 3, 2, 1, 1, 1, 3, 1, 1, 2, 3, 3, 2, 3, 4, 1, 3, 0, 2, 0, 3, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0,
-        ],
-      ],
-      "tHandle": [
-        [
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0,
-        ],
-        [
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 861.776, 1126.903, 1920.91,
-          2342.318, 5956.077, 3023.784, 575.83, 8584.017, 3102.788, 5293.845,
-          2702.972, 5630.921, 7802.448, 6184.948, 4975.404, 5775.203, 3461.495,
-          10568.44, 3127.829, 5358.081, 5027.747, 2433.788, 5336.913, 2300.924,
-          5309.281, 3968.406, 4126.486, 4428.943, 8375.268, 5070.569, 4567.846,
-          2339.44, 4709.15, 2521.187, 1916.387, 6422.807, 943.334, 0, 2905.769,
-          7879.964, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        ],
-        [
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 59452.516, 1458.756, 2878.302,
-          4285.869, 4031.57, 6328.409, 5238.198, 5567.993, 4579.874, 6433.311,
-          1003.508, 5145.874, 755.141, 8635.342, 1539.833, 7069.783, 6959.092,
-          6761.756, 4077.77, 6559.033, 4067.189, 5083.61, 4913.518, 5385.236,
-          6163.923, 6033.665, 4586.332, 8591.234, 5469.549, 3379.108, 3935.616,
-          5197.482, 5910.843, 2775.524, 4344.397, 2125.539, 1729.305, 1181.248,
-          111.307, 4052.627, 1132.728, 1256.427, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0,
-        ],
-        [
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 57400.538, 1081.821, 4044.197,
-          2488.505, 3758.424, 5640.845, 6296.166, 6462.34, 5371.952, 3588.565,
-          7349.318, 2137.024, 1939.112, 6132.222, 8730.134, 3269.443, 8382.308,
-          5812.422, 7927.945, 1433.756, 3511.426, 2862.42, 5945.969, 3243.306,
-          5388.022, 1988.575, 3765.919, 3066.507, 5813.509, 5610.451, 5219.724,
-          3360.866, 3222.181, 1773.06, 6587.064, 3826.837, 1444.305, 0, 1135.53,
-          5644.99, 473.184, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0,
-        ],
-        [
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 57231.552, 2169.859, 1022.688,
-          4910.483, 6207.654, 2737.494, 2815.031, 1664.853, 4645.79, 2702.2,
-          2468.573, 2640.56, 6987.071, 992.365, 3800.779, 4471.2, 4800.913,
-          4726.574, 4853.644, 1165.85, 5957.405, 5172.189, 7188.078, 4806.12,
-          269.443, 2982.358, 4891.593, 3785.508, 3065.485, 12123.915, 3928.247,
-          1878.767, 6203.511, 2544.607, 2832.16, 0, 3125.209, 710.496, 2375.863,
-          139.408, 0, 1594.228, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0,
-        ],
-        [
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 379.432, 0, 207.477, 1176.948,
-          4891.876, 2140.998, 3645.118, 2330.525, 60782.915, 2608.134, 3617.708,
-          1072.652, 2288.121, 4910.155, 2800.75, 4303.007, 3381.964, 4387.148,
-          3282.988, 3873.968, 3435.602, 2221.58, 2545.299, 7313.461, 975.61,
-          5937.406, 2339.422, 3615.415, 2864.072, 4710.771, 3625.039, 4289.017,
-          1746.45, 4226.325, 3463.011, 3825.361, 729.904, 3241.092, 1238.526, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        ],
-        [
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1055.537, 3950.058,
-          1017.154, 1064.642, 4853.086, 1950.437, 2538.609, 2516.681, 888.163,
-          1957.565, 1882.117, 103.437, 1347.448, 5661.784, 1383.543, 3247.513,
-          659.899, 0, 1364.897, 3645.394, 214.683, 4249.582, 0, 3092.945,
-          929.18, 2619.748, 508.212, 1166.563, 3673.149, 0, 3327.255, 688.471,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0,
-        ],
-      ],
-      "nHandled": [
-        [
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0,
-        ],
-        [
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 4, 2, 4, 9, 9, 2, 14, 11,
-          13, 4, 10, 8, 5, 8, 7, 3, 7, 5, 5, 4, 2, 4, 3, 4, 7, 7, 9, 12, 8, 5,
-          4, 8, 7, 5, 3, 2, 0, 3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0,
-        ],
-        [
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 7, 5, 3, 7, 9, 8, 7, 5, 8,
-          7, 7, 6, 14, 6, 9, 12, 10, 10, 6, 6, 11, 18, 7, 14, 11, 7, 13, 7, 16,
-          19, 16, 18, 7, 9, 8, 6, 1, 4, 5, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0,
-        ],
-        [
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 9, 3, 8, 14, 16, 13, 12,
-          6, 18, 9, 8, 9, 8, 7, 10, 11, 11, 3, 5, 8, 8, 6, 9, 8, 12, 11, 11, 13,
-          19, 9, 14, 7, 13, 8, 2, 0, 1, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0,
-        ],
-        [
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 5, 1, 6, 13, 16, 9, 9, 9, 9,
-          9, 6, 10, 5, 9, 10, 6, 4, 6, 4, 6, 4, 8, 9, 4, 4, 10, 7, 8, 8, 9, 3,
-          10, 4, 3, 0, 3, 2, 6, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0,
-        ],
-        [
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 2, 1, 8, 5, 8, 10, 10, 10,
-          8, 4, 5, 10, 9, 10, 12, 9, 7, 5, 4, 2, 2, 13, 3, 14, 8, 4, 4, 7, 4, 4,
-          5, 10, 8, 9, 1, 3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0,
-        ],
-        [
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 6, 7, 1, 5, 2, 2, 2, 1,
-          2, 3, 1, 2, 2, 1, 2, 2, 0, 1, 2, 4, 4, 0, 5, 2, 2, 4, 1, 1, 0, 3, 1,
-          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0,
-        ],
-      ],
-    },
-  };
-
-  var results = distributionCalculator(dailySummaryTest);
-
-  console.log(results);
-  //console.log(distributionCalculator(intradayValuesTest));
-}
-
-getResults();
