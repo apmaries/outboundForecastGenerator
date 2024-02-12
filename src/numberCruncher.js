@@ -59,7 +59,7 @@ function prepFcMetrics(campaignData) {
 
   for (let w = 0; w < historicalWeeks.length; w++) {
     console.log(
-      `Prepping Contact Rate & AHT values for campaign ${campaignData.campaignId} in week ${historicalWeeks[w].weekNumber}`
+      `OFG: Prepping Contact Rate & AHT values for campaign ${campaignData.campaignId} in week ${historicalWeeks[w].weekNumber}`
     );
 
     // Check if the higher-level object contains both intradayValues and dailySummary
