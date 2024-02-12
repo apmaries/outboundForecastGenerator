@@ -103,6 +103,7 @@ async function runGenerator(
           campaignId: campaignId,
           historicalWeeks: [],
         };
+        console.log(`OFG: Creating new campaign object for ${campaignId}`);
         historicalDataByCampaign.push(campaignObj);
       }
 
@@ -129,6 +130,7 @@ async function runGenerator(
       };
 
       // for each interval in the data, get the week number and add to the campaign object
+      console.log(`OFG: Processing interval data for campaign ${campaignId}`);
       for (let j = 0; j < data.length; j++) {
         var interval = data[j].interval;
         var metrics = data[j].metrics;

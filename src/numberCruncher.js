@@ -2,7 +2,6 @@ function prepFcMetrics(campaignData) {
   var historicalWeeks = campaignData.historicalWeeks;
 
   function l2Values(attempted, connected, time, handled) {
-    console.log("L2 initiated");
     var crValues = [];
     var crDistribution = [];
     var ahtValues = [];
@@ -41,7 +40,6 @@ function prepFcMetrics(campaignData) {
   }
 
   function l1Arrays(body) {
-    console.log("L1 initiated");
     var attempted = body.nAttempted;
     var connected = body.nConnected;
     var time = body.tHandle;
@@ -61,7 +59,7 @@ function prepFcMetrics(campaignData) {
 
   for (let w = 0; w < historicalWeeks.length; w++) {
     console.log(
-      `Processing campaign ${campaignData.campaignId} for week ${historicalWeeks[w].weekNumber}`
+      `Prepping Contact Rate & AHT values for campaign ${campaignData.campaignId} in week ${historicalWeeks[w].weekNumber}`
     );
 
     // Check if the higher-level object contains both intradayValues and dailySummary
