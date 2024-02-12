@@ -207,6 +207,27 @@ async function runGenerator(
       }
     }
   }
+
+  function downloadJson() {
+    // TODO Fix this... Download historicalDataByCampaign.json
+    console.warn(JSON.stringify(historicalDataByCampaign));
+    if (testMode) {
+      var jsonData = JSON.stringify(historicalDataByCampaign);
+      var blob = new Blob([jsonData], { type: "application/json" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.download = "historicalDataByCampaign.json";
+      a.href = url;
+      a.textContent = "Download historicalDataByCampaign.json";
+      document.body.appendChild(a);
+    }
+  }
+
+  function continueExecution() {
+    // Code to be executed after processQueryResults is completed
+    downloadJson(historicalDataByCampaign);
+  }
+
   // Functions end here
 
   // Main code starts here
@@ -218,6 +239,7 @@ async function runGenerator(
         queryResults = testData;
         console.log("OFG: Test data loaded");
         await processQueryResults(queryResults);
+        continueExecution(); // Call the function to continue execution
       })
       .catch((error) => {
         console.error(error);
@@ -233,21 +255,6 @@ async function runGenerator(
     // Execute historical data queries
     queryResults = await executeQueries(queriesArray);
     await processQueryResults(queryResults);
+    continueExecution(); // Call the function to continue execution
   }
-
-  // TODO Fix this... Download historicalDataByCampaign.json
-  console.warn(JSON.stringify(historicalDataByCampaign));
-  if (testMode) {
-    var jsonData = JSON.stringify(historicalDataByCampaign);
-    var blob = new Blob([jsonData], { type: "application/json" });
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement("a");
-    a.download = "historicalDataByCampaign.json";
-    a.href = url;
-    a.textContent = "Download historicalDataByCampaign.json";
-    document.body.appendChild(a);
-  }
-
-  // Log historicalDataByCampaign
-  console.warn(historicalDataByCampaign);
 }
