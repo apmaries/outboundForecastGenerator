@@ -1,0 +1,19 @@
+fcData.contactRateIntraDayHistoricalPattern (1 = Monday)
+Index 36 = 09:00am
+week 0 = 0.018348827402342
+week 1 = 0.060630201418624
+week 2 = 0
+week 3 = 0
+week 4 = 0.0328981446825926
+week 5 = 0.0360089365361427
+week 6 = 0.0363744902308041
+
+historicalWeeks.intradayValues.week.contactRateDistribution[1][36]
+week 2023-50 = 0.018348827402342
+week 2023-51 = 0.060630201418624
+week 2023-52 = 0
+week 2024-01 = 0
+week 2024-02 = 0.0328981446825926
+week 2024-03 = 	0.0360089365361427
+week 2024-04 = 0.0363744902308041
+

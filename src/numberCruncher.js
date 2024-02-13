@@ -146,18 +146,18 @@ async function groupByIndexNumber(campaignData) {
   // function to group CR and AHT values by index number
   campaignData.fcData = {};
   var crDaily = [];
-  var crIntraday = [];
   var ahtDaily = [];
-  var ahtIntraday = [];
 
   var historicalWeeks = campaignData.historicalWeeks;
 
+  // loop through historical weeks and group by day of week
   for (let i = 0; i < historicalWeeks.length; i++) {
     let historicalWeek = historicalWeeks[i];
 
     console.log(
       `OFG: Grouping data by day of week for campaign ${campaignData.campaignId} in week ${historicalWeek.weekNumber}`
     );
+
     var dowContactRateDistrib =
       historicalWeek.dailySummary.contactRateDistribution;
     crDaily.push(dowContactRateDistrib);
@@ -181,25 +181,9 @@ async function groupByIndexNumber(campaignData) {
           )
       );
 
-    // old method - did not work
-    /*var intradayContactRateDistrib =
-      historicalWeek.intradayValues.contactRateDistribution;
-    for (let j = 0; j < intradayContactRateDistrib.length; j++) {
-      crIntraday.push(intradayContactRateDistrib[j]);
-    }
-
-    var intradayAhtValues = historicalWeek.intradayValues.averHandleTime;
-    for (let k = 0; k < intradayAhtValues.length; k++) {
-      ahtIntraday.push(intradayAhtValues[k]);
-    }*/
+    campaignData.fcData.contactRateDailyHistoricalPattern = crDaily;
+    campaignData.fcData.averHandleTimeDailyHistoricalPattern = ahtDaily;
   }
-
-  // obsolete
-  /*campaignData.fcData.contactRateDailyHistoricalPattern = crDaily;
-  campaignData.fcData.averHandleTimeDailyHistoricalPattern = ahtDaily;
-
-  campaignData.fcData.contactRateIntraDayHistoricalPattern = crIntraday;
-  campaignData.fcData.averHandleTimeIntradayHistoricalPattern = ahtIntraday;*/
 
   return campaignData;
 }
