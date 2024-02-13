@@ -168,7 +168,7 @@ async function groupByIndexNumber(campaignData) {
     campaignData.fcData.contactRateIntraDayHistoricalPattern =
       campaignData.historicalWeeks[0].intradayValues.contactRateDistribution.map(
         (_, i) =>
-          campaign.historicalWeeks.map(
+          campaignData.historicalWeeks.map(
             (week) => week.intradayValues.contactRateDistribution[i]
           )
       );
@@ -176,7 +176,7 @@ async function groupByIndexNumber(campaignData) {
     campaignData.fcData.averHandleTimeIntradayHistoricalPattern =
       campaignData.historicalWeeks[0].intradayValues.averHandleTime.map(
         (_, i) =>
-          campaign.historicalWeeks.map(
+          campaignData.historicalWeeks.map(
             (week) => week.intradayValues.averHandleTime[i]
           )
       );
