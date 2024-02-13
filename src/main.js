@@ -232,6 +232,7 @@ async function runGenerator(
       var campaign = historicalDataByCampaign[i];
       console.log(`OFG: Prepping FC data for campaign ${campaign.campaignId}`);
       campaign = await prepFcMetrics(campaign);
+      campaign = await groupByIndexNumber(campaign);
       console.log(campaign);
     }
   }

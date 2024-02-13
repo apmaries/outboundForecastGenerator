@@ -96,21 +96,12 @@ async function prepFcMetrics(campaignData) {
     body.contactRateDistribution = contactRateDistributionArray;
     body.averHandleTime = averHandleTimeArray;
 
-    console.log(
-      `body.contactRateDistribution has ${getTotalLength(
-        body.contactRateDistribution
-      )}`
-    );
-    console.log(
-      `body.averHandleTime has ${getTotalLength(body.averHandleTime)}`
-    );
-
     return body;
   }
 
   for (let w = 0; w < historicalWeeks.length; w++) {
     console.log(
-      `OFG: Prepping Contact Rate and AHT for campaign id ${campaignData.campaignId} in week ${historicalWeeks[w].weekNumber}`
+      `OFG: Prepping Contact Rate and AHT for campaign ${campaignData.campaignId} in week ${historicalWeeks[w].weekNumber}`
     );
 
     // Check if the higher-level object contains both intradayValues and dailySummary
@@ -152,9 +143,7 @@ async function prepFcMetrics(campaignData) {
 }
 
 async function groupByIndexNumber(campaignData) {
-  console.log(campaignData);
   // function to group CR and AHT values by index number
-  console.log("Grouping data by day of week");
   campaignData.fcData = {};
   var crDaily = [];
   var crIntraday = [];
@@ -166,7 +155,9 @@ async function groupByIndexNumber(campaignData) {
   for (let i = 0; i < historicalWeeks.length; i++) {
     let historicalWeek = historicalWeeks[i];
 
-    console.log(`Processing week ${historicalWeek.weekNumber}`);
+    console.log(
+      `OFG: Grouping data by day of week for campaign ${campaignData.campaignId} in week ${historicalWeek.weekNumber}`
+    );
     var dowContactRateDistrib =
       historicalWeek.dailySummary.contactRateDistribution;
     crDaily.push(dowContactRateDistrib);
@@ -176,31 +167,20 @@ async function groupByIndexNumber(campaignData) {
 
     var intradayContactRateDistrib =
       historicalWeek.intradayValues.contactRateDistribution;
-    //console.log(`intradayContactRateDistrib total = ${getTotalLength(intradayContactRateDistrib)}`)
-    //console.log(`intradayContactRateDistrib = ${intradayContactRateDistrib.length}`)
     for (let j = 0; j < intradayContactRateDistrib.length; j++) {
       crIntraday.push(intradayContactRateDistrib[j]);
     }
 
     var intradayAhtValues = historicalWeek.intradayValues.averHandleTime;
-    //console.log(`intradayAhtValues total = ${getTotalLength(intradayAhtValues)}`)
-    //console.log(`intradayAhtValues = ${intradayAhtValues.length}`)
     for (let k = 0; k < intradayAhtValues.length; k++) {
       ahtIntraday.push(intradayAhtValues[k]);
     }
   }
-
-  console.log(`crDaily has ${getTotalLength(crDaily)} total entries`);
-  console.log(`ahtDaily has ${getTotalLength(ahtDaily)} total entries`);
-
-  console.log(`crIntraday has ${getTotalLength(crIntraday)} total entries`);
-  console.log(`ahtIntraday has ${getTotalLength(ahtIntraday)} total entries`);
 
   campaignData.fcData.contactRateDailyHistoricalPattern = crDaily;
   campaignData.fcData.averHandleTimeDailyHistoricalPattern = ahtDaily;
   campaignData.fcData.contactRateIntraDayHistoricalPattern = crIntraday;
   campaignData.fcData.averHandleTimeIntradayHistoricalPattern = ahtIntraday;
 
-  console.log(campaignData);
   return campaignData;
 }
