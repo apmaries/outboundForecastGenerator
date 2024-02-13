@@ -165,7 +165,24 @@ async function groupByIndexNumber(campaignData) {
     var dowAverHandleTime = historicalWeek.dailySummary.averHandleTime;
     ahtDaily.push(dowAverHandleTime);
 
-    var intradayContactRateDistrib =
+    campaignData.fcData.contactRateIntraDayHistoricalPattern =
+      campaignData.historicalWeeks[0].intradayValues.contactRateDistribution.map(
+        (_, i) =>
+          campaign.historicalWeeks.map(
+            (week) => week.intradayValues.contactRateDistribution[i]
+          )
+      );
+
+    campaignData.fcData.averHandleTimeIntradayHistoricalPattern =
+      campaignData.historicalWeeks[0].intradayValues.averHandleTime.map(
+        (_, i) =>
+          campaign.historicalWeeks.map(
+            (week) => week.intradayValues.averHandleTime[i]
+          )
+      );
+
+    // old method - did not work
+    /*var intradayContactRateDistrib =
       historicalWeek.intradayValues.contactRateDistribution;
     for (let j = 0; j < intradayContactRateDistrib.length; j++) {
       crIntraday.push(intradayContactRateDistrib[j]);
@@ -174,13 +191,15 @@ async function groupByIndexNumber(campaignData) {
     var intradayAhtValues = historicalWeek.intradayValues.averHandleTime;
     for (let k = 0; k < intradayAhtValues.length; k++) {
       ahtIntraday.push(intradayAhtValues[k]);
-    }
+    }*/
   }
 
-  campaignData.fcData.contactRateDailyHistoricalPattern = crDaily;
+  // obsolete
+  /*campaignData.fcData.contactRateDailyHistoricalPattern = crDaily;
   campaignData.fcData.averHandleTimeDailyHistoricalPattern = ahtDaily;
+
   campaignData.fcData.contactRateIntraDayHistoricalPattern = crIntraday;
-  campaignData.fcData.averHandleTimeIntradayHistoricalPattern = ahtIntraday;
+  campaignData.fcData.averHandleTimeIntradayHistoricalPattern = ahtIntraday;*/
 
   return campaignData;
 }
