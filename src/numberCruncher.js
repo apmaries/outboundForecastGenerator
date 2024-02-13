@@ -144,7 +144,7 @@ async function prepFcMetrics(campaignData) {
 
 async function groupByIndexNumber(campaignData) {
   // function to group CR and AHT values by index number
-  campaignData.fcData = {};
+  campaignData.fcHistoricalPatternData = {};
   var crDaily = [];
   var ahtDaily = [];
 
@@ -165,7 +165,7 @@ async function groupByIndexNumber(campaignData) {
     var dowAverHandleTime = historicalWeek.dailySummary.averHandleTime;
     ahtDaily.push(dowAverHandleTime);
 
-    campaignData.fcData.contactRateIntraDayHistoricalPattern =
+    campaignData.fcHistoricalPatternData.contactRateIntraDay =
       campaignData.historicalWeeks[0].intradayValues.contactRateDistribution.map(
         (_, i) =>
           campaignData.historicalWeeks.map(
@@ -173,7 +173,7 @@ async function groupByIndexNumber(campaignData) {
           )
       );
 
-    campaignData.fcData.averHandleTimeIntradayHistoricalPattern =
+    campaignData.fcHistoricalPatternData.averHandleTimeIntraday =
       campaignData.historicalWeeks[0].intradayValues.averHandleTime.map(
         (_, i) =>
           campaignData.historicalWeeks.map(
@@ -181,9 +181,12 @@ async function groupByIndexNumber(campaignData) {
           )
       );
 
-    campaignData.fcData.contactRateDailyHistoricalPattern = crDaily;
-    campaignData.fcData.averHandleTimeDailyHistoricalPattern = ahtDaily;
+    campaignData.fcHistoricalPatternData.contactRateDaily = crDaily;
+    campaignData.fcHistoricalPatternData.averHandleTimeDaily = ahtDaily;
   }
+
+  // delete the now obsolete historicalWeeks property from the campaignData object
+  delete campaignData.historicalWeeks;
 
   return campaignData;
 }
