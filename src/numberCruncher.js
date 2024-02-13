@@ -110,7 +110,7 @@ async function prepFcMetrics(campaignData) {
 
   for (let w = 0; w < historicalWeeks.length; w++) {
     console.log(
-      `OFG: Prepping Contact Rate & AHT for campaign id ${campaignData.campaignId} in week ${historicalWeeks[w].weekNumber}`
+      `OFG: Prepping Contact Rate and AHT for campaign id ${campaignData.campaignId} in week ${historicalWeeks[w].weekNumber}`
     );
 
     // Check if the higher-level object contains both intradayValues and dailySummary
@@ -201,7 +201,6 @@ async function groupByIndexNumber(campaignData) {
   campaignData.fcData.contactRateIntraDayHistoricalPattern = crIntraday;
   campaignData.fcData.averHandleTimeIntradayHistoricalPattern = ahtIntraday;
 
-  //return [crGrouped, ahtGrouped];
   console.log(campaignData);
   return campaignData;
 }

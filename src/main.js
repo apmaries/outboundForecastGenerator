@@ -229,7 +229,9 @@ async function runGenerator(
 
     // send each campaign through prepFcData function
     for (let i = 0; i < historicalDataByCampaign.length; i++) {
-      var campaign = await historicalDataByCampaign[i];
+      var campaign = historicalDataByCampaign[i];
+      console.log(`OFG: Prepping FC data for campaign ${campaign.campaignId}`);
+      campaign = await prepFcMetrics(campaign);
       console.log(campaign);
     }
   }
