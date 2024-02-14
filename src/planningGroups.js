@@ -82,6 +82,7 @@ async function loadPageTwo(businessUnitId) {
       "#planning-groups-table"
     );
     const tableBody = document.querySelector("#planning-groups-table tbody");
+    const ignoreZeroesCheckbox = document.getElementById("ignore-zeroes");
 
     // Clear out any existing rows
     tableBody.innerHTML = "";
@@ -177,6 +178,7 @@ async function loadPageTwo(businessUnitId) {
 
     loadingSpinner.style.display = "none";
     planningGroupsTable.removeAttribute("hidden");
+    ignoreZeroesCheckbox.removeAttribute("hidden");
   }
 
   // Use Promise.all to run getPlanningGroups and getCampaigns concurrently

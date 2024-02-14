@@ -254,6 +254,7 @@ async function runGenerator(
 
       // apply campaign numContacts to contactRateDistribution
       campaign = await applyContacts(campaign, planningGroupContactsArray);
+      downloadJson(campaign, `applyContacts_${campaignId}`);
 
       return campaign;
     });
