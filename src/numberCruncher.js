@@ -295,8 +295,28 @@ async function generateAverages(campaignData, ignoreZeroes = true) {
   return campaignData;
 }
 
-async function applyContacts(campaignData, contacts) {
+async function applyContacts(campaignData, pgArray) {
   const campaignId = campaignData.campaignId;
+  console.log(
+    `OFG: [${campaignId}] Applying ${campaignContacts} contacts to Contact Rate forecast.`
+  );
+  // find campaign id from planningGroupContactsArray
+  let campaignContacts = pgArray.find(
+    (planningGroup) => planningGroup.campaignId === campaignId
+  ).numContacts;
+
+  if (campaignContacts === undefined) {
+    console.error(
+      `OFG: No contacts found for campaign ${campaignId}. Please check inputs.`
+    );
+    console.error(planningGroupContactsArray);
+    return;
+  }
+
+  console.log(
+    `OFG: Applying ${campaignContacts} contacts to campaign ${campaignId} forecast`
+  );
+
   console.log(
     `OFG: [${campaignId}] Applying ${contacts} contacts to Contact Rate forecast.`
   );

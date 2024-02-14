@@ -252,24 +252,8 @@ async function runGenerator(
       campaign = await generateAverages(campaign, ignoreZeroes);
       downloadJson(campaign, `generateAverages_${campaignId}`);
 
-      // find campaign id from planningGroupContactsArray
-      let campaignContacts = planningGroupContactsArray.find(
-        (planningGroup) => planningGroup.campaignId === campaignId
-      ).numContacts;
-
-      if (campaignContacts === undefined) {
-        console.error(
-          `OFG: No contacts found for campaign ${campaignId}. Please check planningGroupContactsArray.`
-        );
-        console.error(planningGroupContactsArray);
-      }
-
-      console.log(
-        `OFG: Applying ${campaignContacts} contacts to campaign ${campaignId} forecast`
-      );
-
       // apply campaign numContacts to contactRateDistribution
-      campaign = applyContacts(campaign, campaignContacts);
+      campaign = await applyContacts(campaign, planningGroupContactsArray);
 
       return campaign;
     });
