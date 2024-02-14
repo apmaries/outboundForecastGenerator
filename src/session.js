@@ -43,10 +43,7 @@ async function getOrgLevelStuff() {
   await getUser();
 
   //get oauth client details
-  let client = await fetchDataWithRetry(
-    `/api/v2/oauth/clients/${clientId}`,
-    "GET"
-  );
+  let client = fetchDataWithRetry(`/api/v2/oauth/clients/${clientId}`, "GET");
   if (client) {
     console.log("OFG: OAuth client details returned");
     const clientName = client.name;
@@ -58,7 +55,7 @@ async function getOrgLevelStuff() {
   }
 
   //get divisions list
-  let divisions = await fetchDataWithRetry(
+  let divisions = fetchDataWithRetry(
     `/api/v2/authorization/divisions?pageSize=1000&pageNumber=1`,
     "GET"
   );
@@ -70,10 +67,7 @@ async function getOrgLevelStuff() {
   }
 
   //create notification channel
-  let channel = await fetchDataWithRetry(
-    `/api/v2/notifications/channels`,
-    "POST"
-  );
+  let channel = fetchDataWithRetry(`/api/v2/notifications/channels`, "POST");
   if (channel) {
     console.log("OFG: Notifications channel opened");
     const notificationsUri = channel.connectUri;

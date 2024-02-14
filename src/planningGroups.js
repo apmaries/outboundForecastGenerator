@@ -152,9 +152,15 @@ async function loadPageTwo(businessUnitId) {
       label.slot = "label";
       label.textContent = groupName + " number of contacts";
 
-      // Disable input if no matching campaign found
       if (!matchingCampaign) {
+        // Disable input if no matching campaign found and add data attribute to indicate this
         input.disabled = true;
+        campaignNameCell.dataset.matchedCampaign = "false";
+        row.style.fontStyle = "italic";
+        row.style.color = "grey";
+      } else {
+        // Add data attribute to indicate that a matching campaign was found
+        campaignNameCell.dataset.matchedCampaign = "true";
       }
 
       guxFormFieldNumber.appendChild(input);

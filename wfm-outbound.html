@@ -531,21 +531,27 @@
             const pgName = pgNameCell.textContent;
             const pgId = pgNameCell.dataset.pgId;
             const cpNameCell = row.querySelector("td:nth-child(2)");
-            const cpName = cpNameCell.textContent;
-            const cpId = cpNameCell.dataset.cpId;
-
-            // Get number of contacts
-            const numContactsInput = document.getElementById(
-              `nContacts_${pgId}`
-            );
-            const numContacts = numContactsInput.value;
 
             let planningGroupContacts = {
               "pgName": pgName,
               "pgId": pgId,
-              "cpName": cpName,
-              "cpId": cpId,
             };
+
+            // check value of cpNameCell.dataset.matchedCampaign
+            if (cpNameCell.dataset.matchedCampaign === "true") {
+              const cpName = cpNameCell.textContent;
+              const cpId = cpNameCell.dataset.cpId;
+
+              // Get number of contacts
+              const numContactsInput = document.getElementById(
+                `nContacts_${pgId}`
+              );
+              const numContacts = numContactsInput.value;
+
+              planningGroupContacts["cpName"] = cpName;
+              planningGroupContacts["cpId"] = cpId;
+              planningGroupContacts["numContacts"] = numContacts;
+            }
 
             // TODO: Fix data validation
             /*
