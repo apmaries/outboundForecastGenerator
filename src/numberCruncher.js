@@ -299,7 +299,6 @@ async function applyContacts(campaignData, pgArray, testMode) {
   let campaignId = campaignData.campaignId;
   const planningGroupContactsArray = pgArray;
   const contacts = campaignData.contacts;
-  s;
 
   // temp logging
   console.warn(planningGroupContactsArray);
