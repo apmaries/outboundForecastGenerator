@@ -18,7 +18,7 @@ function getTotalLength(arrayOfArrays) {
 
 async function prepFcMetrics(campaignData) {
   const campaignId = campaignData.campaignId;
-  console.log(`OFG: [${campaignId}] - Prepping Contact Rate & AHT metrics.`);
+  console.log(`OFG: [${campaignId}] Prepping Contact Rate & AHT metrics.`);
   var historicalWeeks = campaignData.historicalWeeks;
 
   function l2Values(attempted, connected, time, handled) {

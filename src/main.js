@@ -236,6 +236,36 @@ async function runGenerator(
   async function continueExecution() {
     // Code to be executed after processQueryResults is completed
 
+    let promises = historicalDataByCampaign.map(async (campaign) => {
+      console.log(
+        `OFG: Preparing campaign ${campaign.campaignId} for forecast`
+      );
+
+      // send each campaign through prepFcData function to build CR Distribution and AHT metrics
+      campaign = await prepFcMetrics(campaign);
+      downloadJson(campaign, `fCMetrics_${campaign.campaignId}`);
+
+      // then send each campaign through groupByIndexNumber function to group FC metrics by day of week (also deletes historical weeks array)
+      campaign = await groupByIndexNumber(campaign);
+      downloadJson(campaign, `groupByIndexNumber_${campaign.campaignId}`);
+
+      // generate forecast from fcHistoricalPatternData (also deletes fcHistoricalPatternData object)
+      campaign = await generateAverages(campaign, ignoreZeroes);
+      downloadJson(campaign, `generateAverages_${campaign.campaignId}`);
+
+      // apply campaign numContacts to contactRateDistribution
+      // ... your code here ...
+
+      return campaign;
+    });
+
+    Promise.all(promises).then((completedCampaigns) => {
+      console.log("All campaigns have been processed.");
+      // ... your code here ...
+    });
+
+    // original execution code
+    /*
     for (let i = 0; i < historicalDataByCampaign.length; i++) {
       var campaign = historicalDataByCampaign[i];
       console.log(
@@ -244,21 +274,24 @@ async function runGenerator(
 
       // send each campaign through prepFcData function to build CR Distribution and AHT metrics
       campaign = await prepFcMetrics(campaign);
-      downloadJson(campaign, `fCMetrics_campaign${campaign.campaignId}`);
+      downloadJson(campaign, `fCMetrics_${campaign.campaignId}`);
 
       // then send each campaign through groupByIndexNumber function to group FC metrics by day of week (also deletes historical weeks array)
       campaign = await groupByIndexNumber(campaign);
       downloadJson(
         campaign,
-        `groupByIndexNumber_campaign${campaign.campaignId}`
+        `groupByIndexNumber_${campaign.campaignId}`
       );
 
       // generate forecast from fcHistoricalPatternData (also deletes fcHistoricalPatternData object)
       campaign = await generateAverages(campaign, ignoreZeroes);
-      downloadJson(campaign, `generateAverages_campaign${campaign.campaignId}`);
+      downloadJson(campaign, `generateAverages_${campaign.campaignId}`);
 
       // apply campaign numContacts to contactRateDistribution
+  
     }
+    */
+
     downloadJson(historicalDataByCampaign, "historicalDataByCampaign");
   }
   // Functions end here
