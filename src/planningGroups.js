@@ -81,6 +81,10 @@ async function loadPageTwo(businessUnitId) {
     // define document elements
     const loadingSpinner = document.getElementById("planning-groups-loading");
     const planningGroupsDiv = document.getElementById("planning-groups");
+
+    // temp logging
+    console.log(planningGroupsDiv);
+
     const planningGroupsTable = document.querySelector(
       "#planning-groups-table"
     );
