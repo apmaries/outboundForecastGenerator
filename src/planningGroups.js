@@ -1,4 +1,3 @@
-import { loadingSpinner, planningGroupsDiv } from "./someModule"; // Import the necessary variables
 async function loadPageTwo(businessUnitId) {
   // Function to get planning groups from BU id
   async function getPlanningGroups() {
@@ -82,10 +81,6 @@ async function loadPageTwo(businessUnitId) {
     // define document elements
     const loadingSpinner = document.getElementById("planning-groups-loading");
     const planningGroupsDiv = document.getElementById("planning-groups");
-
-    // temp logging
-    console.log(planningGroupsDiv);
-
     const planningGroupsTable = document.querySelector(
       "#planning-groups-table"
     );
