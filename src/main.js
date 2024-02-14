@@ -257,7 +257,7 @@ async function runGenerator(
       {
         func: applyContacts,
         name: "applyContacts",
-        args: [planningGroupContactsArray],
+        args: [planningGroupContactsArray, testMode],
       },
     ];
 

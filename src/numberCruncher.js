@@ -295,13 +295,24 @@ async function generateAverages(campaignData, ignoreZeroes = true) {
   return campaignData;
 }
 
-async function applyContacts(campaignData, pgArray) {
-  const campaignId = campaignData.campaignId;
+async function applyContacts(campaignData, pgArray, testMode) {
+  let campaignId = campaignData.campaignId;
   const planningGroupContactsArray = pgArray;
 
   // temp logging
   console.warn(planningGroupContactsArray);
   console.warn(campaignId);
+
+  if (testMode) {
+    console.log(
+      `OFG: [${campaignId}] Applying contacts to Contact Rate forecast in test mode.`
+    );
+    if (campaignId === "ce713659-c13a-486e-b978-28b77436bf67") {
+      campaignId = "5e7b4fd4-8377-436b-a7f6-0b72f498fbc1";
+    } else if (campaignId === " c1a07179-b2f2-4251-a1fa-9fd9b3219174") {
+      campaignId = "958c03c1-24a6-49ff-ba32-5824237deabe";
+    }
+  }
 
   // find campaign id from planningGroupContactsArray
   let campaignContacts = planningGroupContactsArray.find(
