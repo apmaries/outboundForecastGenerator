@@ -297,13 +297,14 @@ async function generateAverages(campaignData, ignoreZeroes = true) {
 
 async function applyContacts(campaignData, pgArray) {
   const campaignId = campaignData.campaignId;
-  console.log(
-    `OFG: [${campaignId}] Applying ${campaignContacts} contacts to Contact Rate forecast.`
-  );
   // find campaign id from planningGroupContactsArray
   let campaignContacts = pgArray.find(
     (planningGroup) => planningGroup.campaignId === campaignId
   ).numContacts;
+
+  console.log(
+    `OFG: [${campaignId}] Applying ${campaignContacts} contacts to Contact Rate forecast.`
+  );
 
   if (campaignContacts === undefined) {
     console.error(

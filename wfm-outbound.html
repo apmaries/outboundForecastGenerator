@@ -217,40 +217,36 @@
               id="planning-groups-loading"
               screenreader-text="Loading..."
             ></gux-page-loading-spinner>
-            <gux-table
-              resizable-columns
-              id="planning-groups-table"
-              compact
-              hidden
-            >
-              <table slot="data">
-                <thead>
-                  <tr>
-                    <th data-column-name="pg-name" aria-sort="ascending">
-                      Planning Group name
-                      <gux-sort-control />
-                    </th>
-                    <th data-column-name="campaign-name">
-                      Campaign name
-                      <gux-sort-control include-unsorted />
-                    </th>
-                    <th data-column-name="n-contacts" data-cell-numeric>
-                      Number of contacts
-                    </th>
-                  </tr>
-                </thead>
-                <tbody></tbody></table
-            ></gux-table>
-            <label for="ignoreZeroes"
-              >Ignore zero values when generating averages?</label
-            >
-            <gux-toggle
-              id="ignoreZeroes"
-              checked-label="Yes"
-              unchecked-label="No"
-              checked
-              hidden
-            ></gux-toggle>
+            <div id="planning-groups" hidden>
+              <gux-table resizable-columns id="planning-groups-table" compact>
+                <table slot="data">
+                  <thead>
+                    <tr>
+                      <th data-column-name="pg-name" aria-sort="ascending">
+                        Planning Group name
+                        <gux-sort-control />
+                      </th>
+                      <th data-column-name="campaign-name">
+                        Campaign name
+                        <gux-sort-control include-unsorted />
+                      </th>
+                      <th data-column-name="n-contacts" data-cell-numeric>
+                        Number of contacts
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody></table
+              ></gux-table>
+              <label for="ignoreZeroes"
+                >Ignore zero values when generating averages?</label
+              >
+              <gux-toggle
+                id="ignoreZeroes"
+                checked-label="Yes"
+                unchecked-label="No"
+                checked
+              ></gux-toggle>
+            </div>
           </div>
           <div id="buttons" class="row" style="padding-top: 20px">
             <gux-button
