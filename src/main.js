@@ -9,16 +9,14 @@ async function runGenerator(
   ignoreZeroes
 ) {
   // Log user variables
-  console.log(
-    "OFG: main.js runGenerator() initiated. Listing user variables..."
-  );
+  console.log("OFG: main.js runGenerator() initiated");
   if (testMode) {
     console.warn(`OFG: Running with test mode: ${testMode}`);
   }
-  console.log("OFG: Selected BU Name:", businessUnitName);
-  console.log("OFG: Selected BU TimeZone:", selectedBuTimeZone);
-  console.log("OFG: Week Start:", weekStart);
-  console.log("OFG: Historical Weeks:", historicalWeeks);
+  console.log("OFG: User selected BU Name:", businessUnitName);
+  console.log("OFG: User selected BU TimeZone:", selectedBuTimeZone);
+  console.log("OFG: User selected week Start:", weekStart);
+  console.log("OFG: User selected historical Weeks:", historicalWeeks);
   console.log(
     "OFG: Number of Planning Groups:",
     planningGroupContactsArray.length
@@ -26,7 +24,7 @@ async function runGenerator(
   for (let i = 0; i < planningGroupContactsArray.length; i++) {
     console.log(`OFG: ${JSON.stringify(planningGroupContactsArray[i])}`);
   }
-  console.log("OFG: Ignore Zeroes:", ignoreZeroes);
+  console.log("OFG: User selected ignore Zeroes:", ignoreZeroes);
 
   // Declare variables
   let queryResults = [];
@@ -259,6 +257,7 @@ async function runGenerator(
 
       console.log(campaign);
     }
+    downloadJson(historicalDataByCampaign, "historicalDataByCampaign");
   }
   // Functions end here
 
