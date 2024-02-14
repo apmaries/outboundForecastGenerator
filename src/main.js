@@ -213,17 +213,26 @@ async function runGenerator(
     }
   }
 
-  function downloadJson() {
-    console.warn(JSON.stringify(historicalDataByCampaign));
+  function downloadJson(body, jsonName) {
+    console.log(jsonName);
+    console.warn(body);
     if (testMode) {
-      var jsonData = JSON.stringify(historicalDataByCampaign);
-      var blob = new Blob([jsonData], { type: "application/json" });
+      var jsonData = JSON.stringify(body);
+      var blob = new Blob([jsonData], {
+        type: "application/json",
+      });
       var url = URL.createObjectURL(blob);
       var a = document.createElement("a");
-      a.download = "historicalDataByCampaign.json";
+      a.download = `${jsonName}.json`;
       a.href = url;
-      a.textContent = "Download historicalDataByCampaign.json";
-      document.body.appendChild(a);
+      a.textContent = `Download ${jsonName}.json`;
+
+      // Create a div for each download link
+      var div = document.createElement("div");
+      div.appendChild(a);
+
+      var container = document.getElementById("test-mode");
+      container.appendChild(div);
     }
   }
 
@@ -260,7 +269,7 @@ async function runGenerator(
         await processQueryResults(queryResults);
 
         // added download for testing purposes
-        downloadJson(historicalDataByCampaign);
+        downloadJson(historicalDataByCampaign, "historicalDataByCampaign");
 
         continueExecution(); // Call the function to continue execution
       })

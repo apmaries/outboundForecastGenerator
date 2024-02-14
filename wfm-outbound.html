@@ -266,6 +266,7 @@
           </div>
         </fieldset>
       </div>
+      <div id="test-mode" class="align-left" hidden></div>
 
       <script>
         var test = true;
@@ -442,13 +443,13 @@
           if (test) {
             console.log("OFG: Running in test mode");
 
-            // add element user welcome
-            var userWelcomeDiv = document.getElementById("user-welcome");
+            // add element test-mode dive
+            var testDiv = document.getElementById("test-mode");
             const testP = document.createElement("p");
             testP.textContent = `Running in test mode`;
             testP.style.color = "red";
-            userWelcomeDiv.appendChild(testP);
-            userWelcomeDiv.removeAttribute("hidden");
+            testDiv.appendChild(testP);
+            testDiv.removeAttribute("hidden");
 
             // load test data
             fetch("./test/wfmBuList.json")
