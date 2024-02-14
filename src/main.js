@@ -9,7 +9,7 @@ async function runGenerator(
   ignoreZeroes
 ) {
   // Log user variables
-  console.log("OFG: main.js runGenerator() initiated");
+  console.log("OFG: Forecast generation initiated");
   if (testMode) {
     console.warn(`OFG: Running with test mode: ${testMode}`);
   }
@@ -233,10 +233,10 @@ async function runGenerator(
     }
   }
 
-  async function continueExecution() {
+  async function prepareForecast() {
     // Code to be executed after processQueryResults is completed
 
-    let promises = historicalDataByCampaign.map(async (campaign) => {
+    let fcPrepPromises = historicalDataByCampaign.map(async (campaign) => {
       console.log(
         `OFG: Preparing campaign ${campaign.campaignId} for forecast`
       );
@@ -254,43 +254,22 @@ async function runGenerator(
       downloadJson(campaign, `generateAverages_${campaign.campaignId}`);
 
       // apply campaign numContacts to contactRateDistribution
-      // ... your code here ...
+      // find campaign id from planningGroupContactsArray
+      let campaignId = campaign.campaignId;
+      let campaignContacts = planningGroupContactsArray.find(
+        (campaign) => campaign.campaignId === campaignId
+      ).numContacts;
+      console.log(
+        `OFG: Applying ${campaignContacts} contacts to campaign ${campaignId} forecast`
+      );
 
       return campaign;
     });
 
-    Promise.all(promises).then((completedCampaigns) => {
+    Promise.all(fcPrepPromises).then((completedCampaigns) => {
       console.log("All campaigns have been processed.");
       // ... your code here ...
     });
-
-    // original execution code
-    /*
-    for (let i = 0; i < historicalDataByCampaign.length; i++) {
-      var campaign = historicalDataByCampaign[i];
-      console.log(
-        `OFG: Preparing campaign ${campaign.campaignId} for forecast`
-      );
-
-      // send each campaign through prepFcData function to build CR Distribution and AHT metrics
-      campaign = await prepFcMetrics(campaign);
-      downloadJson(campaign, `fCMetrics_${campaign.campaignId}`);
-
-      // then send each campaign through groupByIndexNumber function to group FC metrics by day of week (also deletes historical weeks array)
-      campaign = await groupByIndexNumber(campaign);
-      downloadJson(
-        campaign,
-        `groupByIndexNumber_${campaign.campaignId}`
-      );
-
-      // generate forecast from fcHistoricalPatternData (also deletes fcHistoricalPatternData object)
-      campaign = await generateAverages(campaign, ignoreZeroes);
-      downloadJson(campaign, `generateAverages_${campaign.campaignId}`);
-
-      // apply campaign numContacts to contactRateDistribution
-  
-    }
-    */
 
     downloadJson(historicalDataByCampaign, "historicalDataByCampaign");
   }
@@ -309,7 +288,7 @@ async function runGenerator(
         // added download for testing purposes
         downloadJson(historicalDataByCampaign, "historicalDataByCampaign_base");
 
-        continueExecution(); // Call the function to continue execution
+        prepareForecast(); // Call the function to continue execution
       })
       .catch((error) => {
         console.error(error);
@@ -325,6 +304,6 @@ async function runGenerator(
     // Execute historical data queries
     queryResults = await executeQueries(queriesArray);
     await processQueryResults(queryResults);
-    continueExecution(); // Call the function to continue execution
+    prepareForecast(); // Call the function to continue execution
   }
 }
