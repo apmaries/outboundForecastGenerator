@@ -275,12 +275,14 @@
 
         // Set Genesys Cloud objects
         /*const platformClient = require("platformClient");
-      const client = platformClient.ApiClient.instance;
-      client.setAccessToken(token);
+        const client = platformClient.ApiClient.instance;
+        client.setAccessToken(token);
 
-      const oapi = new platformClient.OrganizationApi();
-      const uapi = new platformClient.UsersApi();
-      const wapi = new platformClient.WorkforceManagementApi();*/
+        const oapi = new platformClient.OrganizationApi();
+        const uapi = new platformClient.UsersApi();
+        const wapi = new platformClient.WorkforceManagementApi();*/
+
+        // TODO: Add generic error handling
 
         async function fetchBusinessUnits(allBuData, nBu) {
           const buArray = [];

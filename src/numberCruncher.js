@@ -297,8 +297,9 @@ async function generateAverages(campaignData, ignoreZeroes = true) {
 
 async function applyContacts(campaignData, pgArray) {
   const campaignId = campaignData.campaignId;
+  const planningGroupContactsArray = pgArray;
   // find campaign id from planningGroupContactsArray
-  let campaignContacts = pgArray.find(
+  let campaignContacts = planningGroupContactsArray.find(
     (planningGroup) => planningGroup.campaignId === campaignId
   ).numContacts;
 
