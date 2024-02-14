@@ -48,7 +48,9 @@ async function loadPageTwo(businessUnitId) {
     // loop through campaigns to build array of campaign objects
     for (let i = 0; i < campaigns.length; i++) {
       const campaign = campaigns[i];
-      console.log(`OFG: Processing campaign ${i + 1}: ${campaign.name}`);
+      console.log(
+        `OFG: Processing campaign ${i + 1}: ${campaign.name} (${campaign.id})`
+      );
 
       // get campaign data
       const campaignId = campaign.id;
@@ -125,7 +127,7 @@ async function loadPageTwo(businessUnitId) {
         campaignNameCell.dataset.campaignId = matchingCampaign.campaignId; // Add the campaign id as a data attribute
       } else {
         // populate empty cell if no matching campaign found
-        console.log(`OFG: No matching campaign found`);
+        console.warn(`OFG: No matching campaign found`);
         campaignNameCell.textContent = "";
       }
       row.appendChild(campaignNameCell);
@@ -158,6 +160,7 @@ async function loadPageTwo(businessUnitId) {
         campaignNameCell.dataset.matchedCampaign = "false";
         row.style.fontStyle = "italic";
         row.style.color = "grey";
+        // TODO: Would like to move row to the bottom of the table if no matching campaign found - pending fix to sortable table
       } else {
         // Add data attribute to indicate that a matching campaign was found
         campaignNameCell.dataset.matchedCampaign = "true";

@@ -19,12 +19,12 @@ async function runGenerator(
   console.log("OFG: User selected historical Weeks:", historicalWeeks);
   console.log(
     "OFG: Number of Planning Groups:",
-    planningGroupContactsArray.length
+    planningGroupContactsArray.length.toString()
   );
   for (let i = 0; i < planningGroupContactsArray.length; i++) {
     console.log(`OFG: ${JSON.stringify(planningGroupContactsArray[i])}`);
   }
-  console.log("OFG: User selected ignore Zeroes:", ignoreZeroes);
+  console.log("OFG: User selected ignore Zeroes:", ignoreZeroes.toString());
 
   // Declare variables
   let queryResults = [];
@@ -276,7 +276,7 @@ async function runGenerator(
 
     Promise.all(fcPrepPromises).then((completedCampaigns) => {
       console.log("OFG: All campaigns have been processed.");
-      // ... your code here ...
+      downloadJson(completedCampaigns, "completedCampaigns");
     });
 
     downloadJson(historicalDataByCampaign, "historicalDataByCampaign");
