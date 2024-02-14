@@ -238,7 +238,9 @@ async function runGenerator(
 
     for (let i = 0; i < historicalDataByCampaign.length; i++) {
       var campaign = historicalDataByCampaign[i];
-      console.log(`OFG: Prepping FC data for campaign ${campaign.campaignId}`);
+      console.log(
+        `OFG: Preparing campaign ${campaign.campaignId} for forecast`
+      );
 
       // send each campaign through prepFcData function to build CR Distribution and AHT metrics
       campaign = await prepFcMetrics(campaign);
@@ -272,7 +274,7 @@ async function runGenerator(
         await processQueryResults(queryResults);
 
         // added download for testing purposes
-        downloadJson(historicalDataByCampaign, "historicalDataByCampaign");
+        downloadJson(historicalDataByCampaign, "historicalDataByCampaign_base");
 
         continueExecution(); // Call the function to continue execution
       })

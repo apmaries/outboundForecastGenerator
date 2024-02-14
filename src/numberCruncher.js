@@ -17,6 +17,8 @@ function getTotalLength(arrayOfArrays) {
 }
 
 async function prepFcMetrics(campaignData) {
+  const campaignId = campaignData.campaignId;
+  console.log(`OFG: [${campaignId}] - Prepping Contact Rate & AHT metrics.`);
   var historicalWeeks = campaignData.historicalWeeks;
 
   function l2Values(attempted, connected, time, handled) {
@@ -109,10 +111,6 @@ async function prepFcMetrics(campaignData) {
   }
 
   for (let w = 0; w < historicalWeeks.length; w++) {
-    console.log(
-      `OFG: Prepping Contact Rate and AHT for campaign ${campaignData.campaignId} in week ${historicalWeeks[w].weekNumber}`
-    );
-
     // Check if the higher-level object contains both intradayValues and dailySummary
     if (
       !historicalWeeks[w] ||
@@ -120,7 +118,7 @@ async function prepFcMetrics(campaignData) {
       !historicalWeeks[w].dailySummary
     ) {
       console.error(
-        "OFG: Both intradayValues and dailySummary are required in the input object."
+        `OFG: ${campaignId} Both intradayValues and dailySummary are required in the input object.`
       );
       return;
     }
@@ -152,6 +150,10 @@ async function prepFcMetrics(campaignData) {
 }
 
 async function groupByIndexNumber(campaignData) {
+  const campaignId = campaignData.campaignId;
+  console.log(
+    `OFG: [${campaignId}] Grouping CR and AHT values by day of week.`
+  );
   // function to group CR and AHT values by index number
   campaignData.fcHistoricalPatternData = {};
   var crDaily = [];
@@ -162,10 +164,6 @@ async function groupByIndexNumber(campaignData) {
   // loop through historical weeks and group by day of week
   for (let i = 0; i < historicalWeeks.length; i++) {
     let historicalWeek = historicalWeeks[i];
-
-    console.log(
-      `OFG: Grouping data by day of week for campaign ${campaignData.campaignId} in week ${historicalWeek.weekNumber}`
-    );
 
     var dowContactRateDistrib =
       historicalWeek.dailySummary.contactRateDistribution;
@@ -201,7 +199,8 @@ async function groupByIndexNumber(campaignData) {
 }
 
 async function generateAverages(campaignData, ignoreZeroes = true) {
-  console.log("OFG: Generating forecast");
+  const campaignId = campaignData.campaignId;
+  console.log(`OFG: [${campaignId}] Averaging CR and AHT values`);
   campaignData.fcData = {};
 
   function normalizeToDistribution(array) {
