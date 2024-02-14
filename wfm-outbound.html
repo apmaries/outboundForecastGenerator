@@ -241,6 +241,14 @@
                 </thead>
                 <tbody></tbody></table
             ></gux-table>
+            <label for="ignoreZeroes"
+              >Ignore zero values when generating averages?</label
+            >
+            <gux-toggle
+              id="ignoreZeroes"
+              checked-label="Yes"
+              unchecked-label="No"
+            ></gux-toggle>
           </div>
           <div id="buttons" class="row" style="padding-top: 20px">
             <gux-button
@@ -496,12 +504,13 @@
           var selectedBuTimeZone = buObj.timeZone;
           var selectedBuDefaultHistoryWeeks = buObj.defaultHistoryWeeks;
 
-          // page one variables
+          // page one variables start
           var weekStartInput = document.getElementById("weekStart");
           var historicalWeeks = document.getElementById("historicalWeeks");
           var selectedWeekStart = new Date(weekStartInput.value);
+          // page one variables end
 
-          // page two variables
+          // page two variables start
           planningGroupContactsArray = [];
           const tableBody = document.querySelector(
             "#planning-groups-table tbody"
@@ -560,6 +569,10 @@
             planningGroupContactsArray.push(planningGroupContacts);
           }
 
+          // get value of ignoreZeroes
+          var ignoreZeroes = document.getElementById("ignoreZeroes").checked;
+          console.log(`OFG: ignoreZeroes is ${ignoreZeroes}`);
+
           // TODO: Fix data validation
           // Check if weekStart day of week matches selected BU's startDayOfWeek
           /*if (
@@ -588,7 +601,8 @@
             selectedBuTimeZone,
             weekStartInput.value,
             historicalWeeks.value,
-            planningGroupContactsArray
+            planningGroupContactsArray,
+            ignoreZeroes
           );
         }
 

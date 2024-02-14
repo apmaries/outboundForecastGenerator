@@ -5,7 +5,8 @@ async function runGenerator(
   selectedBuTimeZone,
   weekStart,
   historicalWeeks,
-  planningGroupContactsArray
+  planningGroupContactsArray,
+  ignoreZeroes
 ) {
   // Log user variables
   console.log(
@@ -113,9 +114,11 @@ async function runGenerator(
       );
 
       // create a new week object
+      // TODO: Refactor to use a class
       let weekObj = {
         weekNumber: "",
         dailySummary: {
+          // TODO: Refactor these to use an objects rather than arrays only - get's difficult to understand what's what when using arrays only later on
           nAttempted: Array(7).fill(0),
           nConnected: Array(7).fill(0),
           tHandle: Array(7).fill(0),
@@ -227,12 +230,19 @@ async function runGenerator(
   async function continueExecution() {
     // Code to be executed after processQueryResults is completed
 
-    // send each campaign through prepFcData function
     for (let i = 0; i < historicalDataByCampaign.length; i++) {
       var campaign = historicalDataByCampaign[i];
       console.log(`OFG: Prepping FC data for campaign ${campaign.campaignId}`);
+
+      // send each campaign through prepFcData function to build CR Distribution and AHT metrics
       campaign = await prepFcMetrics(campaign);
+
+      // then send each campaign through groupByIndexNumber function to group FC metrics by day of week (also deletes historical weeks array)
       campaign = await groupByIndexNumber(campaign);
+
+      // generate forecast from fcHistoricalPatternData
+      campaign = await generateAverages(campaign, ignoreZeroes);
+
       console.log(campaign);
     }
   }

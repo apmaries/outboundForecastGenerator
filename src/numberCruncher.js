@@ -13,6 +13,7 @@ async function prepFcMetrics(campaignData) {
   var historicalWeeks = campaignData.historicalWeeks;
 
   function l2Values(attempted, connected, time, handled) {
+    // TODO - Refactor these arrays into something more readable
     var crValues = [];
     var crDistribution = [];
     var ahtValues = [];
@@ -38,6 +39,7 @@ async function prepFcMetrics(campaignData) {
       if (nHandledValue === 0) {
         ahtValues.push(0);
       } else {
+        // TODO: This leads to forecasting an average of averages. This is not a good practice.
         ahtValues.push(tTotalHandleTimeValue / nHandledValue);
       }
     }
@@ -165,7 +167,7 @@ async function groupByIndexNumber(campaignData) {
     var dowAverHandleTime = historicalWeek.dailySummary.averHandleTime;
     ahtDaily.push(dowAverHandleTime);
 
-    campaignData.fcHistoricalPatternData.contactRateIntraDay =
+    campaignData.fcHistoricalPatternData.contactRateIntraday =
       campaignData.historicalWeeks[0].intradayValues.contactRateDistribution.map(
         (_, i) =>
           campaignData.historicalWeeks.map(
@@ -187,6 +189,87 @@ async function groupByIndexNumber(campaignData) {
 
   // delete the now obsolete historicalWeeks property from the campaignData object
   delete campaignData.historicalWeeks;
+
+  return campaignData;
+}
+
+async function generateAverages(campaignData, ignoreZeroes = true) {
+  console.log("OFG: Generating forecast");
+  console.log(`OFG: Ignore zeroes in averages = ${ignoreZeroes}`);
+  campaignData.fcData = {};
+
+  // create average daily contact rate
+  campaignData.fcData.contactRateDailyAverage =
+    campaignData.fcHistoricalPatternData.contactRateDaily[0].map((_, i) => {
+      let values = campaignData.fcHistoricalPatternData.contactRateDaily.map(
+        (array) => array[i]
+      );
+      if (ignoreZeroes) {
+        values = values.filter((value) => value !== 0);
+      }
+      let sum = values.reduce((total, value) => total + value, 0);
+      if (sum == 0) {
+        return 0;
+      } else {
+        return sum / values.length;
+      }
+    });
+
+  // create an average intraday contact rate by day of week
+  campaignData.fcData.contactRateIntradayAverage =
+    campaignData.fcHistoricalPatternData.contactRateIntraday.map(
+      (dayOfWeek) => {
+        return dayOfWeek[0].map((_, i) => {
+          let values = dayOfWeek.map((week) => week[i]);
+          if (ignoreZeroes) {
+            values = values.filter((value) => value !== 0);
+          }
+          let sum = values.reduce((total, value) => total + value, 0);
+          if (sum == 0) {
+            return 0;
+          } else {
+            return sum / values.length;
+          }
+        });
+      }
+    );
+
+  // create average daily AHT
+  campaignData.fcData.ahtDailyAverage =
+    campaignData.fcHistoricalPatternData.averHandleTimeDaily[0].map((_, i) => {
+      let values = campaignData.fcHistoricalPatternData.averHandleTimeDaily.map(
+        (array) => array[i]
+      );
+      if (ignoreZeroes) {
+        values = values.filter((value) => value !== 0);
+      }
+      let sum = values.reduce((total, value) => total + value, 0);
+
+      if (sum == 0) {
+        return 0;
+      } else {
+        return sum / values.length;
+      }
+    });
+
+  // create an average intraday aht by day of week
+  campaignData.fcData.ahtIntradayAverage =
+    campaignData.fcHistoricalPatternData.averHandleTimeIntraday.map(
+      (dayOfWeek) => {
+        return dayOfWeek[0].map((_, i) => {
+          let values = dayOfWeek.map((week) => week[i]);
+          if (ignoreZeroes) {
+            values = values.filter((value) => value !== 0);
+          }
+          let sum = values.reduce((total, value) => total + value, 0);
+          if (sum == 0) {
+            return 0;
+          } else {
+            return sum / values.length;
+          }
+        });
+      }
+    );
 
   return campaignData;
 }
