@@ -530,6 +530,9 @@
             const pgNameCell = row.querySelector("td:first-child");
             const pgName = pgNameCell.textContent;
             const pgId = pgNameCell.dataset.pgId;
+            const cpNameCell = row.querySelector("td:nth-child(2)");
+            const cpName = cpNameCell.textContent;
+            const cpId = cpNameCell.dataset.cpId;
 
             // Get number of contacts
             const numContactsInput = document.getElementById(
@@ -540,7 +543,8 @@
             let planningGroupContacts = {
               "pgName": pgName,
               "pgId": pgId,
-              "numContacts": numContacts,
+              "cpName": cpName,
+              "cpId": cpId,
             };
 
             // TODO: Fix data validation

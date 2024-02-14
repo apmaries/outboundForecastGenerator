@@ -294,3 +294,10 @@ async function generateAverages(campaignData, ignoreZeroes = true) {
 
   return campaignData;
 }
+
+async function applyContacts(campaignData, contacts) {
+  const campaignId = campaignData.campaignId;
+  console.log(
+    `OFG: [${campaignId}] Applying ${contacts} contacts to Contact Rate forecast.`
+  );
+}

@@ -122,6 +122,7 @@ async function loadPageTwo(businessUnitId) {
           `OFG: Matching campaign found: ${matchingCampaign.campaignName}`
         );
         campaignNameCell.textContent = matchingCampaign.campaignName;
+        campaignNameCell.dataset.campaignId = matchingCampaign.campaignId; // Add the campaign id as a data attribute
       } else {
         // populate empty cell if no matching campaign found
         console.log(`OFG: No matching campaign found`);

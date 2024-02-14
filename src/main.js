@@ -237,37 +237,45 @@ async function runGenerator(
     // Code to be executed after processQueryResults is completed
 
     let fcPrepPromises = historicalDataByCampaign.map(async (campaign) => {
-      console.log(
-        `OFG: Preparing campaign ${campaign.campaignId} for forecast`
-      );
+      const campaignId = campaign.campaignId;
+      console.log(`OFG: Preparing campaign ${campaignId} for forecast`);
 
       // send each campaign through prepFcData function to build CR Distribution and AHT metrics
       campaign = await prepFcMetrics(campaign);
-      downloadJson(campaign, `fCMetrics_${campaign.campaignId}`);
+      downloadJson(campaign, `prepFcMetrics_${campaignId}`);
 
       // then send each campaign through groupByIndexNumber function to group FC metrics by day of week (also deletes historical weeks array)
       campaign = await groupByIndexNumber(campaign);
-      downloadJson(campaign, `groupByIndexNumber_${campaign.campaignId}`);
+      downloadJson(campaign, `groupByIndexNumber_${campaignId}`);
 
       // generate forecast from fcHistoricalPatternData (also deletes fcHistoricalPatternData object)
       campaign = await generateAverages(campaign, ignoreZeroes);
-      downloadJson(campaign, `generateAverages_${campaign.campaignId}`);
+      downloadJson(campaign, `generateAverages_${campaignId}`);
 
-      // apply campaign numContacts to contactRateDistribution
       // find campaign id from planningGroupContactsArray
-      let campaignId = campaign.campaignId;
       let campaignContacts = planningGroupContactsArray.find(
-        (campaign) => campaign.campaignId === campaignId
+        (planningGroup) => planningGroup.campaignId === campaignId
       ).numContacts;
+
+      if (campaignContacts === undefined) {
+        console.error(
+          `OFG: No contacts found for campaign ${campaignId}. Please check planningGroupContactsArray.`
+        );
+        console.error(planningGroupContactsArray);
+      }
+
       console.log(
         `OFG: Applying ${campaignContacts} contacts to campaign ${campaignId} forecast`
       );
+
+      // apply campaign numContacts to contactRateDistribution
+      campaign = applyContacts(campaign, campaignContacts);
 
       return campaign;
     });
 
     Promise.all(fcPrepPromises).then((completedCampaigns) => {
-      console.log("All campaigns have been processed.");
+      console.log("OFG: All campaigns have been processed.");
       // ... your code here ...
     });
 
