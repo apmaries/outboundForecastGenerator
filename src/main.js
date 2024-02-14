@@ -251,11 +251,11 @@ async function runGenerator(
         `groupByIndexNumber_campaign${campaign.campaignId}`
       );
 
-      // generate forecast from fcHistoricalPatternData
+      // generate forecast from fcHistoricalPatternData (also deletes fcHistoricalPatternData object)
       campaign = await generateAverages(campaign, ignoreZeroes);
       downloadJson(campaign, `generateAverages_campaign${campaign.campaignId}`);
 
-      console.log(campaign);
+      // apply campaign numContacts to contactRateDistribution
     }
     downloadJson(historicalDataByCampaign, "historicalDataByCampaign");
   }

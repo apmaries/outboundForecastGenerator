@@ -1,11 +1,18 @@
 function getTotalLength(arrayOfArrays) {
   let totalLength = 0;
 
-  arrayOfArrays.forEach((subArray) => {
-    if (Array.isArray(subArray)) {
-      totalLength += subArray.length;
+  function calculateLength(array) {
+    if (Array.isArray(array)) {
+      array.forEach((subArray) => {
+        calculateLength(subArray);
+      });
+    } else {
+      totalLength++;
     }
-  });
+  }
+
+  calculateLength(arrayOfArrays);
+
   return totalLength;
 }
 
@@ -197,8 +204,16 @@ async function generateAverages(campaignData, ignoreZeroes = true) {
   console.log("OFG: Generating forecast");
   campaignData.fcData = {};
 
+  function normalizeToDistribution(array) {
+    // Calculate the total sum of the array
+    var totalSum = array.reduce((total, value) => total + value, 0);
+
+    // Adjust the values to represent a distribution
+    return array.map((value) => value / totalSum);
+  }
+
   // create average daily contact rate
-  campaignData.fcData.contactRateDailyAverage =
+  var contactRateDailyAverage =
     campaignData.fcHistoricalPatternData.contactRateDaily[0].map((_, i) => {
       let values = campaignData.fcHistoricalPatternData.contactRateDaily.map(
         (array) => array[i]
@@ -213,9 +228,12 @@ async function generateAverages(campaignData, ignoreZeroes = true) {
         return sum / values.length;
       }
     });
+  campaignData.fcData.contactRateDailyDistrib = normalizeToDistribution(
+    contactRateDailyAverage
+  );
 
   // create an average intraday contact rate by day of week
-  campaignData.fcData.contactRateIntradayAverage =
+  var contactRateIntradayAverage =
     campaignData.fcHistoricalPatternData.contactRateIntraday.map(
       (dayOfWeek) => {
         return dayOfWeek[0].map((_, i) => {
@@ -232,6 +250,8 @@ async function generateAverages(campaignData, ignoreZeroes = true) {
         });
       }
     );
+  campaignData.fcData.contactRateIntradayDistrib =
+    contactRateIntradayAverage.map(normalizeToDistribution);
 
   // create average daily AHT
   campaignData.fcData.ahtDailyAverage =
@@ -269,6 +289,9 @@ async function generateAverages(campaignData, ignoreZeroes = true) {
         });
       }
     );
+
+  // delete the now obsolete fcHistoricalPatternData property from the campaignData object
+  delete campaignData.historicalWeeks;
 
   return campaignData;
 }
