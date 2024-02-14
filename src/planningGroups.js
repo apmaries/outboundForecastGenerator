@@ -14,7 +14,9 @@ async function loadPageTwo(businessUnitId) {
     // loop through planning groups to build array of planning group objects
     for (let i = 0; i < planningGroups.length; i++) {
       const group = planningGroups[i];
-      console.log(`OFG: Processing planning group ${i + 1}: ${group.name}`);
+      console.log(
+        `OFG: Processing planning group ${i + 1}: ${group.name} (${group.id})`
+      );
 
       // get planning group data
       const groupId = group.id;

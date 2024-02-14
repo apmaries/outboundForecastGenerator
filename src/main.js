@@ -253,7 +253,12 @@ async function runGenerator(
       downloadJson(campaign, `generateAverages_${campaignId}`);
 
       // apply campaign numContacts to contactRateDistribution
-      campaign = await applyContacts(campaign, planningGroupContactsArray);
+      console.warn(planningGroupContactsArray);
+      try {
+        campaign = await applyContacts(campaign, planningGroupContactsArray);
+      } catch (error) {
+        console.error("Error occurred while applying contacts:", error);
+      }
       downloadJson(campaign, `applyContacts_${campaignId}`);
 
       return campaign;
