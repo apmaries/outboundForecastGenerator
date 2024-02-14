@@ -80,7 +80,9 @@ async function loadPageTwo(businessUnitId) {
   async function queueCampaignMatcher(planningGroups, campaigns) {
     // define document elements
     const loadingSpinner = document.getElementById("planning-groups-loading");
-    const planningGroupsDiv = document.getElementById("planning-groups");
+    const planningGroupsDiv = document.getElementById(
+      "planning-groups-container"
+    );
     const planningGroupsTable = document.querySelector(
       "#planning-groups-table"
     );
