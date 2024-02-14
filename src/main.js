@@ -233,32 +233,40 @@ async function runGenerator(
     }
   }
 
+  async function runFunctionOnCampaign(campaign, func, funcName, ...args) {
+    try {
+      campaign = await func(campaign, ...args);
+      downloadJson(campaign, `${funcName}_${campaign.campaignId}`);
+    } catch (error) {
+      console.error(`OFG: Error occurred while running ${funcName}:`, error);
+    }
+    return campaign;
+  }
+
   async function prepareForecast() {
-    // Code to be executed after processQueryResults is completed
+    let functionsToRun = [
+      { func: prepFcMetrics, name: "prepFcMetrics" },
+      { func: groupByIndexNumber, name: "groupByIndexNumber" },
+      {
+        func: generateAverages,
+        name: "generateAverages",
+        args: [ignoreZeroes],
+      },
+      {
+        func: applyContacts,
+        name: "applyContacts",
+        args: [planningGroupContactsArray],
+      },
+    ];
 
     let fcPrepPromises = historicalDataByCampaign.map(async (campaign) => {
-      const campaignId = campaign.campaignId;
-      console.log(`OFG: Preparing campaign ${campaignId} for forecast`);
+      console.log(
+        `OFG: Preparing campaign ${campaign.campaignId} for forecast`
+      );
 
-      // send each campaign through prepFcData function to build CR Distribution and AHT metrics
-      campaign = await prepFcMetrics(campaign);
-      downloadJson(campaign, `prepFcMetrics_${campaignId}`);
-
-      // then send each campaign through groupByIndexNumber function to group FC metrics by day of week (also deletes historical weeks array)
-      campaign = await groupByIndexNumber(campaign);
-      downloadJson(campaign, `groupByIndexNumber_${campaignId}`);
-
-      // generate forecast from fcHistoricalPatternData (also deletes fcHistoricalPatternData object)
-      campaign = await generateAverages(campaign, ignoreZeroes);
-      downloadJson(campaign, `generateAverages_${campaignId}`);
-
-      // apply campaign numContacts to contactRateDistribution
-      try {
-        campaign = await applyContacts(campaign, planningGroupContactsArray);
-      } catch (error) {
-        console.error("OFG: Error occurred while applying contacts:", error);
+      for (let { func, name, args = [] } of functionsToRun) {
+        campaign = await runFunctionOnCampaign(campaign, func, name, ...args);
       }
-      downloadJson(campaign, `applyContacts_${campaignId}`);
 
       return campaign;
     });

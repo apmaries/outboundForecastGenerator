@@ -1,3 +1,4 @@
+import { loadingSpinner, planningGroupsDiv } from "./someModule"; // Import the necessary variables
 async function loadPageTwo(businessUnitId) {
   // Function to get planning groups from BU id
   async function getPlanningGroups() {
@@ -183,7 +184,7 @@ async function loadPageTwo(businessUnitId) {
     }
 
     loadingSpinner.style.display = "none";
-    planningGroupsDiv.removeAttribute("hidden");
+    planningGroupsDiv.style.display = "block";
   }
 
   // Use Promise.all to run getPlanningGroups and getCampaigns concurrently
