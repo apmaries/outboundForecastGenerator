@@ -195,7 +195,6 @@ async function groupByIndexNumber(campaignData) {
 
 async function generateAverages(campaignData, ignoreZeroes = true) {
   console.log("OFG: Generating forecast");
-  console.log(`OFG: Ignore zeroes in averages = ${ignoreZeroes}`);
   campaignData.fcData = {};
 
   // create average daily contact rate

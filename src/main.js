@@ -26,6 +26,7 @@ async function runGenerator(
   for (let i = 0; i < planningGroupContactsArray.length; i++) {
     console.log(`OFG: ${JSON.stringify(planningGroupContactsArray[i])}`);
   }
+  console.log("OFG: Ignore Zeroes:", ignoreZeroes);
 
   // Declare variables
   let queryResults = [];
@@ -214,8 +215,6 @@ async function runGenerator(
   }
 
   function downloadJson(body, jsonName) {
-    console.log(jsonName);
-    console.warn(body);
     if (testMode) {
       var jsonData = JSON.stringify(body);
       var blob = new Blob([jsonData], {
@@ -245,17 +244,22 @@ async function runGenerator(
 
       // send each campaign through prepFcData function to build CR Distribution and AHT metrics
       campaign = await prepFcMetrics(campaign);
+      downloadJson(campaign, `fCMetrics_campaign${campaign.campaignId}`);
 
       // then send each campaign through groupByIndexNumber function to group FC metrics by day of week (also deletes historical weeks array)
       campaign = await groupByIndexNumber(campaign);
+      downloadJson(
+        campaign,
+        `groupByIndexNumber_campaign${campaign.campaignId}`
+      );
 
       // generate forecast from fcHistoricalPatternData
       campaign = await generateAverages(campaign, ignoreZeroes);
+      downloadJson(campaign, `generateAverages_campaign${campaign.campaignId}`);
 
       console.log(campaign);
     }
   }
-
   // Functions end here
 
   // Main code starts here
