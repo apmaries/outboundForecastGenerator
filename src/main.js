@@ -103,7 +103,9 @@ async function runGenerator(
           campaignId: campaignId,
           historicalWeeks: [],
         };
-        console.log(`OFG: Creating new campaign object for ${campaignId}`);
+        console.log(
+          `OFG: New campaign found in results. Campaign ID = ${campaignId}`
+        );
         historicalDataByCampaign.push(campaignObj);
       }
 
@@ -132,7 +134,7 @@ async function runGenerator(
       };
 
       // for each interval in the data, get the week number and add to the campaign object
-      console.log(`OFG: Processing interval data for campaign ${campaignId}`);
+      console.log(`OFG: [${campaignId}] Extracting data from query results`);
       for (let j = 0; j < data.length; j++) {
         var interval = data[j].interval;
         var metrics = data[j].metrics;
@@ -261,7 +263,7 @@ async function runGenerator(
 
     let fcPrepPromises = historicalDataByCampaign.map(async (campaign) => {
       console.log(
-        `OFG: Preparing campaign ${campaign.campaignId} for forecast`
+        `OFG: [${campaign.campaignId}] Preparing campaign for forecast`
       );
 
       for (let { func, name, args = [] } of functionsToRun) {
