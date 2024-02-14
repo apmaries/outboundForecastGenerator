@@ -299,6 +299,10 @@ async function applyContacts(campaignData, pgArray) {
   const campaignId = campaignData.campaignId;
   const planningGroupContactsArray = pgArray;
 
+  // temp logging
+  console.warn(planningGroupContactsArray);
+  console.warn(campaignId);
+
   // find campaign id from planningGroupContactsArray
   let campaignContacts = planningGroupContactsArray.find(
     (planningGroup) => planningGroup.cpId === campaignId
