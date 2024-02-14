@@ -337,14 +337,6 @@ async function applyContacts(campaignData, pgArray, testMode) {
     return;
   }
 
-  console.log(
-    `OFG: Applying ${campaignContacts} contacts to campaign ${campaignId} forecast`
-  );
-
-  console.log(
-    `OFG: [${campaignId}] Applying ${contacts} contacts to Contact Rate forecast.`
-  );
-
   // apply contacts to contact rate forecast
   return campaignData;
 }
