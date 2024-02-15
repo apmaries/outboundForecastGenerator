@@ -195,13 +195,15 @@
               class="width"
             ></gux-datepicker>
 
-            <label for="inclSchedule">Generate schedule too?</label>
-            <gux-toggle
-              id="inclSchedule"
-              checked-label="Yes"
-              unchecked-label="No"
-            ></gux-toggle>
-
+            <div id="toggle-sch" style="display: none">
+              <!-- temporarily hidden until functionality added -->
+              <label for="inclSchedule">Generate schedule too?</label>
+              <gux-toggle
+                id="inclSchedule"
+                checked-label="Yes"
+                unchecked-label="No"
+              ></gux-toggle>
+            </div>
             <gux-button accent="secondary" onclick="nextPage()"
               >Next</gux-button
             >

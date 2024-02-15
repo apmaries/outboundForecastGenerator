@@ -298,16 +298,33 @@ async function generateAverages(campaignData, ignoreZeroes = true) {
 async function applyContacts(campaignData, pgArray, testMode) {
   let campaignId = campaignData.campaignId;
   const planningGroupContactsArray = pgArray;
-  const contacts = pgArray.numContacts;
+  const dailyCrDistrib = campaignData.fcData.contactRateDailyDistrib;
+  const intradayCrDistrib = campaignData.fcData.contactRateIntradayDistrib;
 
-  // temp logging
-  console.warn(planningGroupContactsArray);
-  console.warn(campaignId);
+  // function to distribute contacts over daily distribution
+  function distributeContactsDaily(contacts, distribution) {
+    let distributedContacts = [];
+    for (let i = 0; i < distribution.length; i++) {
+      distributedContacts.push(contacts * distribution[i]);
+    }
+    return distributedContacts;
+  }
+
+  // function to distribute contacts over intraday distribution
+  function distributeContactsIntraday(contacts, distribution) {
+    let distributedContacts = [];
+    for (let i = 0; i < distribution.length; i++) {
+      let distributedContactsDaily = distributeContactsDaily(
+        contacts,
+        distribution[i]
+      );
+      distributedContacts.push(distributedContactsDaily);
+    }
+    return distributedContacts;
+  }
 
   if (testMode) {
-    console.log(
-      `OFG: [${campaignId}] Applying contacts to Contact Rate forecast in test mode.`
-    );
+    // test mode - use a different campaign id from available testData
     if (campaignId === "ce713659-c13a-486e-b978-28b77436bf67") {
       campaignId = "5e7b4fd4-8377-436b-a7f6-0b72f498fbc1";
     } else if (campaignId === "c1a07179-b2f2-4251-a1fa-9fd9b3219174") {
@@ -325,14 +342,40 @@ async function applyContacts(campaignData, pgArray, testMode) {
     (planningGroup) => planningGroup.cpId === campaignId
   ).numContacts;
 
-  console.log(
-    `OFG: [${campaignId}] Applying ${campaignContacts} contacts to Contact Rate forecast.`
-  );
+  try {
+    if (campaignContacts === undefined) {
+      throw new Error(
+        `OFG: No contacts found for campaign ${campaignId}. Please check inputs.`
+      );
+    } else {
+      console.log(
+        `OFG: [${campaignId}] Applying ${campaignContacts} contacts to Contact Rate forecast.`
+      );
+      // distribute contacts over daily distribution
+      let distributedContactsDaily = distributeContactsDaily(
+        campaignContacts,
+        dailyCrDistrib
+      );
 
-  if (campaignContacts === undefined) {
-    console.error(
-      `OFG: No contacts found for campaign ${campaignId}. Please check inputs.`
-    );
+      // distribute contacts over intraday distribution
+      let distributedContactsIntraday = [];
+      for (let i = 0; i < intradayCrDistrib.length; i++) {
+        let crDistribDay = intradayCrDistrib[i];
+        let contactsToDistrib = distributedContactsDaily[i];
+
+        let distributedContacts = distributeContactsIntraday(
+          contactsToDistrib,
+          crDistribDay
+        );
+        distributedContactsIntraday.push(distributedContacts);
+      }
+
+      // add forecast contacts to campaignData object
+      campaignData.fcData.crDaily = distributedContactsDaily;
+      campaignData.fcData.crIntraday = distributedContactsIntraday;
+    }
+  } catch (error) {
+    console.error(`OFG: ${error}`);
     console.error(planningGroupContactsArray);
     return;
   }
