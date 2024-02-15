@@ -338,9 +338,11 @@ async function applyContacts(campaignData, pgArray, testMode) {
   }
 
   // find campaign id from planningGroupContactsArray
-  let campaignContacts = planningGroupContactsArray.find(
+  let campaignMatch = planningGroupContactsArray.find(
     (planningGroup) => planningGroup.cpId === campaignId
-  ).numContacts;
+  );
+  const campaignContacts = campaignMatch.numContacts;
+  const campaignPgId = campaignMatch.pgId;
 
   try {
     if (campaignContacts === undefined) {
@@ -373,6 +375,9 @@ async function applyContacts(campaignData, pgArray, testMode) {
       // add forecast contacts to campaignData object
       campaignData.fcData.crDaily = distributedContactsDaily;
       campaignData.fcData.crIntraday = distributedContactsIntraday;
+
+      // add pgId to campaignData object
+      campaignData.pgId = campaignPgId;
     }
   } catch (error) {
     console.error(`OFG: ${error}`);
