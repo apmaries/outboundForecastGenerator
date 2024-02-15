@@ -277,8 +277,6 @@ async function runGenerator(
       console.log("OFG: All campaigns have been processed.");
       downloadJson(completedCampaigns, "completedCampaigns");
     });
-
-    downloadJson(historicalDataByCampaign, "historicalDataByCampaign");
   }
   // Functions end here
 
