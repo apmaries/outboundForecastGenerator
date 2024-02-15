@@ -301,8 +301,8 @@ async function applyContacts(campaignData, pgArray, testMode) {
   const dailyCrDistrib = campaignData.fcData.contactRateDailyDistrib;
   const intradayCrDistrib = campaignData.fcData.contactRateIntradayDistrib;
 
-  // function to distribute contacts over daily distribution
-  async function distributeContactsDaily(contacts, distribution) {
+  // function to distribute contacts over given contact rate distribution
+  async function distributeContacts(contacts, distribution) {
     let distributedContacts = [];
     for (let i = 0; i < distribution.length; i++) {
       distributedContacts.push(contacts * distribution[i]);
@@ -310,6 +310,7 @@ async function applyContacts(campaignData, pgArray, testMode) {
     return distributedContacts;
   }
 
+  /*
   // function to distribute contacts over intraday distribution
   async function distributeContactsIntraday(contacts, distribution) {
     let distributedContacts = [];
@@ -322,6 +323,7 @@ async function applyContacts(campaignData, pgArray, testMode) {
     }
     return distributedContacts;
   }
+  */
 
   if (testMode) {
     // test mode - use a different campaign id from available testData
@@ -354,7 +356,7 @@ async function applyContacts(campaignData, pgArray, testMode) {
         `OFG: [${campaignId}] Applying ${campaignContacts} contacts to Contact Rate forecast.`
       );
       // distribute contacts over daily distribution
-      let distributedContactsDaily = await distributeContactsDaily(
+      let distributedContactsDaily = await distributeContacts(
         campaignContacts,
         dailyCrDistrib
       );
@@ -372,7 +374,7 @@ async function applyContacts(campaignData, pgArray, testMode) {
         console.warn(crDistribDay);
         console.warn(contactsToDistrib);
 
-        let distributedContacts = await distributeContactsIntraday(
+        let distributedContacts = await distributeContacts(
           contactsToDistrib,
           crDistribDay
         );
