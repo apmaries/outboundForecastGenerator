@@ -359,17 +359,27 @@ async function applyContacts(campaignData, pgArray, testMode) {
         dailyCrDistrib
       );
 
+      // temp logging
+      console.warn(distributedContactsDaily);
+
       // distribute contacts over intraday distribution
       let distributedContactsIntraday = [];
       for (let i = 0; i < intradayCrDistrib.length; i++) {
         let crDistribDay = intradayCrDistrib[i];
         let contactsToDistrib = distributedContactsDaily[i];
 
+        // temp logging
+        console.warn(crDistribDay);
+        console.warn(contactsToDistrib);
+
         let distributedContacts = distributeContactsIntraday(
           contactsToDistrib,
           crDistribDay
         );
         distributedContactsIntraday.push(distributedContacts);
+
+        // temp logging
+        console.warn(distributedContacts);
       }
 
       // add forecast contacts to campaignData object
