@@ -230,6 +230,7 @@
       <div id="test-mode" class="align-left" hidden></div>
 
       <script>
+        // Sort planning groups table
         (function () {
           function ascending(a, b) {
             if (a.textContent < b.textContent) {
@@ -280,6 +281,11 @@
             }
           });
         })();
+      </script>
+
+      <script>
+        // Global error handler
+        window.onerror = globalErrorHandler;
       </script>
 
       <script>
