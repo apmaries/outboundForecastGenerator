@@ -51,6 +51,7 @@ async function getOrgLevelStuff() {
     if (client) {
       console.log("OFG: OAuth client details returned");
       const clientName = client.name;
+      // TODO: Future consideration to validate client scope prior to execution
       const clientScope = client.scope;
       sessionStorage.setItem("clientName", clientName);
       sessionStorage.setItem("clientScope", clientScope);
@@ -66,6 +67,7 @@ async function getOrgLevelStuff() {
     );
     if (divisions) {
       console.log("OFG: Divisions data returned");
+      // TODO: Future cosideration to make application division aware (e.g. what BU's are returned)
       sessionStorage.setItem("divisionsList", JSON.stringify(divisions));
     } else {
       console.error(`OFG: Error getting divisions`);
@@ -81,7 +83,6 @@ async function getOrgLevelStuff() {
       console.log("OFG: Notifications channel opened");
       const notificationsUri = channel.connectUri;
       const notificationsId = channel.id;
-      console.warn(`OFG: Channel = `, channel);
       sessionStorage.setItem("notificationsUri", notificationsUri);
       sessionStorage.setItem("notificationsId", notificationsId);
     } else {
@@ -98,6 +99,7 @@ let activityTimeout;
 
 // Define the timeout function
 function timeout() {
+  // TODO: Understand if timeout needed
   const token = sessionStorage.getItem("token");
   const environment = sessionStorage.getItem("environment");
   const notificationsId = sessionStorage.getItem("notificationsId");

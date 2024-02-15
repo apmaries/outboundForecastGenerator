@@ -30,6 +30,9 @@ async function runGenerator(
   let queryResults = [];
   var historicalDataByCampaign = [];
 
+  // subscribe to the business unit notifications
+  subscribe(businessUnitId);
+
   // Functions start here
   // Function to build query body
   async function queryBuilder() {
@@ -278,6 +281,7 @@ async function runGenerator(
       downloadJson(completedCampaigns, "completedCampaigns");
     });
   }
+
   // Functions end here
 
   // Main code starts here
