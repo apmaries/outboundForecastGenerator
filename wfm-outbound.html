@@ -41,6 +41,7 @@
     <script src="./src/makeApiCall.js"></script>
     <script src="./src/planningGroups.js"></script>
     <script src="./src/numberCruncher.js"></script>
+    <script src="./src/importFc.js"></script>
     <script src="./src/session.js"></script>
     <script src="./src/main.js"></script>
 
@@ -457,7 +458,6 @@
             fetch("./test/wfmBuList.json")
               .then((response) => response.json())
               .then((testBuList) => {
-                console.log(testBuList);
                 var buArray = testBuList;
                 sessionStorage.setItem(wfmBuStorage, JSON.stringify(buArray));
                 populateBusinessUnits(buArray);

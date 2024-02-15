@@ -72,6 +72,7 @@ async function getOrgLevelStuff() {
     console.log("OFG: Notifications channel opened");
     const notificationsUri = channel.connectUri;
     const notificationsId = channel.id;
+    console.warn(`OFG: Channel = `, channel);
     sessionStorage.setItem("notificationsUri", notificationsUri);
     sessionStorage.setItem("notificationsId", notificationsId);
   } else {
