@@ -208,7 +208,11 @@ async function generateAverages(campaignData, ignoreZeroes = true) {
     var totalSum = array.reduce((total, value) => total + value, 0);
 
     // Adjust the values to represent a distribution
-    return array.map((value) => value / totalSum);
+    if (totalSum === 0) {
+      return array.map(() => 0);
+    } else {
+      return array.map((value) => value / totalSum);
+    }
   }
 
   // create average daily contact rate
@@ -385,8 +389,8 @@ async function applyContacts(campaignData, pgArray, testMode) {
       }
 
       // add forecast contacts to campaignData object
-      campaignData.fcData.crDaily = distributedContactsDaily;
-      campaignData.fcData.crIntraday = distributedContactsIntraday;
+      campaignData.fcData.contactsDaily = distributedContactsDaily;
+      campaignData.fcData.contactsIntraday = distributedContactsIntraday;
 
       // add pgId to campaignData object
       campaignData.pgId = campaignPgId;
