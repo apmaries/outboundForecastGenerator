@@ -42,42 +42,55 @@ async function getOrgLevelStuff() {
   // make sure user is authorised before returning more sensitive data
   await getUser();
 
-  //get oauth client details
-  let client = fetchDataWithRetry(`/api/v2/oauth/clients/${clientId}`, "GET");
-  if (client) {
-    console.log("OFG: OAuth client details returned");
-    const clientName = client.name;
-    const clientScope = client.scope;
-    sessionStorage.setItem("clientName", clientName);
-    sessionStorage.setItem("clientScope", clientScope);
-  } else {
-    console.error(`OFG: Error getting OAuth client`);
-  }
+  // Wrap each fetch operation in an async function
+  let clientPromise = (async () => {
+    let client = await fetchDataWithRetry(
+      `/api/v2/oauth/clients/${clientId}`,
+      "GET"
+    );
+    if (client) {
+      console.log("OFG: OAuth client details returned");
+      const clientName = client.name;
+      const clientScope = client.scope;
+      sessionStorage.setItem("clientName", clientName);
+      sessionStorage.setItem("clientScope", clientScope);
+    } else {
+      console.error(`OFG: Error getting OAuth client`);
+    }
+  })();
 
-  //get divisions list
-  let divisions = fetchDataWithRetry(
-    `/api/v2/authorization/divisions?pageSize=1000&pageNumber=1`,
-    "GET"
-  );
-  if (divisions) {
-    console.log("OFG: Divisions data returned");
-    sessionStorage.setItem("divisionsList", JSON.stringify(divisions));
-  } else {
-    console.error(`OFG: Error getting divisions`);
-  }
+  let divisionsPromise = (async () => {
+    let divisions = await fetchDataWithRetry(
+      `/api/v2/authorization/divisions?pageSize=1000&pageNumber=1`,
+      "GET"
+    );
+    if (divisions) {
+      console.log("OFG: Divisions data returned");
+      sessionStorage.setItem("divisionsList", JSON.stringify(divisions));
+    } else {
+      console.error(`OFG: Error getting divisions`);
+    }
+  })();
 
-  //create notification channel
-  let channel = fetchDataWithRetry(`/api/v2/notifications/channels`, "POST");
-  if (channel) {
-    console.log("OFG: Notifications channel opened");
-    const notificationsUri = channel.connectUri;
-    const notificationsId = channel.id;
-    console.warn(`OFG: Channel = `, channel);
-    sessionStorage.setItem("notificationsUri", notificationsUri);
-    sessionStorage.setItem("notificationsId", notificationsId);
-  } else {
-    console.error(`OFG: Error creating notifications channel`);
-  }
+  let channelPromise = (async () => {
+    let channel = await fetchDataWithRetry(
+      `/api/v2/notifications/channels`,
+      "POST"
+    );
+    if (channel) {
+      console.log("OFG: Notifications channel opened");
+      const notificationsUri = channel.connectUri;
+      const notificationsId = channel.id;
+      console.warn(`OFG: Channel = `, channel);
+      sessionStorage.setItem("notificationsUri", notificationsUri);
+      sessionStorage.setItem("notificationsId", notificationsId);
+    } else {
+      console.error(`OFG: Error creating notifications channel`);
+    }
+  })();
+
+  // Run all fetch operations concurrently
+  await Promise.all([clientPromise, divisionsPromise, channelPromise]);
 }
 
 // auto timeout
