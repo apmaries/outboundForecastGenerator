@@ -308,12 +308,13 @@ async function runGenerator(
       let [importGzip, contentLength] = await prepFcImportBody(
         completedCampaigns
       );
-      let importUrl = await generateUrl(
+      let uploadAttributes = await generateUrl(
         businessUnitId,
         weekStart,
         contentLength
       );
-      importFc(importGzip, contentLength);
+
+      importFc(businessUnitId, weekDateId, importGzip, uploadAttributes);
     });
   }
 

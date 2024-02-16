@@ -33,6 +33,7 @@ async function prepFcImportBody(campaignsData) {
     "description": fcDescription,
     "weekCount": 1,
     "planningGroups": planningGroupsArray,
+    "canUseForScheduling": true,
   };
 
   let fcImportGzip = gzipEncode(fcImportBody);
@@ -54,22 +55,44 @@ async function generateUrl(businessUnitId, weekDateId, contentLengthBytes) {
       "contentLengthBytes": contentLengthBytes,
     }
   );
+  console.debug("OFG: Import URL: " + importUrl);
 
   return importUrl;
 }
 
-function importFc(fcImportBody) {
-  const businessUnitId = fcImportBody.buId;
-  const weekDateId = fcImportBody.weekDateId;
+async function importFc(businessUnitId, weekDateId, gzip, uploadAttributes) {
+  console.log("OFG: Uploading forecast");
 
-  console.log("OFG: importFc with body", fcImportBody);
+  const uploadKey = uploadAttributes.uploadKey;
+  const uploadUrl = uploadAttributes.url;
+  const uploadHeaders = uploadAttributes.headers;
 
-  // Get import URL
-  /*const importUrl = fetchDataWithRetry(
-    `/api/v2/workforcemanagement/businessunits/${businessUnitId}/weeks/${weekDateId}/shorttermforecasts/import/uploadurl`,
-    "POST",
-    {
-      "contentLengthBytes": 1123,
-    }
-  );*/
+  // upload gzip to upload url with uploadHeaders
+  const response = await fetch(uploadUrl, {
+    method: "PUT",
+    headers: uploadHeaders,
+    body: gzip,
+  });
+
+  // check if upload was successful
+  if (response.ok) {
+    console.log("OFG: Forecast uploaded successfully");
+
+    // complete the import
+    const importAttributes = {
+      "uploadKey": uploadKey,
+    };
+
+    const importResponse = await fetchDataWithRetry(
+      `/api/v2/workforcemanagement/businessunits/${businessUnitId}/weeks/${weekDateId}/shorttermforecasts/import`,
+      "POST",
+      importAttributes
+    );
+
+    console.log("OFG: Forecast import complete");
+    return importResponse;
+  } else {
+    console.error("OFG: Forecast upload failed");
+    return null;
+  }
 }
