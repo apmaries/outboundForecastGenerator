@@ -90,23 +90,8 @@ async function getOrgLevelStuff() {
     }
   })();
 
-  // testing pagination on a get time zones call
-  let timeZonesPromise = (async () => {
-    let timeZones = await fetchDataWithRetry(`/api/v2/timezones`, "GET");
-    if (timeZones) {
-      console.log(`OFG: ${timeZones.length} Timezones data returned`);
-    } else {
-      console.error(`OFG: Error getting time zones`);
-    }
-  })();
-
   // Run all fetch operations concurrently
-  await Promise.all([
-    clientPromise,
-    divisionsPromise,
-    channelPromise,
-    timeZonesPromise,
-  ]);
+  await Promise.all([clientPromise, divisionsPromise, channelPromise]);
 }
 
 // auto timeout

@@ -43,6 +43,9 @@ async function runGenerator(
       "topic": forecastTopic,
     };
 
+    // temp logging
+    console.warn(JSON.stringify(forecastTopicBody));
+
     // Subscribe to the forecast topic
     const subscribeToForecast = fetchDataWithRetry(
       `/api/v2/notifications/channels/${channelId}/subscriptions`,

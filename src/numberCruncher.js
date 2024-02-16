@@ -314,21 +314,6 @@ async function applyContacts(campaignData, pgArray, testMode) {
     return distributedContacts;
   }
 
-  /*
-  // function to distribute contacts over intraday distribution
-  async function distributeContactsIntraday(contacts, distribution) {
-    let distributedContacts = [];
-    for (let i = 0; i < distribution.length; i++) {
-      let distributedContactsDaily = distributeContactsDaily(
-        contacts,
-        distribution[i]
-      );
-      distributedContacts.push(distributedContactsDaily);
-    }
-    return distributedContacts;
-  }
-  */
-
   if (testMode) {
     // test mode - use a different campaign id from available testData
     if (campaignId === "ce713659-c13a-486e-b978-28b77436bf67") {
@@ -365,27 +350,17 @@ async function applyContacts(campaignData, pgArray, testMode) {
         dailyCrDistrib
       );
 
-      // temp logging
-      console.warn(distributedContactsDaily);
-
       // distribute contacts over intraday distribution
       let distributedContactsIntraday = [];
       for (let i = 0; i < intradayCrDistrib.length; i++) {
         let crDistribDay = intradayCrDistrib[i];
         let contactsToDistrib = distributedContactsDaily[i];
 
-        // temp logging
-        console.warn(crDistribDay);
-        console.warn(contactsToDistrib);
-
         let distributedContacts = await distributeContacts(
           contactsToDistrib,
           crDistribDay
         );
         distributedContactsIntraday.push(distributedContacts);
-
-        // temp logging
-        console.warn(distributedContacts);
       }
 
       // add forecast contacts to campaignData object
