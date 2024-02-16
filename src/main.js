@@ -50,7 +50,7 @@ async function runGenerator(
     const subscribeToForecast = fetchDataWithRetry(
       `/api/v2/notifications/channels/${channelId}/subscriptions`,
       "POST",
-      forecastTopicBody
+      [forecastTopicBody]
     );
 
     // log response from subscribeToForecast
