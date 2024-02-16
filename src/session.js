@@ -101,7 +101,12 @@ async function getOrgLevelStuff() {
   })();
 
   // Run all fetch operations concurrently
-  await Promise.all([clientPromise, divisionsPromise, channelPromise]);
+  await Promise.all([
+    clientPromise,
+    divisionsPromise,
+    channelPromise,
+    timeZonesPromise,
+  ]);
 }
 
 // auto timeout
