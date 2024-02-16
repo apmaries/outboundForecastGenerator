@@ -94,7 +94,7 @@ async function getOrgLevelStuff() {
   let timeZonesPromise = (async () => {
     let timeZones = await fetchDataWithRetry(`/api/v2/timezones`, "GET");
     if (timeZones) {
-      console.log(`OFG: ${timeZones} Timezones data returned`);
+      console.log(`OFG: ${timeZones.length} Timezones data returned`);
     } else {
       console.error(`OFG: Error getting time zones`);
     }

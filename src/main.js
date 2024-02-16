@@ -38,14 +38,16 @@ async function runGenerator(
     console.log(`OFG: Subscribing to notifications for BU ${id}`);
     const forecastTopic = `v2.workforcemanagement.businessunits.${id}.shorttermforecasts.import`;
 
+    const forecastTopicBody = {
+      "channelId": channelId,
+      "topic": forecastTopic,
+    };
+
     // Subscribe to the forecast topic
     const subscribeToForecast = fetchDataWithRetry(
       `/api/v2/notifications/channels/${channelId}/subscriptions`,
       "POST",
-      {
-        "channelId": channelId,
-        "topic": forecastTopic,
-      }
+      forecastTopicBody
     );
 
     // log response from subscribeToForecast
