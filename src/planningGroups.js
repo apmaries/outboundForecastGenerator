@@ -78,6 +78,7 @@ async function loadPageTwo(businessUnitId) {
 
   // Function to get queue campaigns
   async function queueCampaignMatcher(planningGroups, campaigns) {
+    whoops;
     // define document elements
     const loadingSpinner = document.getElementById("planning-groups-loading");
     const planningGroupsDiv = document.getElementById(
@@ -126,7 +127,7 @@ async function loadPageTwo(businessUnitId) {
       if (matchingCampaign) {
         // populate campaign name if matching campaign found
         console.log(
-          `OFG: PG${n + 1}[${pgId}] Matched ${groupName} to ${
+          `OFG: PG${i + 1}[${pgId}] Matched ${groupName} to ${
             matchingCampaign.campaignName
           } (${matchingCampaign.campaignId})`
         );
@@ -135,7 +136,7 @@ async function loadPageTwo(businessUnitId) {
       } else {
         // populate empty cell if no matching campaign found
         console.warn(
-          `OFG: PG${n + 1}[${pgId}] No matching campaign found for ${groupName}`
+          `OFG: PG${1 + 1}[${pgId}] No matching campaign found for ${groupName}`
         );
         campaignNameCell.textContent = "";
       }
