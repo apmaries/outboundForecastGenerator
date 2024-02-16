@@ -67,6 +67,11 @@ async function importFc(businessUnitId, weekDateId, gzip, uploadAttributes) {
   const uploadUrl = uploadAttributes.url;
   const uploadHeaders = uploadAttributes.headers;
 
+  //temp logging
+  console.debug("OFG: Upload Key: ", uploadKey);
+  console.debug("OFG: Upload URL: ", uploadUrl);
+  console.debug("OFG: Upload Headers: ", uploadHeaders);
+
   // upload gzip to upload url with uploadHeaders
   const uploadResponse = await fetch(uploadUrl, {
     method: "PUT",
