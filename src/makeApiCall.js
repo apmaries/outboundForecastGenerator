@@ -76,6 +76,13 @@ async function fetchDataWithRetry(
             console.log(`OFG: Retrying request`);
             continue;
           }
+        } else if (response.status === 400) {
+          // handle malformed syntax
+          console.error(
+            `OFG: Request failed with status ${response.status}: ${message}`
+          );
+          console.error("OFG: Malformed POST body:", postData);
+          return message;
         } else if (response.status === 401) {
           // invalid login or no token - redirect back to login
           sessionStorage.clear();
