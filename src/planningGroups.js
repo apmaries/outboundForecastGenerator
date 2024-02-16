@@ -78,7 +78,6 @@ async function loadPageTwo(businessUnitId) {
 
   // Function to get queue campaigns
   async function queueCampaignMatcher(planningGroups, campaigns) {
-    whoops;
     // define document elements
     const loadingSpinner = document.getElementById("planning-groups-loading");
     const planningGroupsDiv = document.getElementById(
