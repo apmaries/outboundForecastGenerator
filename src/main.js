@@ -31,7 +31,7 @@ async function runGenerator(
   var historicalDataByCampaign = [];
 
   // Functions start here
-  function subscribe(buId) {
+  async function subscribe(buId) {
     const id = buId;
     const channelId = sessionStorage.getItem("notificationsId");
 
@@ -321,7 +321,7 @@ async function runGenerator(
 
   // Main code starts here
   // subscribe to the business unit notifications
-  subscribe(businessUnitId);
+  await subscribe(businessUnitId);
 
   if (testMode) {
     // load test data

@@ -101,9 +101,9 @@ async function loadPageTwo(businessUnitId) {
       const groupName = group.pgName;
 
       console.log(
-        `OFG: Matching planning group ${
-          i + 1
-        }: ${groupName} with queue id ${groupQueueId}`
+        `OFG: PG${
+          n + 1
+        }[${pgId}] Matching ${groupName} to campaigns with queue id ${groupQueueId}`
       );
 
       // find matching campaign
@@ -126,13 +126,17 @@ async function loadPageTwo(businessUnitId) {
       if (matchingCampaign) {
         // populate campaign name if matching campaign found
         console.log(
-          `OFG: Matching campaign found: ${matchingCampaign.campaignName}`
+          `OFG: PG${n + 1}[${pgId}] Matched ${groupName} to ${
+            matchingCampaign.campaignName
+          } (${matchingCampaign.campaignId})`
         );
         campaignNameCell.textContent = matchingCampaign.campaignName;
         campaignNameCell.dataset.campaignId = matchingCampaign.campaignId; // Add the campaign id as a data attribute
       } else {
         // populate empty cell if no matching campaign found
-        console.warn(`OFG: No matching campaign found`);
+        console.warn(
+          `OFG: PG${n + 1}[${pgId}] No matching campaign found for ${groupName}`
+        );
         campaignNameCell.textContent = "";
       }
       row.appendChild(campaignNameCell);
