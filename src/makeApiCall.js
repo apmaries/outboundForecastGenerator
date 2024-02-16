@@ -2,7 +2,6 @@ var token = sessionStorage.getItem("token");
 var environment = sessionStorage.getItem("environment");
 var prefix = `https://api.${environment}`;
 
-// make api calls
 async function fetchDataWithRetry(
   endpoint,
   method,
@@ -35,7 +34,20 @@ async function fetchDataWithRetry(
         if ("entities" in data) {
           // add logic to get next page
           console.debug(`OFG: ${method} data entities returned`);
-          return data.entities;
+          let entities = data.entities;
+
+          // fetch the next page and concatenate the entities if nextUri exists
+          if ("nextUri" in data) {
+            const nextPageEntities = await fetchDataWithRetry(
+              data.nextUri,
+              method,
+              postData,
+              maxRetries
+            );
+            entities = entities.concat(nextPageEntities);
+          }
+
+          return entities;
         } else if ("results" in data) {
           console.debug(`OFG: ${method} data results returned`);
           return data.results;

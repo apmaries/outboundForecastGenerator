@@ -1,3 +1,3 @@
 function subscribe(buId) {
-  console.log("subscribe");
+  console.log(`OFG: Subscribing to notifications for BU ${buId}`);
 }
