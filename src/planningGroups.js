@@ -103,7 +103,7 @@ async function loadPageTwo(businessUnitId) {
       console.log(
         `OFG: PG${
           i + 1
-        }[${pgId}] Matching ${groupName} to campaigns with queue id ${groupQueueId}`
+        }[${groupId}] Matching ${groupName} to campaigns with queue id ${groupQueueId}`
       );
 
       // find matching campaign
