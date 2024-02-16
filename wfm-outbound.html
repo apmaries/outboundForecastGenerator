@@ -39,7 +39,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.0.4/pako.min.js"></script>
 
     <!-- Project -->
-    <script src="./src/errorHandler.js"></script>
     <script src="./src/makeApiCall.js"></script>
     <script src="./src/planningGroups.js"></script>
     <script src="./src/numberCruncher.js"></script>
@@ -285,25 +284,17 @@
       </script>
 
       <script>
-        // Global error handler
-        window.onerror = globalErrorHandler();
-
-        // TODO: Fix this
         // Define a global error handler function
-        /*function globalErrorHandler(message, source, lineno, colno, error) {
-          let body = {
-            source,
-            lineno,
-            colno,
-            error: {
-              message: error.message,
-              stack: error.stack,
-              name: error.name,
-            },
-          };
+        function globalErrorHandler(message, source, lineno, colno, error) {
+          console.error("An error occurred:", message);
+          console.error("Source:", source);
+          console.error("Line:", lineno);
+          console.error("Column:", colno);
+          console.error("Error object:", error);
+        }
 
-          console.error(`OFG: An uncaught error occurred: ${message}`, body);
-        }*/
+        // Attach the global error handler to the window.onerror event
+        window.onerror = globalErrorHandler;
       </script>
 
       <script>
