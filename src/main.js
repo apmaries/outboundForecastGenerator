@@ -30,10 +30,30 @@ async function runGenerator(
   let queryResults = [];
   var historicalDataByCampaign = [];
 
-  // subscribe to the business unit notifications
-  subscribe(businessUnitId);
-
   // Functions start here
+  function subscribe(buId) {
+    const id = buId;
+    const channelId = sessionStorage.getItem("notificationsId");
+
+    console.log(`OFG: Subscribing to notifications for BU ${id}`);
+    const forecastTopic = `v2.workforcemanagement.businessunits.${id}.shorttermforecasts.import`;
+
+    // Subscribe to the forecast topic
+    const subscribeToForecast = fetchDataWithRetry(
+      `/api/v2/notifications/channels/${channelId}/subscriptions`,
+      "POST",
+      {
+        "channelId": channelId,
+        "topic": forecastTopic,
+      }
+    );
+
+    // log response from subscribeToForecast
+    subscribeToForecast.then((response) => {
+      console.log(`OFG: Subscribed to forecast topic ${forecastTopic}`);
+    });
+  }
+
   // Function to build query body
   async function queryBuilder() {
     let queriesArray = [];
@@ -276,15 +296,20 @@ async function runGenerator(
       return campaign;
     });
 
-    Promise.all(fcPrepPromises).then((completedCampaigns) => {
+    Promise.all(fcPrepPromises).then(async (completedCampaigns) => {
       console.log("OFG: All campaigns have been processed.");
       downloadJson(completedCampaigns, "completedCampaigns");
+      let importBody = await prepFcImportBody(completedCampaigns);
+      importFc(importBody);
     });
   }
 
   // Functions end here
 
   // Main code starts here
+  // subscribe to the business unit notifications
+  subscribe(businessUnitId);
+
   if (testMode) {
     // load test data
     fetch("./test/testData.json")
