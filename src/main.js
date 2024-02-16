@@ -321,7 +321,6 @@ async function runGenerator(
 
   // Main code starts here
   // subscribe to the business unit notifications
-  await subscribe(businessUnitId);
 
   if (testMode) {
     // load test data
@@ -330,6 +329,7 @@ async function runGenerator(
       .then(async (testData) => {
         queryResults = testData;
         console.log("OFG: Test data loaded");
+        await subscribe(businessUnitId);
         await processQueryResults(queryResults);
 
         // added download for testing purposes
@@ -350,6 +350,7 @@ async function runGenerator(
 
     // Execute historical data queries
     queryResults = await executeQueries(queriesArray);
+    await subscribe(businessUnitId);
     await processQueryResults(queryResults);
     prepareForecast(); // Call the function to continue execution
   }
