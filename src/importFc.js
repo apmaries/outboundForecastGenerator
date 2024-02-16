@@ -1,5 +1,5 @@
 async function prepFcImportBody(campaignsData) {
-  console.log("OFG: prepFcBody");
+  console.log("OFG: Preparing Forecast Import Body and encoding to gzip");
 
   // function to gzip encode the body
   function gzipEncode(body) {
@@ -37,6 +37,8 @@ async function prepFcImportBody(campaignsData) {
 
   let fcImportGzip = gzipEncode(fcImportBody);
   let contentLengthBytes = fcImportGzip.length;
+
+  console.log("OFG: Body encoded to gzip with length: " + contentLengthBytes);
 
   return [fcImportGzip, contentLengthBytes];
 }
