@@ -38,7 +38,7 @@ async function prepFcImportBody(campaignsData) {
   let fcImportGzip = gzipEncode(fcImportBody);
   let contentLengthBytes = fcImportGzip.length;
 
-  console.log("OFG: Body encoded to gzip with length: " + contentLengthBytes);
+  console.log(`OFG: Body encoded to gzip with length: ${contentLengthBytes}`);
 
   return [fcImportGzip, contentLengthBytes];
 }
