@@ -68,14 +68,16 @@ async function importFc(businessUnitId, weekDateId, gzip, uploadAttributes) {
   const uploadHeaders = uploadAttributes.headers;
 
   // upload gzip to upload url with uploadHeaders
-  const response = await fetch(uploadUrl, {
+  const uploadResponse = await fetch(uploadUrl, {
     method: "PUT",
     headers: uploadHeaders,
-    body: gzip,
+    // test as data: gzip,
+    data: gzip,
+    //body: gzip,
   });
 
   // check if upload was successful
-  if (response.ok) {
+  if (uploadResponse.ok) {
     console.log("OFG: Forecast uploaded successfully");
 
     // complete the import
