@@ -55,7 +55,7 @@ async function generateUrl(businessUnitId, weekDateId, contentLengthBytes) {
       "contentLengthBytes": contentLengthBytes,
     }
   );
-  console.debug("OFG: Import URL: " + importUrl);
+  console.debug("OFG: Import URL: ", importUrl);
 
   return importUrl;
 }

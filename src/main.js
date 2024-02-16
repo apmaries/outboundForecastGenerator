@@ -314,15 +314,13 @@ async function runGenerator(
         contentLength
       );
 
-      importFc(businessUnitId, weekDateId, importGzip, uploadAttributes);
+      importFc(businessUnitId, weekStart, importGzip, uploadAttributes);
     });
   }
 
   // Functions end here
 
   // Main code starts here
-  // subscribe to the business unit notifications
-
   if (testMode) {
     // load test data
     fetch("./test/testData.json")
