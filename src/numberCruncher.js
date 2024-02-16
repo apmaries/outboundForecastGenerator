@@ -257,7 +257,7 @@ async function generateAverages(campaignData, ignoreZeroes = true) {
     contactRateIntradayAverage.map(normalizeToDistribution);
 
   // create average daily AHT
-  campaignData.fcData.ahtDailyAverage =
+  campaignData.fcData.ahtDaily =
     campaignData.fcHistoricalPatternData.averHandleTimeDaily[0].map((_, i) => {
       let values = campaignData.fcHistoricalPatternData.averHandleTimeDaily.map(
         (array) => array[i]
@@ -275,7 +275,7 @@ async function generateAverages(campaignData, ignoreZeroes = true) {
     });
 
   // create an average intraday aht by day of week
-  campaignData.fcData.ahtIntradayAverage =
+  campaignData.fcData.ahtIntraday =
     campaignData.fcHistoricalPatternData.averHandleTimeIntraday.map(
       (dayOfWeek) => {
         return dayOfWeek[0].map((_, i) => {

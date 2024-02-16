@@ -304,8 +304,16 @@ async function runGenerator(
     Promise.all(fcPrepPromises).then(async (completedCampaigns) => {
       console.log("OFG: All campaigns have been processed.");
       downloadJson(completedCampaigns, "completedCampaigns");
-      let importBody = await prepFcImportBody(completedCampaigns);
-      importFc(importBody);
+
+      let [importGzip, contentLength] = await prepFcImportBody(
+        completedCampaigns
+      );
+      let importUrl = await generateUrl(
+        businessUnitId,
+        weekStart,
+        contentLength
+      );
+      importFc(importGzip, contentLength);
     });
   }
 
