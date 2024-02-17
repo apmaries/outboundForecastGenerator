@@ -88,17 +88,18 @@ async function importFc(businessUnitId, weekDateId, gzip, uploadAttributes) {
   const uploadKey = uploadAttributes.uploadKey;
   const uploadUrl = uploadAttributes.url;
   const uploadHeaders = uploadAttributes.headers;
-  const contentLength = new TextEncoder().encode(gzip).length;
 
   //temp logging
   console.debug("OFG: Upload Key: ", uploadKey);
   console.debug("OFG: Upload URL: ", uploadUrl);
-  console.debug("OFG: Upload Headers: ", uploadHeaders);
+  console.debug("OFG: Upload Headers: " + JSON.stringify(uploadHeaders));
+  console.debug(JSON.stringify(uploadHeaders));
+  console.debug(uploadHeaders);
 
   // upload gzip to upload url with uploadHeaders
   const uploadResponse = await fetch(uploadUrl, {
     method: "PUT",
-    headers: { ...uploadHeaders, "Content-Length": contentLength },
+    headers: uploadHeaders,
     body: gzip,
   });
 
