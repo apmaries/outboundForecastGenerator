@@ -56,7 +56,7 @@ async function prepFcImportBody(campaignsData) {
     "canUseForScheduling": true,
   };
 
-  downloadJson(fcImportBody, "fcImportBody.json");
+  downloadJson(fcImportBody, "fcImportBody");
 
   let fcImportGzip = gzipEncode(fcImportBody);
   let contentLengthBytes = fcImportGzip.length;
@@ -98,10 +98,8 @@ async function importFc(businessUnitId, weekDateId, gzip, uploadAttributes) {
   const uploadResponse = await fetch(uploadUrl, {
     method: "PUT",
     headers: uploadHeaders,
-    // test as data: gzip,
-    //credentials: "include",
-    //data: gzip,
     body: gzip,
+    mode: "no-cors",
   });
 
   // check if upload was successful

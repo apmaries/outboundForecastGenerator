@@ -74,6 +74,8 @@ async function getOrgLevelStuff() {
     }
   })();
 
+  // temporarily disable notifications
+  /*
   let channelPromise = (async () => {
     let channel = await fetchDataWithRetry(
       `/api/v2/notifications/channels`,
@@ -89,9 +91,14 @@ async function getOrgLevelStuff() {
       console.error(`OFG: Error creating notifications channel`);
     }
   })();
+  */
 
   // Run all fetch operations concurrently
-  await Promise.all([clientPromise, divisionsPromise, channelPromise]);
+  await Promise.all([
+    clientPromise,
+    divisionsPromise,
+    //channelPromise
+  ]);
 }
 
 // auto timeout

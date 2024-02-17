@@ -324,33 +324,35 @@ async function runGenerator(
 
   // Create a WebSocket connection
   const notificationsUri = sessionStorage.getItem("notificationsUri");
-  const ws = new WebSocket(notificationsUri);
+  if (notificationsUri) {
+    const ws = new WebSocket(notificationsUri);
 
-  // Connection opened
-  ws.addEventListener("open", (event) => {
-    console.log("WebSocket connection opened");
-    subscribe(businessUnitId);
-    // Send a subscribe message if your WebSocket server requires it
-    // ws.send(JSON.stringify({ type: 'subscribe', channel: 'your-channel' }));
-  });
+    // Connection opened
+    ws.addEventListener("open", (event) => {
+      console.log("WebSocket connection opened");
+      subscribe(businessUnitId);
+      // Send a subscribe message if your WebSocket server requires it
+      // ws.send(JSON.stringify({ type: 'subscribe', channel: 'your-channel' }));
+    });
 
-  // Listen for messages
-  ws.addEventListener("message", (event) => {
-    console.log("Message from server: ", event.data);
+    // Listen for messages
+    ws.addEventListener("message", (event) => {
+      console.log("Message from server: ", event.data);
 
-    // If the data is JSON, you might want to parse it
-    // const data = JSON.parse(event.data);
-  });
+      // If the data is JSON, you might want to parse it
+      // const data = JSON.parse(event.data);
+    });
 
-  // Connection closed
-  ws.addEventListener("close", (event) => {
-    console.log("WebSocket connection closed");
-  });
+    // Connection closed
+    ws.addEventListener("close", (event) => {
+      console.log("WebSocket connection closed");
+    });
 
-  // Connection error
-  ws.addEventListener("error", (event) => {
-    console.log("WebSocket error: ", event);
-  });
+    // Connection error
+    ws.addEventListener("error", (event) => {
+      console.log("WebSocket error: ", event);
+    });
+  }
 
   if (testMode) {
     // load test data
