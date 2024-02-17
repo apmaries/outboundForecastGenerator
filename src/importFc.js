@@ -1,6 +1,28 @@
 async function prepFcImportBody(campaignsData) {
   console.log("OFG: Preparing Forecast Import Body and encoding to gzip");
 
+  // TODO: need to do this smarter so that it's not needed in main and importFc
+  function downloadJson(body, jsonName) {
+    if (testMode) {
+      var jsonData = JSON.stringify(body);
+      var blob = new Blob([jsonData], {
+        type: "application/json",
+      });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.download = `${jsonName}.json`;
+      a.href = url;
+      a.textContent = `Download ${jsonName}.json`;
+
+      // Create a div for each download link
+      var div = document.createElement("div");
+      div.appendChild(a);
+
+      var container = document.getElementById("test-mode");
+      container.appendChild(div);
+    }
+  }
+
   // function to gzip encode the body
   function gzipEncode(body) {
     const encoder = new TextEncoder();
