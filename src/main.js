@@ -31,7 +31,7 @@ async function runGenerator(
   var historicalDataByCampaign = [];
 
   // Functions start here
-  async function subscribe(buId) {
+  function subscribe(buId) {
     const id = buId;
     const channelId = sessionStorage.getItem("notificationsId");
 
@@ -54,7 +54,7 @@ async function runGenerator(
     );
 
     // log response from subscribeToForecast
-    subscribeToForecast.then((response) => {
+    subscribeToForecast.then(() => {
       console.log(`OFG: Subscribed to forecast topic ${forecastTopic}`);
     });
   }
@@ -321,6 +321,37 @@ async function runGenerator(
   // Functions end here
 
   // Main code starts here
+
+  // Create a WebSocket connection
+  const notificationsUri = sessionStorage.getItem("notificationsUri");
+  const ws = new WebSocket(notificationsUri);
+
+  // Connection opened
+  ws.addEventListener("open", (event) => {
+    console.log("WebSocket connection opened");
+    subscribe(businessUnitId);
+    // Send a subscribe message if your WebSocket server requires it
+    // ws.send(JSON.stringify({ type: 'subscribe', channel: 'your-channel' }));
+  });
+
+  // Listen for messages
+  ws.addEventListener("message", (event) => {
+    console.log("Message from server: ", event.data);
+
+    // If the data is JSON, you might want to parse it
+    // const data = JSON.parse(event.data);
+  });
+
+  // Connection closed
+  ws.addEventListener("close", (event) => {
+    console.log("WebSocket connection closed");
+  });
+
+  // Connection error
+  ws.addEventListener("error", (event) => {
+    console.log("WebSocket error: ", event);
+  });
+
   if (testMode) {
     // load test data
     fetch("./test/testData.json")
@@ -328,7 +359,7 @@ async function runGenerator(
       .then(async (testData) => {
         queryResults = testData;
         console.log("OFG: Test data loaded");
-        await subscribe(businessUnitId);
+
         await processQueryResults(queryResults);
 
         // added download for testing purposes
@@ -349,7 +380,6 @@ async function runGenerator(
 
     // Execute historical data queries
     queryResults = await executeQueries(queriesArray);
-    await subscribe(businessUnitId);
     await processQueryResults(queryResults);
     prepareForecast(); // Call the function to continue execution
   }
