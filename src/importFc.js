@@ -36,6 +36,8 @@ async function prepFcImportBody(campaignsData) {
     "canUseForScheduling": true,
   };
 
+  downloadJson(fcImportBody, "fcImportBody.json");
+
   let fcImportGzip = gzipEncode(fcImportBody);
   let contentLengthBytes = fcImportGzip.length;
 
@@ -77,9 +79,9 @@ async function importFc(businessUnitId, weekDateId, gzip, uploadAttributes) {
     method: "PUT",
     headers: uploadHeaders,
     // test as data: gzip,
-    credentials: "include",
-    data: gzip,
-    //body: gzip,
+    //credentials: "include",
+    //data: gzip,
+    body: gzip,
   });
 
   // check if upload was successful
