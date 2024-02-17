@@ -88,6 +88,7 @@ async function importFc(businessUnitId, weekDateId, gzip, uploadAttributes) {
   const uploadKey = uploadAttributes.uploadKey;
   const uploadUrl = uploadAttributes.url;
   const uploadHeaders = uploadAttributes.headers;
+  const contentLength = new TextEncoder().encode(gzip).length;
 
   //temp logging
   console.debug("OFG: Upload Key: ", uploadKey);
@@ -97,10 +98,16 @@ async function importFc(businessUnitId, weekDateId, gzip, uploadAttributes) {
   // upload gzip to upload url with uploadHeaders
   const uploadResponse = await fetch(uploadUrl, {
     method: "PUT",
-    headers: uploadHeaders,
+    headers: { ...uploadHeaders, "Content-Length": contentLength },
     body: gzip,
-    mode: "no-cors",
   });
+
+  // Add debugging for response
+  console.log(
+    "OFG: Upload Response: ",
+    uploadResponse.status,
+    uploadResponse.statusText
+  );
 
   // check if upload was successful
   if (uploadResponse.ok) {
