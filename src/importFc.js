@@ -77,6 +77,7 @@ async function importFc(businessUnitId, weekDateId, gzip, uploadAttributes) {
     method: "PUT",
     headers: uploadHeaders,
     // test as data: gzip,
+    credentials: "include",
     data: gzip,
     //body: gzip,
   });
