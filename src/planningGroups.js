@@ -1,4 +1,56 @@
 async function loadPageTwo(businessUnitId) {
+  // Sort planning groups table
+  (function () {
+    function ascending(a, b) {
+      if (a.textContent < b.textContent) {
+        return -1;
+      }
+      if (a.textContent > b.textContent) {
+        return 1;
+      }
+      return 0;
+    }
+
+    function shuffle(a, b) {
+      return 0.5 - Math.random();
+    }
+
+    const table = document.querySelector("#planning-group-table");
+
+    table.addEventListener("guxsortchanged", (event) => {
+      const { columnName, sortDirection } = event.detail;
+
+      const columns = Array.from(table.querySelectorAll("thead tr th")).forEach(
+        (column) => column.removeAttribute("aria-sort")
+      );
+      const column = table.querySelector(
+        `thead tr th[data-column-name='` + columnName + `']`
+      );
+      column.setAttribute("aria-sort", sortDirection);
+
+      const tableBody = table.querySelector("tbody");
+
+      switch (sortDirection) {
+        case "ascending":
+          [...tableBody.children]
+            .sort(ascending)
+            .forEach((node) => tableBody.appendChild(node));
+          break;
+        case "descending":
+          [...tableBody.children]
+            .sort(ascending)
+            .reverse()
+            .forEach((node) => tableBody.appendChild(node));
+          break;
+        default:
+          [...tableBody.children]
+            .sort(shuffle)
+            .forEach((node) => tableBody.appendChild(node));
+          break;
+      }
+    });
+  })();
+
   // Function to get planning groups from BU id
   async function getPlanningGroups() {
     let planningGroupsArray = [];
