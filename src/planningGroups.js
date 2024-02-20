@@ -1,5 +1,6 @@
 async function loadPageTwo(businessUnitId) {
   // Sort planning groups table
+  /*
   (function () {
     function ascending(a, b) {
       if (a.textContent < b.textContent) {
@@ -50,6 +51,7 @@ async function loadPageTwo(businessUnitId) {
       }
     });
   })();
+  */
 
   // Function to get planning groups from BU id
   async function getPlanningGroups() {
