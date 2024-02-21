@@ -16,51 +16,52 @@
 
   <body>
     <script>
-      function authorize() {
-        // OAuth configuration
-        const clientId = "6f99c63b-3dfb-43cf-9792-a9b5c295d0ca";
-        const redirectUri =
-          "https://apmaries.github.io/outboundForecastGenerator/wfm-outbound.html";
+      const clientId = "6f99c63b-3dfb-43cf-9792-a9b5c295d0ca";
+      const redirectUri =
+        "https://apmaries.github.io/outboundForecastGenerator/wfm-outbound.html";
 
-        // Get the domain of the parent page from the referrer
-        const referrer = document.referrer;
-        const prefix = "https://apps.";
+      const appName = "outnoundForecastGenerator";
+      const qParamLanguage = "language";
+      const qParamEnvironment = "environment";
 
-        // Ensure that the referrer starts with the expected prefix
-        if (referrer.startsWith(prefix)) {
-          // Find the index of the first '/' after the prefix
-          const firstSlashIndex = referrer.indexOf("/", prefix.length);
+      // Default values are assigned but values should
+      // be set on the function 'assignConfiguration'
+      let language = "en-us";
+      let environment = "mypurecloud.com";
 
-          // Extract the substring between the prefix and the first '/'
-          const strippedDomain = referrer.substring(
-            prefix.length,
-            firstSlashIndex
-          );
+      let userDetails = null;
 
-          const authorizationUrl = `https://login.${strippedDomain}/oauth/authorize?client_id=${clientId}&response_type=token&redirect_uri=${redirectUri}`;
+      // Configure both the Platform SDK and the Client App SDK
 
-          // Log the modified domain and the constructed authorization URL to the console
-          //console.log(`OFG: App environment: ${strippedDomain}`);
-          //console.log(`OFG: Authorization URL:" ${authorizationUrl}`);
+      function setupGenesysClients() {
+        const platformClient = require("platformClient");
+        const client = platformClient.ApiClient.instance;
+        const usersApi = new platformClient.UsersApi();
 
-          // Set session storage
-          sessionStorage.setItem("environment", strippedDomain);
-          sessionStorage.setItem("clientId", clientId);
+        // Configure Client App
+        let ClientApp = window.purecloud.apps.ClientApp;
+        let myClientApp = new ClientApp({
+          pcEnvironment: environment,
+        });
 
-          // Redirect the user to the authorization URL
-          window.location.href = authorizationUrl;
-        } else {
-          alert(
-            `Referrer '${referrer}' does not start with the expected prefix.`
-          );
-          console.error(
-            "OFG: Referrer does not start with the expected prefix."
-          );
-          console.log(`OFG: Referrer = ${referrer}`);
-        }
+        // Configure and Authenticate Platform Client
+        client.setPersistSettings(true, appName);
+        client.setEnvironment(environment);
+
+        return client
+          .loginImplicitGrant(clientId, redirectUri)
+
+          .then((data) => usersApi.getUsersMe())
+          .then((data) => {
+            userDetails = data;
+
+            myClientApp.alerting.showToastPopup(
+              `Hi ${userDetails.name}`,
+              "Never gonna give you up, never gonna let you down 😊"
+            );
+          })
+          .catch((err) => console.log(err));
       }
-      // Call the authorize function when the page loads
-      authorize();
     </script>
   </body>
 </html>
