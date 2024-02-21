@@ -97,16 +97,10 @@ async function importFc(businessUnitId, weekDateId, gzip, uploadAttributes) {
   console.debug(uploadHeaders);
   // this all looks fine but the upload is being blocked on CORS :(
 
-  // build headers for request
-  var uHeaders = new Headers();
-  for (var key in uploadHeaders) {
-    uHeaders.append(key, uploadHeaders[key]);
-  }
-
   // upload gzip to upload url with uploadHeaders
   const uploadResponse = await fetch(uploadUrl, {
     method: "PUT",
-    headers: uHeaders,
+    headers: uploadHeaders,
     body: gzip,
   });
 
