@@ -16,11 +16,12 @@
 
   <body>
     <script>
+      console.log("OFG: Loading");
       const clientId = "6f99c63b-3dfb-43cf-9792-a9b5c295d0ca";
       const redirectUri =
         "https://apmaries.github.io/outboundForecastGenerator/wfm-outbound.html";
 
-      const appName = "outnoundForecastGenerator";
+      const appName = "outboundForecastGenerator";
       const qParamLanguage = "language";
       const qParamEnvironment = "environment";
 
@@ -62,6 +63,46 @@
           })
           .catch((err) => console.log(err));
       }
+
+      /**
+       * Assign the language and environment for the app first through
+       * the query parameters. But if non-existent, attempt to get
+       * it from localStorage. If none, use default values.
+       */
+      function assignConfiguration() {
+        let url = new URL(window.location);
+        let searchParams = new URLSearchParams(url.search);
+
+        if (searchParams.has(qParamLanguage)) {
+          language = searchParams.get(qParamLanguage);
+          localStorage.setItem(`${appName}_language`, language);
+        } else {
+          let local_lang = localStorage.getItem(`${appName}_language`);
+          if (local_lang) language = local_lang;
+        }
+
+        const referrer = document.referrer;
+        const prefix = "https://apps.";
+
+        const firstSlashIndex = referrer.indexOf("/", prefix.length);
+        const environment = referrer.substring(prefix.length, firstSlashIndex);
+      }
+
+      // After page loads...
+      window.addEventListener("load", (event) => {
+        assignConfiguration();
+        console.log(`environment: ${environment}`);
+        console.log(`language: ${language}`);
+
+        setupGenesysClients().then(() => {
+          // Display values to the page
+          document.getElementById("span_environment").innerText = environment;
+          document.getElementById("span_language").innerText = language;
+          document.getElementById("span_name").innerText = userDetails.name;
+
+          console.log("Finished setup.");
+        });
+      });
     </script>
   </body>
 </html>
