@@ -86,6 +86,7 @@
 
         const firstSlashIndex = referrer.indexOf("/", prefix.length);
         const environment = referrer.substring(prefix.length, firstSlashIndex);
+        localStorage.setItem(`${appName}_environment`, environment);
       }
 
       // After page loads...
