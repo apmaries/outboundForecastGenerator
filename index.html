@@ -11,11 +11,10 @@
     />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-
-    <script src="https://sdk-cdn.mypurecloud.com/javascript/latest/purecloud-platform-client-v2.min.js"></script>
   </head>
 
   <body>
+    <script src="https://sdk-cdn.mypurecloud.com/javascript/latest/purecloud-platform-client-v2.min.js"></script>
     <script type="text/javascript">
       console.log("OFG: Loading");
       const clientId = "6f99c63b-3dfb-43cf-9792-a9b5c295d0ca";
@@ -36,12 +35,12 @@
       // Configure both the Platform SDK and the Client App SDK
 
       function setupGenesysClients() {
-        const platformClient = require("platformClient");
+        // Configure Platform SDK
         const client = platformClient.ApiClient.instance;
         const usersApi = new platformClient.UsersApi();
 
         // Configure Client App
-        let ClientApp = window.purecloud.apps.ClientApp;
+        let ClientApp = window.ApiClient;
         let myClientApp = new ClientApp({
           pcEnvironment: environment,
         });
@@ -92,6 +91,7 @@
 
       // After page loads...
       window.addEventListener("load", (event) => {
+        consol.log("OFG: Page loaded");
         assignConfiguration();
         console.log(`environment: ${environment}`);
         console.log(`language: ${language}`);
