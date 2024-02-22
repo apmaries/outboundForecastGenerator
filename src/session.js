@@ -2,6 +2,8 @@
 const indexPage =
   "https://apmaries.github.io/outboundForecastGenerator/index.html";
 
+const platformClient = require("platformClient");
+
 // Functions start here
 function getParameterByName(name) {
   name = name.replace(/[\\[]/, "\\[").replace(/[\]]/, "\\]");
