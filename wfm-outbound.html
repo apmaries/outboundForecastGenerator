@@ -233,40 +233,47 @@
 
       <!-- Include the CJS SDK -->
       <script src="https://sdk-cdn.mypurecloud.com/javascript/188.0.0/purecloud-platform-client-v2.min.js"></script>
+      <script type="text/javascript">
+        console.log("OFG: Initializing...");
+        const appName = "outboundForecastGenerator";
+        const clientId = "6f99c63b-3dfb-43cf-9792-a9b5c295d0ca";
+        const redirectUri =
+          "https://apmaries.github.io/outboundForecastGenerator/wfm-outbound.html";
 
-      <script>
-        var test = true;
-        const client = window.ofgClient;
+        const referrer = document.referrer;
+        const prefix = "https://apps.";
 
-        // temp logging
-        console.log("OFG: client: ", client);
+        const firstSlashIndex = referrer.indexOf("/", prefix.length);
+        const environment = referrer.substring(prefix.length, firstSlashIndex);
+        sessionStorage.setItem(`${appName}_environment`, environment);
 
-        const wfmBuStorage = "wfmBuList";
-        var selectedBuId;
-        var selectedBuTimeZone;
+        // Obtain a reference to the platformClient object
+        const platformClient = require("platformClient");
+        const client = platformClient.ApiClient.instance;
 
-        const uApi = new platformClient.UsersApi();
+        client.setEnvironment(environment);
+        client.setPersistSettings(true, "OFG_");
 
-        // functions start here
-        async function getUserInfo() {
+        async function login() {
+          let state;
           try {
-            const data = await uApi.getUsersMe();
-            return data;
+            console.log("OFG: Logging in to GC");
+            const response = await client.loginImplicitGrant(
+              clientId,
+              redirectUri,
+              {
+                state: state,
+              }
+            );
+            if (response) {
+              const jsonResponse = await response.json();
+              console.log(jsonResponse);
+            }
           } catch (error) {
-            console.error("getUserInfo error: ", error);
+            console.log(error);
           }
         }
-
-        // Set Genesys Cloud objects
-        /*const platformClient = require("platformClient");
-        const client = platformClient.ApiClient.instance;
-        client.setAccessToken(token);
-
-        const oapi = new platformClient.OrganizationApi();
-        const uapi = new platformClient.UsersApi();
-        const wapi = new platformClient.WorkforceManagementApi();*/
-
-        // TODO: Add generic error handling
+        login();
       </script>
     </div>
   </body>
