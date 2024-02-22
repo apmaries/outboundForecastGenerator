@@ -254,24 +254,15 @@
         client.setEnvironment(environment);
         client.setPersistSettings(true, "OFG_");
 
+        // Create the API instances
+        const usersApi = new platformClient.UsersApi();
+
         async function login() {
-          let state;
-          try {
-            console.log("OFG: Logging in to GC");
-            const response = await client.loginImplicitGrant(
-              clientId,
-              redirectUri,
-              {
-                state: state,
-              }
-            );
-            if (response) {
-              const jsonResponse = await response.json();
-              console.log(jsonResponse);
-            }
-          } catch (error) {
-            console.log(error);
-          }
+          client.loginImplicitGrant(clientId, redirectUri).then(() => {
+            console.log("OFG: Logged in to GC");
+            const user = usersApi.getUsersMe();
+            console.log("OFG: User: ", user);
+          });
         }
         login();
       </script>
