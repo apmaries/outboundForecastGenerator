@@ -14,7 +14,49 @@
   </head>
 
   <body>
-    <script src="https://sdk-cdn.mypurecloud.com/javascript/latest/purecloud-platform-client-v2.min.js"></script>
+    <!-- Include the CJS SDK -->
+    <script src="https://sdk-cdn.mypurecloud.com/javascript/188.0.0/purecloud-platform-client-v2.min.js"></script>
+
+    <script type="text/javascript">
+      console.log("OFG: Loading");
+      const clientId = "6f99c63b-3dfb-43cf-9792-a9b5c295d0ca";
+      const redirectUri =
+        "https://apmaries.github.io/outboundForecastGenerator/wfm-outbound.html";
+
+      const referrer = document.referrer;
+      const prefix = "https://apps.";
+
+      const firstSlashIndex = referrer.indexOf("/", prefix.length);
+      const environment = referrer.substring(prefix.length, firstSlashIndex);
+      localStorage.setItem(`${appName}_environment`, environment);
+
+      // Obtain a reference to the platformClient object
+      const platformClient = require("platformClient");
+      const client = platformClient.ApiClient.instance;
+
+      client.setEnvironment(environment);
+      client.setPersistSettings(true, "OFG_");
+
+      let state;
+          try {
+            console.log("OFG: Logging in to GC");
+            const response = await client.loginImplicitGrant(
+              clientId,
+              redirectUri,
+              {
+                state: state,
+              }
+            );
+            if (response) {
+              const jsonResponse = await response.json();
+              console.log(jsonResponse);
+            }
+          } catch (error) {
+            console.log(error);
+          }
+    </script>
+
+    <!--
     <script type="text/javascript">
       console.log("OFG: Loading");
       const clientId = "6f99c63b-3dfb-43cf-9792-a9b5c295d0ca";
@@ -107,5 +149,6 @@
         });
       });
     </script>
+    -->
   </body>
 </html>
