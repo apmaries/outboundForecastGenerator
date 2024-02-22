@@ -236,6 +236,10 @@
       <script>
         // Variables
         var test = true;
+
+        const referrer = document.referrer;
+        console.log("OFG: Referrer:", referrer);
+
         // Configure the PureCloud API client
         const platformClient = require("platformClient");
         const client = platformClient.ApiClient.instance;
