@@ -37,24 +37,26 @@
       client.setEnvironment(environment);
       client.setPersistSettings(true, "OFG_");
 
-      let state;
-          try {
-            console.log("OFG: Logging in to GC");
-            const response = await client.loginImplicitGrant(
-              clientId,
-              redirectUri,
-              {
-                state: state,
-              }
-            );
-            if (response) {
-              const jsonResponse = await response.json();
-              console.log(jsonResponse);
-
+      async function login() {
+        let state;
+        try {
+          console.log("OFG: Logging in to GC");
+          const response = await client.loginImplicitGrant(
+            clientId,
+            redirectUri,
+            {
+              state: state,
             }
-          } catch (error) {
-            console.log(error);
+          );
+          if (response) {
+            const jsonResponse = await response.json();
+            console.log(jsonResponse);
           }
+        } catch (error) {
+          console.log(error);
+        }
+      }
+      login();
     </script>
 
     <!--
