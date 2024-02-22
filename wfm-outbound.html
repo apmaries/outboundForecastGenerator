@@ -233,38 +233,41 @@
 
       <!-- Include the CJS SDK -->
       <script src="https://sdk-cdn.mypurecloud.com/javascript/188.0.0/purecloud-platform-client-v2.min.js"></script>
-      <script type="text/javascript">
-        console.log("OFG: Initializing...");
-        const appName = "outboundForecastGenerator";
-        const clientId = "6f99c63b-3dfb-43cf-9792-a9b5c295d0ca";
-        const redirectUri =
-          "https://apmaries.github.io/outboundForecastGenerator/wfm-outbound.html";
-
-        const referrer = document.referrer;
-        const prefix = "https://apps.";
-
-        const firstSlashIndex = referrer.indexOf("/", prefix.length);
-        const environment = referrer.substring(prefix.length, firstSlashIndex);
-        sessionStorage.setItem(`${appName}_environment`, environment);
-
-        // Obtain a reference to the platformClient object
+      <script>
+        // Variables
+        var test = true;
+        // Configure the PureCloud API client
         const platformClient = require("platformClient");
         const client = platformClient.ApiClient.instance;
 
-        client.setEnvironment(environment);
-        client.setPersistSettings(true, "OFG_");
+        // OAuth configuration
+        const clientId = "6f99c63b-3dfb-43cf-9792-a9b5c295d0ca";
+        const redirectUri = encodeURIComponent(window.location.href); // Redirect back to the same page
 
-        // Create the API instances
-        const usersApi = new platformClient.UsersApi();
+        // Check if there is an access token in the URL hash fragment
+        const accessToken = window.location.hash.substr(1);
 
-        async function login() {
-          client.loginImplicitGrant(clientId, redirectUri).then(() => {
-            console.log("OFG: Logged in to GC");
-            const user = usersApi.getUsersMe();
-            console.log("OFG: User: ", user);
-          });
+        // Functions and methods
+        async function getUserInfo() {
+          const usersApi = new platformClient.UsersApi();
+          const userDetails = await usersApi.getUsersMe();
+          console.log("User Details:", userDetails);
         }
-        login();
+
+        // Main logic
+        if (accessToken) {
+          // Access token is present, use it to authenticate the client
+          client.setAccessToken(accessToken);
+          getUserInfo();
+        } else {
+          // Access token is not present, initiate the implicit grant flow
+          client
+            .loginImplicitGrant(clientId, redirectUri)
+            .then(() => {
+              console.log("OFG: Logging in to GC");
+            })
+            .catch((error) => console.error("Error logging in:", error));
+        }
       </script>
     </div>
   </body>
