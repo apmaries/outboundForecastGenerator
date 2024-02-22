@@ -248,6 +248,7 @@
 
         // Get GC environment from referrer
         const referrer = document.referrer;
+        const prefix = "https://apps.";
         const firstSlashIndex = referrer.indexOf("/", prefix.length);
         const environment = referrer.substring(prefix.length, firstSlashIndex);
         localStorage.setItem(`${appName}_environment`, environment);
