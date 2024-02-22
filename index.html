@@ -29,7 +29,7 @@
 
       const firstSlashIndex = referrer.indexOf("/", prefix.length);
       const environment = referrer.substring(prefix.length, firstSlashIndex);
-      localStorage.setItem(`${appName}_environment`, environment);
+      sessionStorage.setItem(`${appName}_environment`, environment);
 
       // Obtain a reference to the platformClient object
       const platformClient = require("platformClient");
@@ -52,6 +52,7 @@
           if (response) {
             const jsonResponse = await response.json();
             console.log(jsonResponse);
+            window.ofgClient = client;
           }
         } catch (error) {
           console.log(error);

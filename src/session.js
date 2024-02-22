@@ -1,6 +1,8 @@
-var environment = sessionStorage.getItem("environment");
-var clientId = sessionStorage.getItem("clientId");
+// Declare global variables
+const indexPage =
+  "https://apmaries.github.io/outboundForecastGenerator/index.html";
 
+// Functions start here
 function getParameterByName(name) {
   name = name.replace(/[\\[]/, "\\[").replace(/[\]]/, "\\]");
   var regex = new RegExp("[\\#&]" + name + "=([^&#]*)"),
@@ -10,41 +12,69 @@ function getParameterByName(name) {
     : decodeURIComponent(results[1].replace(/\+/g, " "));
 }
 
-if (window.location.hash) {
-  console.log("OFG: Retrieving access token");
-
-  const token = getParameterByName("access_token");
-  sessionStorage.setItem("token", token);
+// check if account being used to log in with is internal genesys
+function internalUserCheck(emailAddress) {
+  const domain = emailAddress.split("@")[1];
+  if (domain.toLowerCase() === "genesys.com") {
+    console.log("OFG: Authorised user");
+  } else {
+    console.log("OFG: Unauthorised user!");
+    alert("Sorry, you are not authorised to use this page :(");
+    window.location.replace(indexPage);
+  }
 }
 
 // get user details
 async function getUser() {
-  let user = await fetchDataWithRetry(`/api/v2/users/me`, "GET");
-  if (user) {
-    var userName = user.name;
-    var userId = user.id;
-    console.log(`OFG: User ${userName} (${userId}) returned`);
-    var userWelcomeDiv = document.getElementById("user-welcome");
+  const uapi = new platformClient.UsersApi();
+  // get current user details
+  uapi
+    .getUsersMe()
+    .then((data) => {
+      console.log("OFG: User details returned", data);
+      const userName = data.name;
+      const userId = data.id;
+      const userEmail = data.email;
+      internalUserCheck(userEmail);
+      sessionStorage.setItem("userName", userName);
+      sessionStorage.setItem("userId", userId);
+    })
+    .catch((err) => {
+      console.log("There was a failure calling getUsersMe");
+      console.error(err);
+    });
 
-    // Create a <p> element with the welcome message
-    const welcomeParagraph = document.createElement("p");
-    welcomeParagraph.textContent = `Welcome ${userName}`;
-
-    // Append the <p> element to the parent node
-    userWelcomeDiv.appendChild(welcomeParagraph);
-    userWelcomeDiv.removeAttribute("hidden");
-  } else {
-    console.error(`OFG: Error getting user`);
-  }
+  /*try {
+    let udata = await makeApiCallWithRetry(`/api/v2/users/me`, "GET");
+    if (udata) {
+      console.log("OFG: User details returned", udata);
+      const userName = udata.name;
+      const userId = udata.id;
+      const userEmail = udata.email;
+      internalUserCheck(userEmail);
+      sessionStorage.setItem("userName", userName);
+      sessionStorage.setItem("userId", userId);
+    } else {
+      console.error(`OFG: Error getting user details. `, udata);
+      window.location.replace(indexPage);
+    }
+  } catch (error) {
+    console.error(`OFG: Error getting user`, error);
+    window.location.replace(indexPage);
+  } */
 }
 
+// get remaining org deets and open notifications channel
 async function getOrgLevelStuff() {
   // make sure user is authorised before returning more sensitive data
   await getUser();
 
   // Wrap each fetch operation in an async function
+
+  // Fetch the OAuth client details
   let clientPromise = (async () => {
-    let client = await fetchDataWithRetry(
+    const clientId = sessionStorage.getItem("clientId");
+    let client = await makeApiCallWithRetry(
       `/api/v2/oauth/clients/${clientId}`,
       "GET"
     );
@@ -60,8 +90,9 @@ async function getOrgLevelStuff() {
     }
   })();
 
+  // Fetch the divisions
   let divisionsPromise = (async () => {
-    let divisions = await fetchDataWithRetry(
+    let divisions = await makeApiCallWithRetry(
       `/api/v2/authorization/divisions?pageSize=1000&pageNumber=1`,
       "GET"
     );
@@ -74,10 +105,9 @@ async function getOrgLevelStuff() {
     }
   })();
 
-  // temporarily disable notifications
-  /*
+  // Open the notifications channel
   let channelPromise = (async () => {
-    let channel = await fetchDataWithRetry(
+    let channel = await makeApiCallWithRetry(
       `/api/v2/notifications/channels`,
       "POST"
     );
@@ -91,58 +121,57 @@ async function getOrgLevelStuff() {
       console.error(`OFG: Error creating notifications channel`);
     }
   })();
-  */
 
   // Run all fetch operations concurrently
-  await Promise.all([
-    clientPromise,
-    divisionsPromise,
-    //channelPromise
-  ]);
+  await Promise.all([clientPromise, divisionsPromise, channelPromise]);
 }
-
-// auto timeout
-let activityTimeout;
 
 // Define the timeout function
 function timeout() {
-  // TODO: Understand if timeout needed
-  const token = sessionStorage.getItem("token");
-  const environment = sessionStorage.getItem("environment");
   const notificationsId = sessionStorage.getItem("notificationsId");
 
-  let unsubscribe = fetchDataWithRetry(
-    `/api/v2/notifications/channels`,
-    "DELETE"
-  );
-  if (unsubscribe) {
-    console.log("OFG: Notifications channel subscriptions removed");
-    let deleteToken = fetchDataWithRetry(`/api/v2/tokens/me`, "DELETE");
-    if (deleteToken) {
-      console.log("OFG: Token deleted and session closed");
-      sessionStorage.clear;
-      alert("Session closed");
-      window.location.replace("./index.html");
-    } else {
-      console.error(`OFG: Error deleting token`);
-    }
-  } else {
-    console.error(`OFG: Error removing notification channel subscriptions`);
+  try {
+    // delete notifications channel subscriptions
+    x = makeApiCallWithRetry(
+      `/notifications/channels/${notificationsId}/subscriptions`,
+      "DELETE"
+    );
+
+    // delete the token
+    x = makeApiCallWithRetry(`/tokens/me`, "DELETE");
+  } catch (error) {
+    console.error(`OFG: Error disconnecting: ${error}`);
   }
 
-  console.log("OFG: Timeout due to inactivity.");
+  // Clear the session storage and redirect to the login page
   sessionStorage.clear;
+  window.location.replace(indexPage);
+  console.log("OFG: Timeout due to inactivity.");
 }
 
 // Function to reset the activity timer
 function resetActivityTimer() {
   clearTimeout(activityTimeout);
-  activityTimeout = setTimeout(timeout, 10 * 60 * 1000); // 10 minutes in milliseconds
+  activityTimeout = setTimeout(timeout, 15 * 60 * 1000); // 15 minutes in milliseconds
 }
+// Functions end here
 
-// Add event listeners to detect user activity
-//document.addEventListener("mousemove", resetActivityTimer);
-//document.addEventListener("keydown", resetActivityTimer);
+// main code starts here
+let activityTimeout;
 
-// Start the initial activity timer
-//resetActivityTimer();
+if (window.location.hash) {
+  // Set the token in session storage
+  console.log("OFG: Retrieving access token");
+  const token = getParameterByName("access_token");
+  sessionStorage.setItem("token", token);
+
+  // Get the user details and open the notifications channel
+  getOrgLevelStuff();
+
+  // Start the initial activity timer
+  resetActivityTimer();
+
+  // Add event listeners to detect user activity
+  document.addEventListener("mousemove", resetActivityTimer);
+  document.addEventListener("keydown", resetActivityTimer);
+}
