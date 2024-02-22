@@ -237,9 +237,6 @@
         // Variables
         var test = true;
 
-        const referrer = document.referrer;
-        console.log("OFG: Referrer:", referrer);
-
         // Configure the PureCloud API client
         const platformClient = require("platformClient");
         const client = platformClient.ApiClient.instance;
@@ -248,6 +245,15 @@
         const clientId = "6f99c63b-3dfb-43cf-9792-a9b5c295d0ca";
         const redirectUri =
           "https://apmaries.github.io/outboundForecastGenerator/wfm-outbound.html"; // Redirect back to the same page
+
+        // Get GC environment from referrer
+        const referrer = document.referrer;
+        const firstSlashIndex = referrer.indexOf("/", prefix.length);
+        const environment = referrer.substring(prefix.length, firstSlashIndex);
+        localStorage.setItem(`${appName}_environment`, environment);
+        client.setEnvironment(environment);
+
+        //client.setEnvironment(platformClient.PureCloudRegionHosts.u)
 
         // Check if there is an access token in the URL hash fragment
         const accessToken = window.location.hash.substr(1);
