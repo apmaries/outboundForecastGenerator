@@ -71,7 +71,7 @@
        * it from localStorage. If none, use default values.
        */
       function assignConfiguration() {
-        let url = new URL(window.location);
+        /*let url = new URL(window.location);
         let searchParams = new URLSearchParams(url.search);
 
         if (searchParams.has(qParamLanguage)) {
@@ -80,7 +80,7 @@
         } else {
           let local_lang = localStorage.getItem(`${appName}_language`);
           if (local_lang) language = local_lang;
-        }
+        }*/
 
         const referrer = document.referrer;
         const prefix = "https://apps.";
@@ -99,7 +99,7 @@
         setupGenesysClients().then(() => {
           // Display values to the page
           document.getElementById("span_environment").innerText = environment;
-          document.getElementById("span_language").innerText = language;
+          //document.getElementById("span_language").innerText = language;
           document.getElementById("span_name").innerText = userDetails.name;
 
           console.log("Finished setup.");
