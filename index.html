@@ -36,6 +36,7 @@
 
       function setupGenesysClients() {
         // Configure Platform SDK
+        const platformClient = require("platformClient");
         const client = platformClient.ApiClient.instance;
         const usersApi = new platformClient.UsersApi();
 
