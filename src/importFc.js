@@ -70,7 +70,7 @@ async function generateUrl(businessUnitId, weekDateId, contentLengthBytes) {
   console.log("OFG: Generating URL for import");
   console.debug("OFG: Content Length Bytes: " + contentLengthBytes);
 
-  const importUrl = await fetchDataWithRetry(
+  const importUrl = await makeApiCallWithRetry(
     `/api/v2/workforcemanagement/businessunits/${businessUnitId}/weeks/${weekDateId}/shorttermforecasts/import/uploadurl`,
     "POST",
     {
@@ -120,7 +120,7 @@ async function importFc(businessUnitId, weekDateId, gzip, uploadAttributes) {
       "uploadKey": uploadKey,
     };
 
-    const importResponse = await fetchDataWithRetry(
+    const importResponse = await makeApiCallWithRetry(
       `/api/v2/workforcemanagement/businessunits/${businessUnitId}/weeks/${weekDateId}/shorttermforecasts/import`,
       "POST",
       importAttributes

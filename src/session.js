@@ -146,9 +146,7 @@ let activityTimeout;
 if (window.location.hash) {
   // Set the token in session storage
   console.log("OFG: Retrieving access token");
-  console.log("OFG: Window location: ", window.location);
   const token = getParameterByName("access_token");
-  console.log("OFG: Token retrieved: ", token);
   sessionStorage.setItem("token", token);
 
   // Get the user details and open the notifications channel
