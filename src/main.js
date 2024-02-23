@@ -337,20 +337,23 @@ async function runGenerator(
 
     // Listen for messages
     ws.addEventListener("message", (event) => {
-      console.log("Message from server: ", event.data);
-
+      const notification = event.data;
+      const topicName = notification.topicName;
+      if (topicName !== "channel.metadata") {
+        console.log("OFG: Message from server: ", event.data);
+      }
       // If the data is JSON, you might want to parse it
       // const data = JSON.parse(event.data);
     });
 
     // Connection closed
     ws.addEventListener("close", (event) => {
-      console.log("WebSocket connection closed");
+      console.log("OFG: WebSocket connection closed");
     });
 
     // Connection error
     ws.addEventListener("error", (event) => {
-      console.log("WebSocket error: ", event);
+      console.log("OFG: WebSocket error: ", event);
     });
   }
 
