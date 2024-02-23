@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!--Removes Google Crawler from indexing page-->
     <meta name="robots" content="noindex" />
+
     <meta
       http-equiv="Cache-Control"
       content="no-cache, no-store, must-revalidate"
@@ -14,137 +15,52 @@
   </head>
 
   <body>
-    <!-- Include the CJS SDK -->
-    <script src="https://sdk-cdn.mypurecloud.com/javascript/188.0.0/purecloud-platform-client-v2.min.js"></script>
     <script>
-      // Variables
-      // Configure the PureCloud API client
-      const platformClient = require("platformClient");
-      const client = platformClient.ApiClient.instance;
+      function authorize() {
+        // OAuth configuration
+        const clientId = "6f99c63b-3dfb-43cf-9792-a9b5c295d0ca";
+        const redirectUri =
+          "https://apmaries.github.io/outboundForecastGenerator/wfm-outbound.html";
 
-      // OAuth configuration
-      const clientId = "6f99c63b-3dfb-43cf-9792-a9b5c295d0ca";
-      const redirectUri = encodeURIComponent(window.location.href); // Redirect back to the same page
-
-      // Check if there is an access token in the URL hash fragment
-      const accessToken = window.location.hash.substr(1);
-
-      // Functions and methods
-      async function getUserInfo() {
-        const usersApi = new platformClient.UsersApi();
-        const userDetails = await usersApi.getUsersMe();
-        console.log("User Details:", userDetails);
-      }
-
-      // Main logic
-      if (accessToken) {
-        // Access token is present, use it to authenticate the client
-        client.setAccessToken(accessToken);
-        getUserInfo();
-      } else {
-        // Access token is not present, initiate the implicit grant flow
-        client
-          .loginImplicitGrant(clientId, redirectUri)
-          .then(() => {
-            console.log("OFG: Logging in to GC");
-          })
-          .catch((error) => console.error("Error logging in:", error));
-      }
-    </script>
-
-    <!--
-    <script type="text/javascript">
-      console.log("OFG: Loading");
-      const clientId = "6f99c63b-3dfb-43cf-9792-a9b5c295d0ca";
-      const redirectUri =
-        "https://apmaries.github.io/outboundForecastGenerator/wfm-outbound.html";
-
-      const appName = "outboundForecastGenerator";
-      const qParamLanguage = "language";
-      const qParamEnvironment = "environment";
-
-      // Default values are assigned but values should
-      // be set on the function 'assignConfiguration'
-      let language = "en-us";
-      let environment = "mypurecloud.com";
-
-      let userDetails = null;
-
-      // Configure both the Platform SDK and the Client App SDK
-
-      function setupGenesysClients() {
-        // Configure Platform SDK
-        const platformClient = require("platformClient");
-        const client = platformClient.ApiClient.instance;
-        const usersApi = new platformClient.UsersApi();
-
-        // Configure Client App
-        let ClientApp = window.ApiClient;
-        let myClientApp = new ClientApp({
-          pcEnvironment: environment,
-        });
-
-        // Configure and Authenticate Platform Client
-        client.setPersistSettings(true, appName);
-        client.setEnvironment(environment);
-
-        return client
-          .loginImplicitGrant(clientId, redirectUri)
-
-          .then((data) => usersApi.getUsersMe())
-          .then((data) => {
-            userDetails = data;
-
-            myClientApp.alerting.showToastPopup(
-              `Hi ${userDetails.name}`,
-              "Never gonna give you up, never gonna let you down 😊"
-            );
-          })
-          .catch((err) => console.log(err));
-      }
-
-      /**
-       * Assign the language and environment for the app first through
-       * the query parameters. But if non-existent, attempt to get
-       * it from localStorage. If none, use default values.
-       */
-      function assignConfiguration() {
-        /*let url = new URL(window.location);
-        let searchParams = new URLSearchParams(url.search);
-
-        if (searchParams.has(qParamLanguage)) {
-          language = searchParams.get(qParamLanguage);
-          localStorage.setItem(`${appName}_language`, language);
-        } else {
-          let local_lang = localStorage.getItem(`${appName}_language`);
-          if (local_lang) language = local_lang;
-        }*/
-
+        // Get the domain of the parent page from the referrer
         const referrer = document.referrer;
         const prefix = "https://apps.";
 
-        const firstSlashIndex = referrer.indexOf("/", prefix.length);
-        const environment = referrer.substring(prefix.length, firstSlashIndex);
-        localStorage.setItem(`${appName}_environment`, environment);
+        // Ensure that the referrer starts with the expected prefix
+        if (referrer.startsWith(prefix)) {
+          // Find the index of the first '/' after the prefix
+          const firstSlashIndex = referrer.indexOf("/", prefix.length);
+
+          // Extract the substring between the prefix and the first '/'
+          const environment = referrer.substring(
+            prefix.length,
+            firstSlashIndex
+          );
+
+          const authorizationUrl = `https://login.${environment}/oauth/authorize?client_id=${clientId}&response_type=token&redirect_uri=${redirectUri}`;
+
+          // Log the modified domain and the constructed authorization URL to the console
+          //console.log(`OFG: App environment: ${environment}`);
+          //console.log(`OFG: Authorization URL:" ${authorizationUrl}`);
+
+          // Set session storage
+          sessionStorage.setItem("environment", environment);
+          sessionStorage.setItem("clientId", clientId);
+
+          // Redirect the user to the authorization URL
+          window.location.href = authorizationUrl;
+        } else {
+          alert(
+            `Referrer '${referrer}' does not start with the expected prefix.`
+          );
+          console.error(
+            "OFG: Referrer does not start with the expected prefix."
+          );
+          console.log(`OFG: Referrer = ${referrer}`);
+        }
       }
-
-      // After page loads...
-      window.addEventListener("load", (event) => {
-        console.log("OFG: Page loaded");
-        assignConfiguration();
-        console.log(`environment: ${environment}`);
-        console.log(`language: ${language}`);
-
-        setupGenesysClients().then(() => {
-          // Display values to the page
-          document.getElementById("span_environment").innerText = environment;
-          //document.getElementById("span_language").innerText = language;
-          document.getElementById("span_name").innerText = userDetails.name;
-
-          console.log("Finished setup.");
-        });
-      });
+      // Call the authorize function when the page loads
+      authorize();
     </script>
-    -->
   </body>
 </html>
