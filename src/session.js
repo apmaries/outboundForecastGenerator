@@ -28,25 +28,7 @@ function internalUserCheck(emailAddress) {
 
 // get user details
 async function getUser() {
-  const uapi = new platformClient.UsersApi();
-  // get current user details
-  uapi
-    .getUsersMe()
-    .then((data) => {
-      console.log("OFG: User details returned", data);
-      const userName = data.name;
-      const userId = data.id;
-      const userEmail = data.email;
-      internalUserCheck(userEmail);
-      sessionStorage.setItem("userName", userName);
-      sessionStorage.setItem("userId", userId);
-    })
-    .catch((err) => {
-      console.log("There was a failure calling getUsersMe");
-      console.error(err);
-    });
-
-  /*try {
+  try {
     let udata = await makeApiCallWithRetry(`/api/v2/users/me`, "GET");
     if (udata) {
       console.log("OFG: User details returned", udata);
@@ -63,7 +45,7 @@ async function getUser() {
   } catch (error) {
     console.error(`OFG: Error getting user`, error);
     window.location.replace(indexPage);
-  } */
+  }
 }
 
 // get remaining org deets and open notifications channel
