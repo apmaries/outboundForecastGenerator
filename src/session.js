@@ -146,6 +146,7 @@ let activityTimeout;
 if (window.location.hash) {
   // Set the token in session storage
   console.log("OFG: Retrieving access token");
+  console.log("OFG: Window location: ", window.location);
   const token = getParameterByName("access_token");
   sessionStorage.setItem("token", token);
 
