@@ -8,8 +8,12 @@ async function makeApiCallWithRetry(
   postData = null,
   maxRetries = 3
 ) {
-  console.debug(`OFG: Making ${method} request to ${prefix}${endpoint}`);
   let retryCount = 0;
+  console.debug(
+    `OFG: Making ${method} request to ${prefix}${endpoint} (attempt ${
+      retryCount + 1
+    } of ${maxRetries})`
+  );
   const headers = {
     "Authorization": "bearer " + token,
     "Content-Type": "application/json",
