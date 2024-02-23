@@ -267,7 +267,7 @@
           let progressValue = 0;
           radialProgress.setAttribute("max", nBu.toString());
 
-          let allTzData = await fetchDataWithRetry(
+          let allTzData = await makeApiCallWithRetry(
             `/api/v2/timezones?pageSize=500&pageNumber=1`,
             "GET"
           );
@@ -279,7 +279,7 @@
             let businessUnitId = allBuData[b].id;
             let businessUnitName = allBuData[b].name;
 
-            let buData = await fetchDataWithRetry(
+            let buData = await makeApiCallWithRetry(
               `/api/v2/workforcemanagement/businessunits/${businessUnitId}?expand=settings.timeZone,settings.startDayOfWeek,settings.shortTermForecasting`,
               "GET"
             );
@@ -442,7 +442,7 @@
             console.log("OFG: Running in production mode");
             let buData;
 
-            let allBuData = await fetchDataWithRetry(
+            let allBuData = await makeApiCallWithRetry(
               `/api/v2/workforcemanagement/businessunits`,
               "GET"
             );

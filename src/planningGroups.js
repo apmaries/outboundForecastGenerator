@@ -59,7 +59,7 @@ async function loadPageTwo(businessUnitId) {
     console.log(`OFG: Get Planning Groups initiated`);
 
     // Get planning groups
-    planningGroups = await fetchDataWithRetry(
+    planningGroups = await makeApiCallWithRetry(
       `/api/v2/workforcemanagement/businessunits/${businessUnitId}/planninggroups`,
       "GET"
     );
@@ -97,7 +97,7 @@ async function loadPageTwo(businessUnitId) {
   async function getCampaigns() {
     let campaignsArray = [];
     console.log(`OFG: Get Campaigns initiated`);
-    campaigns = await fetchDataWithRetry(`/api/v2/outbound/campaigns`, "GET");
+    campaigns = await makeApiCallWithRetry(`/api/v2/outbound/campaigns`, "GET");
 
     console.log(`OFG: Found ${campaigns.length} campaigns`);
 

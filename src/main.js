@@ -47,7 +47,7 @@ async function runGenerator(
     console.warn(JSON.stringify(forecastTopicBody));
 
     // Subscribe to the forecast topic
-    const subscribeToForecast = fetchDataWithRetry(
+    const subscribeToForecast = makeApiCallWithRetry(
       `/api/v2/notifications/channels/${channelId}/subscriptions`,
       "POST",
       [forecastTopicBody]

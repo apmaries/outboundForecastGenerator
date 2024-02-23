@@ -2,7 +2,7 @@ var token = sessionStorage.getItem("token");
 var environment = sessionStorage.getItem("environment");
 var prefix = `https://api.${environment}`;
 
-async function fetchDataWithRetry(
+async function makeApiCallWithRetry(
   endpoint,
   method,
   postData = null,
@@ -38,7 +38,7 @@ async function fetchDataWithRetry(
 
           // fetch the next page and concatenate the entities if nextUri exists
           if ("nextUri" in data) {
-            const nextPageEntities = await fetchDataWithRetry(
+            const nextPageEntities = await makeApiCallWithRetry(
               data.nextUri,
               method,
               postData,
