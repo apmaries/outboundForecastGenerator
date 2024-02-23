@@ -110,6 +110,7 @@ async function getOrgLevelStuff() {
   await Promise.all([clientPromise, divisionsPromise, channelPromise]);
 }
 
+/*
 // Define the timeout function
 function timeout() {
   const notificationsId = sessionStorage.getItem("notificationsId");
@@ -137,7 +138,7 @@ function timeout() {
 function resetActivityTimer() {
   clearTimeout(activityTimeout);
   activityTimeout = setTimeout(timeout, 15 * 60 * 1000); // 15 minutes in milliseconds
-}
+}*/
 // Functions end here
 
 // main code starts here
