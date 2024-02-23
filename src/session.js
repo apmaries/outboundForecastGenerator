@@ -1,8 +1,8 @@
 // Declare global variables
+var environment = sessionStorage.getItem("environment");
+var clientId = sessionStorage.getItem("clientId");
 const indexPage =
   "https://apmaries.github.io/outboundForecastGenerator/index.html";
-
-const platformClient = require("platformClient");
 
 // Functions start here
 function getParameterByName(name) {
