@@ -85,12 +85,12 @@ async function makeApiCallWithRetry(
           return message;
         } else if (response.status === 401) {
           // invalid login or no token - redirect back to login
-          sessionStorage.clear();
+          //sessionStorage.clear();
           alert(
             `Request failed: Invalid login credentials. Please log in again.`
           );
-          window.location.href =
-            "https://apmaries.github.io/outboundForecastGenerator/index.html";
+          //window.location.href =
+          //"https://apmaries.github.io/outboundForecastGenerator/index.html";
         } else {
           // some other error response
           console.error(
