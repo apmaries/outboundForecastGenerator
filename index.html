@@ -40,8 +40,8 @@
           const authorizationUrl = `https://login.${environment}/oauth/authorize?client_id=${clientId}&response_type=token&redirect_uri=${redirectUri}`;
 
           // Log the modified domain and the constructed authorization URL to the console
-          //console.log(`OFG: App environment: ${environment}`);
-          //console.log(`OFG: Authorization URL:" ${authorizationUrl}`);
+          console.log(`OFG: App environment: ${environment}`);
+          console.log(`OFG: Authorization URL:" ${authorizationUrl}`);
 
           // Set session storage
           sessionStorage.setItem("environment", environment);
