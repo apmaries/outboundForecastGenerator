@@ -21,13 +21,9 @@
 
     <!-- Genesys stuff -->
     <link
-      href="https://app.inindca.com/spark-components/build-assets/4.12.0-85/genesys-webcomponents/genesys-webcomponents.css"
-      rel="stylesheet"
-    />
-    <!-- <link
       href="https://dhqbrvplips7x.cloudfront.net/common-ui-docs/genesys-webcomponents/3.8.1-178/genesys-webcomponents/genesys-webcomponents.css"
       rel="stylesheet"
-    /> -->
+    />
     <script
       type="module"
       src="https://dhqbrvplips7x.cloudfront.net/common-ui-docs/genesys-webcomponents/3.8.1-178/genesys-webcomponents/genesys-webcomponents.esm.js"
@@ -43,7 +39,6 @@
     <script src="./src/planningGroups.js"></script>
     <script src="./src/numberCruncher.js"></script>
     <script src="./src/importFc.js"></script>
-    <script src="./src/session.js"></script>
     <script src="./src/main.js"></script>
 
     <style>
@@ -228,402 +223,416 @@
         </fieldset>
       </div>
       <div id="test-mode" class="align-left" hidden></div>
+    </div>
+    <!-- Script to login with Cloud -->
+    <script>
+      (async function () {
+        // Check testing mode by protocol. If https then production, else testing
+        window.isTesting = window.location.protocol !== "https:";
 
-      <script>
-        // Define a global error handler function
-        function globalErrorHandler(message, source, lineno, colno, error) {
-          console.error("An error occurred:", message);
-          console.error("Source:", source);
-          console.error("Line:", lineno);
-          console.error("Column:", colno);
-          console.error("Error object:", error);
+        if (window.isTesting) {
+          console.log("[OFG] Testing mode");
+        } else {
+          console.log("[OFG] Production mode");
+
+          var platformClient = window.require("platformClient");
+
+          var clientId = "6f99c63b-3dfb-43cf-9792-a9b5c295d0ca";
+
+          window.client = platformClient.ApiClient.instance;
+          client.setEnvironment("usw2.pure.cloud");
+          client.setPersistSettings(true, "ofg");
+
+          try {
+            await client.loginImplicitGrant(
+              clientId,
+              "https://apmaries.github.io/outboundForecastGenerator/wfm-outbound.html"
+            );
+          } catch (e) {
+            console.error("[OFG] Error logging in", e);
+          }
         }
+      })();
+    </script>
 
-        // Attach the global error handler to the window.onerror event
-        window.onerror = globalErrorHandler;
-      </script>
+    <script>
+      // Define a global error handler function
+      window.onerror = function (message, source, lineno, colno, error) {
+        console.error("An error occurred:", message);
+        console.error("Source:", source);
+        console.error("Line:", lineno);
+        console.error("Column:", colno);
+        console.error("Error object:", error);
+      };
+    </script>
 
-      <script>
-        var test = true;
-        var token = sessionStorage.getItem("token");
-        const wfmBuStorage = "wfmBuList";
-        var selectedBuId;
-        var selectedBuTimeZone;
+    <script>
+      var test = true;
+      var token = sessionStorage.getItem("token");
+      const wfmBuStorage = "wfmBuList";
+      var selectedBuId;
+      var selectedBuTimeZone;
 
-        // Set Genesys Cloud objects
-        /*const platformClient = require("platformClient");
-        const client = platformClient.ApiClient.instance;
-        client.setAccessToken(token);
+      // TODO: Add generic error handling
 
-        const oapi = new platformClient.OrganizationApi();
-        const uapi = new platformClient.UsersApi();
-        const wapi = new platformClient.WorkforceManagementApi();*/
+      async function fetchBusinessUnits(allBuData, nBu) {
+        const buArray = [];
+        // set progress max
+        let radialProgress = document.getElementById("radial-progress");
+        let progressValue = 0;
+        radialProgress.setAttribute("max", nBu.toString());
 
-        // TODO: Add generic error handling
+        let allTzData = await makeApiCallWithRetry(
+          `/api/v2/timezones?pageSize=500&pageNumber=1`,
+          "GET"
+        );
 
-        async function fetchBusinessUnits(allBuData, nBu) {
-          const buArray = [];
-          // set progress max
-          let radialProgress = document.getElementById("radial-progress");
-          let progressValue = 0;
-          radialProgress.setAttribute("max", nBu.toString());
+        // get individual BU settings
+        console.log(`OFG: Getting BU settings`);
+        for (let b = 0; b < allBuData.length; b++) {
+          progressValue++;
+          let businessUnitId = allBuData[b].id;
+          let businessUnitName = allBuData[b].name;
 
-          let allTzData = await makeApiCallWithRetry(
-            `/api/v2/timezones?pageSize=500&pageNumber=1`,
+          let buData = await makeApiCallWithRetry(
+            `/api/v2/workforcemanagement/businessunits/${businessUnitId}?expand=settings.timeZone,settings.startDayOfWeek,settings.shortTermForecasting`,
             "GET"
           );
 
-          // get individual BU settings
-          console.log(`OFG: Getting BU settings`);
-          for (let b = 0; b < allBuData.length; b++) {
-            progressValue++;
-            let businessUnitId = allBuData[b].id;
-            let businessUnitName = allBuData[b].name;
+          // increment progress
+          radialProgress.setAttribute("value", progressValue);
 
-            let buData = await makeApiCallWithRetry(
-              `/api/v2/workforcemanagement/businessunits/${businessUnitId}?expand=settings.timeZone,settings.startDayOfWeek,settings.shortTermForecasting`,
-              "GET"
-            );
+          // get bu settings
+          let businessUnitStartDayOfWeek = buData.settings.startDayOfWeek;
+          let businessUnitDefaultHistoryWeeks =
+            buData.settings.shortTermForecasting.defaultHistoryWeeks;
 
-            // increment progress
-            radialProgress.setAttribute("value", progressValue);
+          let businessUnitTimeZone = buData.settings.timeZone;
+          let timezoneOffset = allTzData.find(
+            (tz) => tz.id === businessUnitTimeZone
+          );
+          let businessUnitTimeZoneOffset = timezoneOffset.offset;
 
-            // get bu settings
-            let businessUnitStartDayOfWeek = buData.settings.startDayOfWeek;
-            let businessUnitDefaultHistoryWeeks =
-              buData.settings.shortTermForecasting.defaultHistoryWeeks;
-
-            let businessUnitTimeZone = buData.settings.timeZone;
-            let timezoneOffset = allTzData.find(
-              (tz) => tz.id === businessUnitTimeZone
-            );
-            let businessUnitTimeZoneOffset = timezoneOffset.offset;
-
-            let bu = {
-              "name": businessUnitName,
-              "id": businessUnitId,
-              "startDayOfWeek": businessUnitStartDayOfWeek,
-              "defaultHistoryWeeks": businessUnitDefaultHistoryWeeks,
-              "timeZone": businessUnitTimeZone,
-              "offset": businessUnitTimeZoneOffset,
-            };
-            console.debug(`OFG: ${JSON.stringify(bu)}`);
-            buArray.push(bu);
-          }
-
-          // set session storage
-          sessionStorage.setItem(wfmBuStorage, JSON.stringify(buArray));
-
-          return buArray;
+          let bu = {
+            "name": businessUnitName,
+            "id": businessUnitId,
+            "startDayOfWeek": businessUnitStartDayOfWeek,
+            "defaultHistoryWeeks": businessUnitDefaultHistoryWeeks,
+            "timeZone": businessUnitTimeZone,
+            "offset": businessUnitTimeZoneOffset,
+          };
+          console.debug(`OFG: ${JSON.stringify(bu)}`);
+          buArray.push(bu);
         }
 
-        // Populate Business Unit dropdown options
-        async function populateBusinessUnits(businessUnits) {
-          var businessUnitDropdown = document.getElementById("businessUnit");
+        // set session storage
+        sessionStorage.setItem(wfmBuStorage, JSON.stringify(buArray));
 
-          // Sort the buData array alphabetically based on bu_name
-          businessUnits.sort((a, b) => a.name.localeCompare(b.name));
+        return buArray;
+      }
 
-          for (let i = 0; i < businessUnits.length; i++) {
-            const unit = businessUnits[i];
-            var option = document.createElement("gux-option");
-            option.value = unit.id;
-            option.textContent = unit.name;
-            businessUnitDropdown.appendChild(option);
-          }
+      // Populate Business Unit dropdown options
+      async function populateBusinessUnits(businessUnits) {
+        var businessUnitDropdown = document.getElementById("businessUnit");
+
+        // Sort the buData array alphabetically based on bu_name
+        businessUnits.sort((a, b) => a.name.localeCompare(b.name));
+
+        for (let i = 0; i < businessUnits.length; i++) {
+          const unit = businessUnits[i];
+          var option = document.createElement("gux-option");
+          option.value = unit.id;
+          option.textContent = unit.name;
+          businessUnitDropdown.appendChild(option);
         }
+      }
 
-        // Update selected Business Unit settings
-        function updateBusinessUnitSettings() {
-          const buArray = JSON.parse(sessionStorage.getItem(wfmBuStorage));
+      // Update selected Business Unit settings
+      function updateBusinessUnitSettings() {
+        const buArray = JSON.parse(sessionStorage.getItem(wfmBuStorage));
 
-          var businessUnitDropdown = document.getElementById("businessUnit");
-          var selectedBuId = businessUnitDropdown.value;
-          console.log(
-            `OFG: User selected BU - ${JSON.stringify(selectedBuId)}`
+        var businessUnitDropdown = document.getElementById("businessUnit");
+        var selectedBuId = businessUnitDropdown.value;
+        console.log(`OFG: User selected BU - ${JSON.stringify(selectedBuId)}`);
+
+        // BU variables
+        var buObj = buArray.find((unit) => unit.id === selectedBuId);
+        console.debug(`OFG: ${JSON.stringify(buObj)}`);
+
+        var selectedBuStartDayOfWeek = buObj.startDayOfWeek;
+        var selectedBuTimeZone = buObj.timeZone;
+        var selectedBuDefaultHistoryWeeks = buObj.defaultHistoryWeeks;
+
+        // Set default value for historicalWeeks
+        document.getElementById("historicalWeeks").value =
+          selectedBuDefaultHistoryWeeks;
+
+        // Set weekStart element
+        var weekStartInput = document.getElementById("weekStart");
+
+        // TODO: Fix start-day-of-week attribute always defaults to 0 (Sunday)
+        // set weekStartInput start-day-of-week attribute to the selected BU's startDayOfWeek
+        weekStartInput.setAttribute(
+          "start-day-of-week",
+          getDayOfWeek(selectedBuStartDayOfWeek).toString()
+        );
+
+        // temporary debug
+        console.debug(
+          `OFG: start-day-of-week set to ${getDayOfWeek(
+            selectedBuStartDayOfWeek
+          ).toString()}`
+        );
+        console.debug(weekStartInput);
+
+        // Set default value for weekStart to the next occurrence of startDayOfWeek in the specified time zone
+        var currentDate = luxon.DateTime.now({ zone: selectedBuTimeZone });
+        var currentDayOfWeek = getDayOfWeek(currentDate.weekdayLong);
+
+        // temporary debug
+        console.debug(
+          `OFG: currentDayOfWeek is ${currentDayOfWeek} (${currentDate.weekdayLong})`
+        );
+
+        // Adjust for Monday as the start of the week
+        var daysUntilNextStartDay =
+          (getDayOfWeek(selectedBuStartDayOfWeek) - currentDayOfWeek + 7) % 7;
+        var nextStartDay = currentDate.plus({ days: daysUntilNextStartDay });
+        var nextStartDayString = nextStartDay.toFormat("yyyy-MM-dd");
+        weekStartInput.value = nextStartDayString;
+
+        // temporary debug
+        console.debug(`OFG: daysUntilNextStartDay is ${daysUntilNextStartDay}`);
+        console.debug(`OFG: nextStartDay is ${nextStartDay}`);
+        console.debug(`OFG: nextStartDayString is ${nextStartDayString}`);
+
+        return buObj;
+      }
+
+      // Helper function to get day of week index (0-6) from day name
+      function getDayOfWeek(dayName) {
+        var days = [
+          "Sunday",
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+        ];
+        return days.indexOf(dayName);
+      }
+
+      // Populate default values on page load
+      window.onload = async function () {
+        await getOrgLevelStuff();
+
+        if (test) {
+          console.log("OFG: Running in test mode");
+
+          // add element test-mode dive
+          var testDiv = document.getElementById("test-mode");
+          const testP = document.createElement("p");
+          testP.textContent = `Running in test mode`;
+          testP.style.color = "red";
+          testDiv.appendChild(testP);
+          testDiv.removeAttribute("hidden");
+
+          // load test data
+          fetch("./test/wfmBuList.json")
+            .then((response) => response.json())
+            .then((testBuList) => {
+              var buArray = testBuList;
+              sessionStorage.setItem(wfmBuStorage, JSON.stringify(buArray));
+              populateBusinessUnits(buArray);
+            })
+            .catch((error) => {
+              console.error(error);
+            });
+        } else {
+          console.log("OFG: Running in production mode");
+          let buData;
+
+          let allBuData = await makeApiCallWithRetry(
+            `/api/v2/workforcemanagement/businessunits`,
+            "GET"
           );
+          let buCount = allBuData.length;
 
-          // BU variables
-          var buObj = buArray.find((unit) => unit.id === selectedBuId);
-          console.debug(`OFG: ${JSON.stringify(buObj)}`);
-
-          var selectedBuStartDayOfWeek = buObj.startDayOfWeek;
-          var selectedBuTimeZone = buObj.timeZone;
-          var selectedBuDefaultHistoryWeeks = buObj.defaultHistoryWeeks;
-
-          // Set default value for historicalWeeks
-          document.getElementById("historicalWeeks").value =
-            selectedBuDefaultHistoryWeeks;
-
-          // Set weekStart element
-          var weekStartInput = document.getElementById("weekStart");
-
-          // TODO: Fix start-day-of-week attribute always defaults to 0 (Sunday)
-          // set weekStartInput start-day-of-week attribute to the selected BU's startDayOfWeek
-          weekStartInput.setAttribute(
-            "start-day-of-week",
-            getDayOfWeek(selectedBuStartDayOfWeek).toString()
-          );
-
-          // temporary debug
-          console.debug(
-            `OFG: start-day-of-week set to ${getDayOfWeek(
-              selectedBuStartDayOfWeek
-            ).toString()}`
-          );
-          console.debug(weekStartInput);
-
-          // Set default value for weekStart to the next occurrence of startDayOfWeek in the specified time zone
-          var currentDate = luxon.DateTime.now({ zone: selectedBuTimeZone });
-          var currentDayOfWeek = getDayOfWeek(currentDate.weekdayLong);
-
-          // temporary debug
-          console.debug(
-            `OFG: currentDayOfWeek is ${currentDayOfWeek} (${currentDate.weekdayLong})`
-          );
-
-          // Adjust for Monday as the start of the week
-          var daysUntilNextStartDay =
-            (getDayOfWeek(selectedBuStartDayOfWeek) - currentDayOfWeek + 7) % 7;
-          var nextStartDay = currentDate.plus({ days: daysUntilNextStartDay });
-          var nextStartDayString = nextStartDay.toFormat("yyyy-MM-dd");
-          weekStartInput.value = nextStartDayString;
-
-          // temporary debug
-          console.debug(
-            `OFG: daysUntilNextStartDay is ${daysUntilNextStartDay}`
-          );
-          console.debug(`OFG: nextStartDay is ${nextStartDay}`);
-          console.debug(`OFG: nextStartDayString is ${nextStartDayString}`);
-
-          return buObj;
-        }
-
-        // Helper function to get day of week index (0-6) from day name
-        function getDayOfWeek(dayName) {
-          var days = [
-            "Sunday",
-            "Monday",
-            "Tuesday",
-            "Wednesday",
-            "Thursday",
-            "Friday",
-            "Saturday",
-          ];
-          return days.indexOf(dayName);
-        }
-
-        // Populate default values on page load
-        window.onload = async function () {
-          await getOrgLevelStuff();
-
-          if (test) {
-            console.log("OFG: Running in test mode");
-
-            // add element test-mode dive
-            var testDiv = document.getElementById("test-mode");
-            const testP = document.createElement("p");
-            testP.textContent = `Running in test mode`;
-            testP.style.color = "red";
-            testDiv.appendChild(testP);
-            testDiv.removeAttribute("hidden");
-
-            // load test data
-            fetch("./test/wfmBuList.json")
-              .then((response) => response.json())
-              .then((testBuList) => {
-                var buArray = testBuList;
-                sessionStorage.setItem(wfmBuStorage, JSON.stringify(buArray));
-                populateBusinessUnits(buArray);
-              })
-              .catch((error) => {
-                console.error(error);
-              });
+          if (buCount > 0) {
+            await populateBusinessUnits(allBuData);
+            console.log(`OFG: Found ${buCount} Business Units in WFM`);
+            const buArray = await fetchBusinessUnits(allBuData, buCount);
           } else {
-            console.log("OFG: Running in production mode");
-            let buData;
+            console.error(`OFG: No business units found in WFM`);
+          }
+        }
 
-            let allBuData = await makeApiCallWithRetry(
-              `/api/v2/workforcemanagement/businessunits`,
-              "GET"
+        // unhide parameters div
+        const loadingMessageElement =
+          document.getElementById("loading-message");
+        loadingMessageElement.style.display = "none";
+        document.getElementById("parameters").removeAttribute("hidden");
+      };
+
+      // buttonClicked function
+      function buttonClicked() {
+        // Get input values
+        const buArray = JSON.parse(sessionStorage.getItem(wfmBuStorage));
+
+        var businessUnitDropdown = document.getElementById("businessUnit");
+        var selectedBuId = businessUnitDropdown.value;
+        console.log(`OFG: Running for BU - ${JSON.stringify(selectedBuId)}`);
+
+        // BU variables
+        var buObj = buArray.find((unit) => unit.id === selectedBuId);
+        var selectedBuName = buObj.name;
+        var selectedBuStartDayOfWeek = buObj.startDayOfWeek;
+        var selectedBuTimeZone = buObj.timeZone;
+        var selectedBuDefaultHistoryWeeks = buObj.defaultHistoryWeeks;
+
+        // page one variables start
+        var weekStartInput = document.getElementById("weekStart");
+        var historicalWeeks = document.getElementById("historicalWeeks");
+        var selectedWeekStart = new Date(weekStartInput.value);
+        // page one variables end
+
+        // page two variables start
+        planningGroupContactsArray = [];
+        const tableBody = document.querySelector(
+          "#planning-groups-table tbody"
+        );
+        const rows = tableBody.querySelectorAll("tr");
+
+        // loop through table rows
+        for (let i = 0; i < rows.length; i++) {
+          const row = rows[i];
+
+          // get textContent of each cell
+          const cells = row.querySelectorAll("td");
+
+          // Get PG name and ID
+          const pgNameCell = row.querySelector("td:first-child");
+          const pgName = pgNameCell.textContent;
+          const pgId = pgNameCell.dataset.pgId;
+          const cpNameCell = row.querySelector("td:nth-child(2)");
+
+          let planningGroupContacts = {
+            "pgName": pgName,
+            "pgId": pgId,
+          };
+
+          // check value of cpNameCell.dataset.matchedCampaign
+          if (cpNameCell.dataset.matchedCampaign === "true") {
+            const cpName = cpNameCell.textContent;
+            const cpId = cpNameCell.dataset.campaignId;
+
+            // Get number of contacts
+            const numContactsInput = document.getElementById(
+              `nContacts_${pgId}`
             );
-            let buCount = allBuData.length;
+            const numContacts = numContactsInput.value;
 
-            if (buCount > 0) {
-              await populateBusinessUnits(allBuData);
-              console.log(`OFG: Found ${buCount} Business Units in WFM`);
-              const buArray = await fetchBusinessUnits(allBuData, buCount);
-            } else {
-              console.error(`OFG: No business units found in WFM`);
-            }
+            planningGroupContacts["cpName"] = cpName;
+            planningGroupContacts["cpId"] = cpId;
+            planningGroupContacts["numContacts"] = numContacts;
           }
-
-          // unhide parameters div
-          const loadingMessageElement =
-            document.getElementById("loading-message");
-          loadingMessageElement.style.display = "none";
-          document.getElementById("parameters").removeAttribute("hidden");
-        };
-
-        // buttonClicked function
-        function buttonClicked() {
-          // Get input values
-          const buArray = JSON.parse(sessionStorage.getItem(wfmBuStorage));
-
-          var businessUnitDropdown = document.getElementById("businessUnit");
-          var selectedBuId = businessUnitDropdown.value;
-          console.log(`OFG: Running for BU - ${JSON.stringify(selectedBuId)}`);
-
-          // BU variables
-          var buObj = buArray.find((unit) => unit.id === selectedBuId);
-          var selectedBuName = buObj.name;
-          var selectedBuStartDayOfWeek = buObj.startDayOfWeek;
-          var selectedBuTimeZone = buObj.timeZone;
-          var selectedBuDefaultHistoryWeeks = buObj.defaultHistoryWeeks;
-
-          // page one variables start
-          var weekStartInput = document.getElementById("weekStart");
-          var historicalWeeks = document.getElementById("historicalWeeks");
-          var selectedWeekStart = new Date(weekStartInput.value);
-          // page one variables end
-
-          // page two variables start
-          planningGroupContactsArray = [];
-          const tableBody = document.querySelector(
-            "#planning-groups-table tbody"
-          );
-          const rows = tableBody.querySelectorAll("tr");
-
-          // loop through table rows
-          for (let i = 0; i < rows.length; i++) {
-            const row = rows[i];
-
-            // get textContent of each cell
-            const cells = row.querySelectorAll("td");
-
-            // Get PG name and ID
-            const pgNameCell = row.querySelector("td:first-child");
-            const pgName = pgNameCell.textContent;
-            const pgId = pgNameCell.dataset.pgId;
-            const cpNameCell = row.querySelector("td:nth-child(2)");
-
-            let planningGroupContacts = {
-              "pgName": pgName,
-              "pgId": pgId,
-            };
-
-            // check value of cpNameCell.dataset.matchedCampaign
-            if (cpNameCell.dataset.matchedCampaign === "true") {
-              const cpName = cpNameCell.textContent;
-              const cpId = cpNameCell.dataset.campaignId;
-
-              // Get number of contacts
-              const numContactsInput = document.getElementById(
-                `nContacts_${pgId}`
-              );
-              const numContacts = numContactsInput.value;
-
-              planningGroupContacts["cpName"] = cpName;
-              planningGroupContacts["cpId"] = cpId;
-              planningGroupContacts["numContacts"] = numContacts;
-            }
-
-            // TODO: Fix data validation
-            /*
-          // Check if numContacts is 0
-          if (numContacts === "0") {
-            alert("Number of Contacts must be greater than 0.");
-            console.error("OFG: Number of Contacts must be greater than 0.");
-            highlightInputError(numContactsCell);
-            return;
-          } else {
-            removeInputError(numContactsCell);
-          }
-
-          // Check if numContacts is a positive integer
-          if (!/^\d+$/.test(numContacts)) {
-            alert("Number of Contacts must be a positive integer.");
-            console.error(
-              "OFG: Number of Contacts must be a positive integer."
-            );
-            highlightInputError(numContactsCell);
-            return;
-          } else {
-            removeInputError(numContactsCell);
-          }
-          */
-
-            planningGroupContactsArray.push(planningGroupContacts);
-          }
-
-          // get value of ignoreZeroes
-          var ignoreZeroes = document.getElementById("ignoreZeroes").checked;
 
           // TODO: Fix data validation
-          // Check if weekStart day of week matches selected BU's startDayOfWeek
-          /*if (
-          selectedWeekStart.getDay() !== getDayOfWeek(selectedBuStartDayOfWeek)
-        ) {
-          alert(
-            "Week Start day must match Business Unit's startDayOfWeek (" +
-              selectedBuStartDayOfWeek +
-              ")."
-          );
-          console.error(
-            "OFG: Week Start day must match Business Unit's startDayOfWeek (" +
-              selectedBuStartDayOfWeek +
-              ")."
-          );
-          highlightInputError(weekStartInput);
-          return;
-        } else {
-          removeInputError(weekStartInput);
-        }*/
+          /*
+              // Check if numContacts is 0
+              if (numContacts === "0") {
+                alert("Number of Contacts must be greater than 0.");
+                console.error("OFG: Number of Contacts must be greater than 0.");
+                highlightInputError(numContactsCell);
+                return;
+              } else {
+                removeInputError(numContactsCell);
+              }
+    
+              // Check if numContacts is a positive integer
+              if (!/^\d+$/.test(numContacts)) {
+                alert("Number of Contacts must be a positive integer.");
+                console.error(
+                  "OFG: Number of Contacts must be a positive integer."
+                );
+                highlightInputError(numContactsCell);
+                return;
+              } else {
+                removeInputError(numContactsCell);
+              }
+              */
 
-          runGenerator(
-            test,
-            selectedBuName,
-            selectedBuId,
-            selectedBuTimeZone,
-            weekStartInput.value,
-            historicalWeeks.value,
-            planningGroupContactsArray,
-            ignoreZeroes
-          );
+          planningGroupContactsArray.push(planningGroupContacts);
         }
 
-        // Helper function to highlight input error
-        function highlightInputError(inputElement) {
-          inputElement.classList.add("error");
-        }
+        // get value of ignoreZeroes
+        var ignoreZeroes = document.getElementById("ignoreZeroes").checked;
 
-        // Helper function to remove input error highlight
-        function removeInputError(inputElement) {
-          inputElement.classList.remove("error");
-        }
+        // TODO: Fix data validation
+        // Check if weekStart day of week matches selected BU's startDayOfWeek
+        /*if (
+              selectedWeekStart.getDay() !== getDayOfWeek(selectedBuStartDayOfWeek)
+            ) {
+              alert(
+                "Week Start day must match Business Unit's startDayOfWeek (" +
+                  selectedBuStartDayOfWeek +
+                  ")."
+              );
+              console.error(
+                "OFG: Week Start day must match Business Unit's startDayOfWeek (" +
+                  selectedBuStartDayOfWeek +
+                  ")."
+              );
+              highlightInputError(weekStartInput);
+              return;
+            } else {
+              removeInputError(weekStartInput);
+            }*/
 
-        function nextPage() {
-          const pageOne = document.getElementById("page-one");
-          const pageTwo = document.getElementById("page-two");
+        runGenerator(
+          test,
+          selectedBuName,
+          selectedBuId,
+          selectedBuTimeZone,
+          weekStartInput.value,
+          historicalWeeks.value,
+          planningGroupContactsArray,
+          ignoreZeroes
+        );
+      }
 
-          pageOne.classList.remove("active");
+      // Helper function to highlight input error
+      function highlightInputError(inputElement) {
+        inputElement.classList.add("error");
+      }
 
-          setTimeout(() => {
-            pageTwo.classList.add("active");
+      // Helper function to remove input error highlight
+      function removeInputError(inputElement) {
+        inputElement.classList.remove("error");
+      }
 
-            var businessUnitDropdown = document.getElementById("businessUnit");
-            var selectedBuId = businessUnitDropdown.value;
-            loadPageTwo(selectedBuId);
-          }, 100); // Delay for a smoother transition
-        }
+      function nextPage() {
+        const pageOne = document.getElementById("page-one");
+        const pageTwo = document.getElementById("page-two");
 
-        function prevPage() {
-          document.getElementById("page-two").classList.remove("active");
-          setTimeout(() => {
-            document.getElementById("page-one").classList.add("active");
-          }, 100); // Delay for a smoother transition
-        }
-      </script>
-    </div>
+        pageOne.classList.remove("active");
+
+        setTimeout(() => {
+          pageTwo.classList.add("active");
+
+          var businessUnitDropdown = document.getElementById("businessUnit");
+          var selectedBuId = businessUnitDropdown.value;
+          loadPageTwo(selectedBuId);
+        }, 100); // Delay for a smoother transition
+      }
+
+      function prevPage() {
+        document.getElementById("page-two").classList.remove("active");
+        setTimeout(() => {
+          document.getElementById("page-one").classList.add("active");
+        }, 100); // Delay for a smoother transition
+      }
+    </script>
   </body>
 </html>
