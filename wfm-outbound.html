@@ -34,13 +34,6 @@
     <script src="https://moment.github.io/luxon/global/luxon.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.0.4/pako.min.js"></script>
 
-    <!-- Project -->
-    <script src="./src/makeApiCall.js"></script>
-    <script src="./src/planningGroups.js"></script>
-    <script src="./src/numberCruncher.js"></script>
-    <script src="./src/importFc.js"></script>
-    <script src="./src/main.js"></script>
-
     <style>
       /*TODO: Fix width issues*/
 
@@ -224,6 +217,14 @@
       </div>
       <div id="test-mode" class="align-left" hidden></div>
     </div>
+
+    <!-- Project -->
+    <script type="module" src="./src/makeApiCall.js"></script>
+    <script type="module" src="./src/planningGroups.js"></script>
+    <script type="module" src="./src/numberCruncher.js"></script>
+    <script type="module" src="./src/importFc.js"></script>
+    <script type="module" src="./src/main.js"></script>
+
     <!-- Script to login with Cloud -->
     <script>
       (async function () {
