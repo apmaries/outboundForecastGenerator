@@ -45,7 +45,6 @@
       .form-container {
         display: inline-flex;
         flex-direction: column;
-        width: 100%; /* Make the widget take up 100% of the container width */
       }
       .slotted {
         font-family: Roboto, sans-serif;
@@ -97,7 +96,7 @@
       <div id="user-welcome" class="align-left" hidden></div>
 
       <div id="page-one" class="page active">
-        <fieldset class="form-container">
+        <fieldset>
           <legend>Forecast Parameters</legend>
           <gux-loading-message-beta id="loading-message">
             <div slot="primary-message">Loading BU data...</div>
@@ -161,7 +160,7 @@
       </div>
 
       <div id="page-two" class="page">
-        <fieldset class="form-container">
+        <fieldset>
           <legend>Planning Groups</legend>
           <div id="planning-groups">
             <gux-page-loading-spinner
@@ -256,6 +255,7 @@
       })();
     </script>
 
+    <!-- Error handling -->
     <script>
       // Define a global error handler function
       window.onerror = function (message, source, lineno, colno, error) {
@@ -273,8 +273,6 @@
       const wfmBuStorage = "wfmBuList";
       var selectedBuId;
       var selectedBuTimeZone;
-
-      // TODO: Add generic error handling
 
       async function fetchBusinessUnits(allBuData, nBu) {
         const buArray = [];
