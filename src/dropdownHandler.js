@@ -26,7 +26,7 @@ export function populateDropdown(dropdown, data, sortAttribute = "name") {
         data.forEach((item) => {
           const option = document.createElement("gux-option");
           option.value = item.id;
-          option.name = item.name;
+          option.dataset.buName = item.name;
           option.innerHTML = item.name;
           dropdown.appendChild(option);
         });
@@ -70,7 +70,7 @@ export async function populateMultiDropdown(
     data.forEach((item) => {
       const option = document.createElement("gux-option-multi");
       option.value = item.id;
-      option.name = item.name;
+      option.dataset.buName = item.name;
       option.innerHTML = item.name;
       dropdown.appendChild(option);
     });

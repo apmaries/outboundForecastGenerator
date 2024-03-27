@@ -1,4 +1,4 @@
-async function runGenerator(
+export async function runGenerator(
   testMode,
   businessUnitName,
   businessUnitId,
@@ -6,25 +6,30 @@ async function runGenerator(
   weekStart,
   historicalWeeks,
   planningGroupContactsArray,
-  ignoreZeroes
+  ignoreZeroes,
+  inboundForecastMode
 ) {
   // Log user variables
-  console.log("OFG: Forecast generation initiated");
+  console.log("[OFG] Forecast generation initiated");
   if (testMode) {
-    console.warn(`OFG: Running with test mode: ${testMode}`);
+    console.warn(`[OFG] Running with test mode: ${testMode}`);
   }
-  console.log("OFG: User selected BU Name:", businessUnitName);
-  console.log("OFG: User selected BU TimeZone:", selectedBuTimeZone);
-  console.log("OFG: User selected week Start:", weekStart);
-  console.log("OFG: User selected historical Weeks:", historicalWeeks);
+  console.log("[OFG] User selected BU Name:", businessUnitName);
+  console.log("[OFG] User selected BU TimeZone:", selectedBuTimeZone);
+  console.log("[OFG] User selected week Start:", weekStart);
+  console.log("[OFG] User selected historical Weeks:", historicalWeeks);
   console.log(
-    "OFG: Number of Planning Groups:",
+    "[OFG] Number of Planning Groups:",
     planningGroupContactsArray.length.toString()
   );
   for (let i = 0; i < planningGroupContactsArray.length; i++) {
-    console.log(`OFG: ${JSON.stringify(planningGroupContactsArray[i])}`);
+    console.log(`[OFG] ${JSON.stringify(planningGroupContactsArray[i])}`);
   }
-  console.log("OFG: User selected ignore Zeroes:", ignoreZeroes.toString());
+  console.log("[OFG] User selected ignore Zeroes:", ignoreZeroes.toString());
+  console.log(
+    "[OFG] User selected inbound Forecast Mode:",
+    inboundForecastMode
+  );
 
   // Declare variables
   let queryResults = [];
@@ -35,7 +40,7 @@ async function runGenerator(
     const id = buId;
     const channelId = sessionStorage.getItem("notificationsId");
 
-    console.log(`OFG: Subscribing to notifications for BU ${id}`);
+    console.log(`[OFG] Subscribing to notifications for BU ${id}`);
     const forecastTopic = `v2.workforcemanagement.businessunits.${id}.shorttermforecasts.import`;
 
     const forecastTopicBody = {
@@ -55,14 +60,14 @@ async function runGenerator(
 
     // log response from subscribeToForecast
     subscribeToForecast.then(() => {
-      console.log(`OFG: Subscribed to forecast topic ${forecastTopic}`);
+      console.log(`[OFG] Subscribed to forecast topic ${forecastTopic}`);
     });
   }
 
   // Function to build query body
   async function queryBuilder() {
     let queriesArray = [];
-    console.log(`OFG: Query Builder initiated`);
+    console.log(`[OFG] Query Builder initiated`);
     console.log(planningGroupContactsArray);
     console.log(historicalWeeks);
     return queriesArray;
@@ -71,7 +76,7 @@ async function runGenerator(
   // Function to execute queries
   async function executeQueries() {
     let queryResults = [];
-    console.log(`OFG: Executing queries`);
+    console.log(`[OFG] Executing queries`);
     console.log(businessUnitId);
     return queryResults;
   }
@@ -115,7 +120,7 @@ async function runGenerator(
     // loop through results and crunch numbers
     for (let i = 0; i < results.length; i++) {
       var resultsGrouping = results[i];
-      console.log(`OFG: Processing query group ${i + 1}`);
+      console.log(`[OFG] Processing query group ${i + 1}`);
       var group = resultsGrouping.group;
       var data = resultsGrouping.data;
       var campaignId = group.outboundCampaignId;
@@ -132,7 +137,7 @@ async function runGenerator(
           historicalWeeks: [],
         };
         console.log(
-          `OFG: New campaign found in results. Campaign ID = ${campaignId}`
+          `[OFG] New campaign found in results. Campaign ID = ${campaignId}`
         );
         historicalDataByCampaign.push(campaignObj);
       }
@@ -162,7 +167,7 @@ async function runGenerator(
       };
 
       // for each interval in the data, get the week number and add to the campaign object
-      console.log(`OFG: [${campaignId}] Extracting data from query results`);
+      console.log(`[OFG] [${campaignId}] Extracting data from query results`);
       for (let j = 0; j < data.length; j++) {
         var interval = data[j].interval;
         var metrics = data[j].metrics;
@@ -268,7 +273,7 @@ async function runGenerator(
       campaign = await func(campaign, ...args);
       downloadJson(campaign, `${funcName}_${campaign.campaignId}`);
     } catch (error) {
-      console.error(`OFG: Error occurred while running ${funcName}:`, error);
+      console.error(`[OFG] Error occurred while running ${funcName}:`, error);
     }
     return campaign;
   }
@@ -291,7 +296,7 @@ async function runGenerator(
 
     let fcPrepPromises = historicalDataByCampaign.map(async (campaign) => {
       console.log(
-        `OFG: [${campaign.campaignId}] Preparing campaign for forecast`
+        `[OFG] [${campaign.campaignId}] Preparing campaign for forecast`
       );
 
       for (let { func, name, args = [] } of functionsToRun) {
@@ -302,7 +307,7 @@ async function runGenerator(
     });
 
     Promise.all(fcPrepPromises).then(async (completedCampaigns) => {
-      console.log("OFG: All campaigns have been processed.");
+      console.log("[OFG] All campaigns have been processed.");
       downloadJson(completedCampaigns, "completedCampaigns");
 
       let [importGzip, contentLength] = await prepFcImportBody(
@@ -340,7 +345,7 @@ async function runGenerator(
       const notification = event.data;
       const topicName = notification.topicName;
       if (topicName !== "channel.metadata") {
-        console.log("OFG: Message from server: ", event.data);
+        console.log("[OFG] Message from server: ", event.data);
       }
       // If the data is JSON, you might want to parse it
       // const data = JSON.parse(event.data);
@@ -348,12 +353,12 @@ async function runGenerator(
 
     // Connection closed
     ws.addEventListener("close", (event) => {
-      console.log("OFG: WebSocket connection closed");
+      console.log("[OFG] WebSocket connection closed");
     });
 
     // Connection error
     ws.addEventListener("error", (event) => {
-      console.log("OFG: WebSocket error: ", event);
+      console.log("[OFG] WebSocket error: ", event);
     });
   }
 
@@ -363,7 +368,7 @@ async function runGenerator(
       .then((response) => response.json())
       .then(async (testData) => {
         queryResults = testData;
-        console.log("OFG: Test data loaded");
+        console.log("[OFG] Test data loaded");
 
         await processQueryResults(queryResults);
 
@@ -378,7 +383,7 @@ async function runGenerator(
   } else {
     // TODO: Update for production
     console.warn(
-      "OFG: Running in live mode - this has not yet been completed!"
+      "[OFG] Running in live mode - this has not yet been completed!"
     );
     // Execute queryBuilder after queueCampaignMatcher complete
     var queriesArray = await queryBuilder();

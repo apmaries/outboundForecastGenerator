@@ -30,6 +30,15 @@ export function switchPages(currentPageId, nextPageId) {
   }, 100); // Delay for a smoother transition
 }
 
+// function to get value of a radio buttons
+export function getRadioValue(ele) {
+  for (let i = 0; i < ele.length; i++) {
+    if (ele[i].checked) {
+      return ele[i].value;
+    }
+  }
+}
+
 // Function to load selected Business Unit data
 export async function getBusinessUnit() {
   let businessUnitData;

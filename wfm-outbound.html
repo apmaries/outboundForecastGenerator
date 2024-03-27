@@ -349,9 +349,14 @@
     <script type="module">
       import {
         switchPages,
+        getRadioValue,
         getBusinessUnit,
         loadPageTwo,
       } from "./src/pageHandler.js";
+      import { runGenerator } from "./src/main.js";
+
+      let selectedBusinessUnit;
+
       document.addEventListener("DOMContentLoaded", function () {
         // Event listener for business unit dropdown
         const businessUnitDropdown = document.getElementById(
@@ -368,7 +373,7 @@
             console.log(
               `[OFG] Business Unit dropdown changed to ${selectedBuId}`
             );
-            await getBusinessUnit();
+            selectedBusinessUnit = await getBusinessUnit();
           });
         } else {
           console.error("[OFG] Business Unit dropdown not found");
@@ -399,8 +404,77 @@
       // Event listener for Run button
       const runButton = document.getElementById("run-button");
       if (runButton) {
-        runButton.addEventListener("click", () => {
+        runButton.addEventListener("click", async () => {
           console.log("[OFG] Run button clicked");
+          const test = window.isTesting;
+          const buName = selectedBusinessUnit.name;
+          const buId = selectedBusinessUnit.id;
+          const buTimeZone = selectedBusinessUnit.settings.timeZone;
+          const weekStart = document.getElementById("week-start").value;
+          const historicalWeeks =
+            document.getElementById("historical-weeks").value;
+
+          let planningGroupContactsArray = [];
+          const tableBody = document.querySelector(
+            "#planning-groups-table tbody"
+          );
+          const rows = tableBody.querySelectorAll("tr");
+
+          // loop through table rows
+          for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+
+            // get textContent of each cell
+            const cells = row.querySelectorAll("td");
+
+            // Get PG name and ID
+            const pgNameCell = row.querySelector("td:first-child");
+            const pgName = pgNameCell.textContent;
+            const pgId = pgNameCell.dataset.pgId;
+            const cpNameCell = row.querySelector("td:nth-child(2)");
+
+            let planningGroupContacts = {
+              "pgName": pgName,
+              "pgId": pgId,
+            };
+
+            // check value of cpNameCell.dataset.matchedCampaign
+            if (cpNameCell.dataset.matchedCampaign === "true") {
+              const cpName = cpNameCell.textContent;
+              const cpId = cpNameCell.dataset.campaignId;
+
+              // Get number of contacts
+              const numContactsInput = document.getElementById(
+                `nContacts_${pgId}`
+              );
+              const numContacts = numContactsInput.value;
+
+              planningGroupContacts["cpName"] = cpName;
+              planningGroupContacts["cpId"] = cpId;
+              planningGroupContacts["numContacts"] = numContacts;
+            }
+            planningGroupContactsArray.push(planningGroupContacts);
+          }
+
+          const ignoreZeroes = document.getElementById("ignoreZeroes").checked;
+
+          const inboundForecastModeRadio = document.getElementsByName(
+            "inbound-forecast-radio"
+          );
+          const inboundForecastMode = getRadioValue(inboundForecastModeRadio);
+
+          // Run forecast generator
+          await runGenerator(
+            test,
+            buName,
+            buId,
+            buTimeZone,
+            weekStart,
+            historicalWeeks,
+            planningGroupContactsArray,
+            ignoreZeroes,
+            inboundForecastMode
+          );
         });
       } else {
         console.error("[OFG] Run button not found");
