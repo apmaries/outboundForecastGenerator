@@ -200,6 +200,32 @@
                   unchecked-label="No"
                   checked
                 ></gux-toggle>
+
+                <div id="inbound-forecast-mode" style="display: none">
+                  <label for="inbound-forecast-mode"
+                    >Inbound Forecast Mode</label
+                  >
+                  <gux-form-field-radio>
+                    <input
+                      slot="input"
+                      type="radio"
+                      name="inbound-forecast-radio"
+                      value="whi"
+                      checked="checked"
+                    />
+                    <label slot="label">Weighted Historical Index</label>
+                  </gux-form-field-radio>
+
+                  <gux-form-field-radio>
+                    <input
+                      slot="input"
+                      type="radio"
+                      name="inbound-forecast-radio"
+                      value="abm"
+                    />
+                    <label slot="label">Automatic Best Method Selection</label>
+                  </gux-form-field-radio>
+                </div>
               </div>
             </div>
             <div id="buttons" class="row" style="padding-top: 20px">
