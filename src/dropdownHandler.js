@@ -8,7 +8,7 @@
 export function populateDropdown(dropdown, data, sortAttribute = "name") {
   return new Promise((resolve, reject) => {
     try {
-      console.log("OFG: populateDropdown");
+      console.log("[OFG] populateDropdown");
       if (data.length === 0) {
         dropdown.innerHTML = '<gux-option value="">No data found</gux-option>';
         resolve();
