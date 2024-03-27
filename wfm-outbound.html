@@ -326,6 +326,10 @@
         );
         if (businessUnitDropdown) {
           businessUnitDropdown.addEventListener("change", async () => {
+            // Disable week start element
+            const weekStartInput = document.getElementById("week-start");
+            weekStartInput.disabled = true;
+
             // Get selected business unit
             const selectedBuId = businessUnitDropdown.value;
             console.log(
