@@ -85,6 +85,9 @@ export async function getBusinessUnit() {
   nextStart.setDate(today.getDate() + daysUntilStart);
   weekStart.value = nextStart.toISOString().slice(0, 10);
 
+  // Re-enable the week start element
+  weekStart.disabled = false;
+
   return businessUnitData;
 }
 
@@ -121,3 +124,5 @@ export async function loadPageOne() {
   // Hide loading spinner and show main
   await hideLoadingSpinner("main-loading-section", "main");
 }
+
+export async function loadPageTwo() {}
