@@ -59,6 +59,32 @@ export async function getBusinessUnit() {
     );
     console.log(`[OFG] Business Unit '${businessUnitData.name}' loaded`);
   }
+
+  const dayNameToNumber = {
+    "Sunday": 0,
+    "Monday": 1,
+    "Tuesday": 2,
+    "Wednesday": 3,
+    "Thursday": 4,
+    "Friday": 5,
+    "Saturday": 6,
+  };
+
+  const businessUnitStartDayOfWeek = businessUnitData.settings.startDayOfWeek;
+  const businessUnitTimeZone = businessUnitData.settings.timeZone;
+
+  // Populate Business Unit time zone to page
+  document.getElementById("bu-timezone").value = businessUnitTimeZone;
+
+  // Update the week-start element to next occurance of the start day of week e.g. "Monday"
+  const weekStart = document.getElementById("week-start");
+  const today = new Date();
+  const daysUntilStart =
+    (dayNameToNumber[businessUnitStartDayOfWeek] - today.getDay() + 7) % 7;
+  const nextStart = new Date(today);
+  nextStart.setDate(today.getDate() + daysUntilStart);
+  weekStart.value = nextStart.toISOString().slice(0, 10);
+
   return businessUnitData;
 }
 
