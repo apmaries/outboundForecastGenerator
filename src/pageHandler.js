@@ -109,13 +109,17 @@ export async function loadPageOne() {
     }
   } else {
     // Production mode
-    businessUnits = await handleApiCalls(
-      "WorkforceManagementApi.getWorkforcemanagementBusinessunits"
-    );
-    console.log(
-      `[OFG] ${businessUnits.length} Business Units loaded`,
-      businessUnits
-    );
+    try {
+      businessUnits = await handleApiCalls(
+        "WorkforceManagementApi.getWorkforcemanagementBusinessunits"
+      );
+      console.log(
+        `[OFG] ${businessUnits.length} Business Units loaded`,
+        businessUnits
+      );
+    } catch (error) {
+      console.error("[OFG] Error loading business units", error);
+    }
   }
 
   // Populate Business Unit dropdown
@@ -130,14 +134,17 @@ export async function loadPageTwo() {
   // Function to get planning groups from BU id
   async function getPlanningGroups() {
     console.log(`[OFG] Get Planning Groups initiated`);
+    let planningGroups;
     let planningGroupsArray = [];
+
     if (window.isTesting) {
       // Testing mode - Get Planning Groups from ./test/source/planningGroups.json
       try {
         const response = await fetch(
           "/outboundForecastGenerator/test/source/planningGroups.json"
         );
-        planningGroups = await response.json();
+        const data = await response.json();
+        planningGroups = data.entities;
         console.log(
           "[OFG] Planning Groups loaded from test data",
           planningGroups
@@ -147,10 +154,17 @@ export async function loadPageTwo() {
       }
     } else {
       // Production mode
-      planningGroups = await handleApiCalls(
-        "WorkforceManagementApi.getWorkforcemanagementBusinessunitPlanninggroups"
-      );
-      console.log(`OFG: Found ${planningGroups.length} planning groups`);
+      try {
+        planningGroups = await handleApiCalls(
+          "WorkforceManagementApi.getWorkforcemanagementBusinessunitPlanninggroups"
+        );
+        console.log(
+          `[OFG] ${planningGroups.length} Business Units loaded`,
+          planningGroups
+        );
+      } catch (error) {
+        console.error("[OFG] Error loading business units", error);
+      }
     }
 
     // loop through planning groups to build array of planning group objects
@@ -183,17 +197,44 @@ export async function loadPageTwo() {
 
   // Function to get outbound campaigns
   async function getCampaigns() {
+    let campaigns;
     let campaignsArray = [];
-    console.log(`OFG: Get Campaigns initiated`);
-    campaigns = await makeApiCallWithRetry(`/api/v2/outbound/campaigns`, "GET");
+    console.log(`[OFG] Get Campaigns initiated`);
 
-    console.log(`OFG: Found ${campaigns.length} campaigns`);
+    if (window.isTesting) {
+      // Testing mode - Get Campaigns from ./test/source/campaigns.json
+      try {
+        const response = await fetch(
+          "/outboundForecastGenerator/test/source/campaigns.json"
+        );
+        const data = await response.json();
+        campaigns = data.entities;
+        console.log(
+          "[OFG] Planning Groups loaded from test data",
+          planningGroups
+        );
+      } catch (error) {
+        console.error("[OFG] Error loading test data", error);
+      }
+    } else {
+      // Production mode
+      try {
+        campaigns = await handleApiCalls(
+          "OutboundApi.getOutboundCampaigns",
+          globalPageOpts
+        );
+
+        console.log(`[OFG] Found ${campaigns.length} campaigns`);
+      } catch (error) {
+        console.error("[OFG] Error loading campaigns", error);
+      }
+    }
 
     // loop through campaigns to build array of campaign objects
     for (let i = 0; i < campaigns.length; i++) {
       const campaign = campaigns[i];
       console.log(
-        `OFG: Processing campaign ${i + 1}: ${campaign.name} (${campaign.id})`
+        `[OFG] Processing campaign ${i + 1}: ${campaign.name} (${campaign.id})`
       );
 
       // get campaign data
@@ -212,7 +253,9 @@ export async function loadPageTwo() {
 
       // add campaign object to array
       campaignsArray.push(campaignObj);
-      console.debug(`OFG: Campaign[${i + 1}] = ` + JSON.stringify(campaignObj));
+      console.debug(
+        `[OFG] Campaign[${i + 1}] = ` + JSON.stringify(campaignObj)
+      );
     }
 
     return campaignsArray;
@@ -233,7 +276,7 @@ export async function loadPageTwo() {
     // Clear out any existing rows
     tableBody.innerHTML = "";
 
-    console.log(`OFG: Matching queues & campaigns`);
+    console.log(`[OFG] Matching queues & campaigns`);
 
     for (let i = 0; i < planningGroups.length; i++) {
       // loop through planning groups to link to campaigns and populate table
@@ -243,7 +286,7 @@ export async function loadPageTwo() {
       const groupName = group.pgName;
 
       console.log(
-        `OFG: PG${
+        `[OFG] PG${
           i + 1
         }[${groupId}] Matching ${groupName} to campaigns with queue id ${groupQueueId}`
       );
@@ -268,7 +311,7 @@ export async function loadPageTwo() {
       if (matchingCampaign) {
         // populate campaign name if matching campaign found
         console.log(
-          `OFG: PG${i + 1}[${groupId}] Matched ${groupName} to ${
+          `[OFG] PG${i + 1}[${groupId}] Matched ${groupName} to ${
             matchingCampaign.campaignName
           } (${matchingCampaign.campaignId})`
         );
@@ -277,7 +320,7 @@ export async function loadPageTwo() {
       } else {
         // populate empty cell if no matching campaign found
         console.warn(
-          `OFG: PG${
+          `[OFG] PG${
             1 + 1
           }[${groupId}] No matching campaign found for ${groupName}`
         );
