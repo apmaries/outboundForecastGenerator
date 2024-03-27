@@ -230,13 +230,25 @@
     <script src="https://sdk-cdn.mypurecloud.com/javascript/latest/purecloud-platform-client-v2.min.js"></script>
 
     <!-- Project modules -->
-    <script type="module" src="./src/apiHandler.js"></script>
-    <script type="module" src="./src/dropdownHandler.js"></script>
-    <script type="module" src="./src/pageHandler.js"></script>
+    <script
+      type="module"
+      src="/outboundForecastGenerator/src/apiHandler.js"
+    ></script>
+    <script
+      type="module"
+      src="/outboundForecastGenerator/src/dropdownHandler.js"
+    ></script>
+    <script
+      type="module"
+      src="/outboundForecastGenerator/src/pageHandler.js"
+    ></script>
 
     <!-- Script to login with Cloud -->
-    <script>
-      window.onload = async function () {
+    <script type="module">
+      import { loadPageOne } from "./src/pageHandler.js";
+      console.log("[OFG] Login script loaded");
+
+      document.addEventListener("DOMContentLoaded", async function () {
         if (window.isTesting) {
           console.log("[OFG] Testing mode");
         } else {
@@ -284,10 +296,11 @@
             console.error("[OFG] Error logging in", e);
           }
         }
-      };
+        loadPageOne();
+      });
     </script>
 
-    <!-- Primary page script -->
+    <!-- Primary page script
     <script type="module">
       import { handleApiCalls, globalPageOpts } from "./src/apiHandler.js";
       import { populateDropdown } from "./src/dropdownHandler.js";
@@ -295,11 +308,7 @@
 
       console.log("[OFG] Primary page script loaded");
 
-      // Global variables
-      let businessUnits = [];
-      const businessUnitListbox = document.getElementById(
-        "business-unit-listbox"
-      );
+
 
       // Functions start here
 
@@ -341,6 +350,7 @@
         await hideLoadingSpinner("main-loading-section", "main");
       })();
     </script>
+    -->
 
     <!-- Event listeners -->
     <script type="module">
