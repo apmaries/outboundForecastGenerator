@@ -57,6 +57,7 @@
         font-weight: 600;
         font-size: 12px;
         line-height: 16px;
+        margin-bottom: 8px;
       }
 
       .error {
@@ -94,13 +95,6 @@
         opacity: 0;
         transition: opacity 0.5s ease-in-out;
       }
-
-      #bu-settings-div {
-        display: flex;
-        > div {
-          flex: 1;
-        }
-      }
     </style>
   </head>
   <body>
@@ -126,37 +120,40 @@
                 </gux-dropdown>
                 <label slot="label">Business Unit</label>
               </gux-form-field-dropdown>
-
-              <gux-form-field-number>
-                <input
-                  slot="input"
-                  type="number"
-                  id="historicalWeeks"
-                  value="6"
-                  step="1"
-                  min="1"
-                  max="8"
-                />
-                <label class="width" slot="label"
-                  >Forecast historical weeks</label
-                >
-              </gux-form-field-number>
-
-              <div
-                id="bu-settings-div"
-                style="display: flex; justify-content: space-between"
-              >
+              <div id="bu-settings-div">
                 <div>
-                  <label for="weekStart" class="slotted">Week start</label>
+                  <gux-form-field-number label-position="above">
+                    <label slot="label">Historical weeks</label>
+                    <input
+                      slot="input"
+                      type="number"
+                      id="historical-weeks"
+                      value="6"
+                      step="1"
+                      min="1"
+                      max="8"
+                    />
+                  </gux-form-field-number>
+                </div>
+
+                <div style="width: 152px">
+                  <gux-form-field-text-like label-position="above">
+                    <label slot="label">Time zone</label>
+                    <input
+                      slot="input"
+                      type="text"
+                      value="This/That"
+                      disabled
+                    />
+                  </gux-form-field-text-like>
+                </div>
+                <div>
+                  <label slot="label" class="slotted">Week start</label>
                   <gux-datepicker
                     start-day-of-week="1"
                     id="week-start"
                     format="dd/mm/yyyy"
-                    class="width"
                   ></gux-datepicker>
-                </div>
-                <div>
-                  <label for="weekStart" class="slotted">Time Zone</label>
                 </div>
               </div>
 
