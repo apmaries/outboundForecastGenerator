@@ -99,13 +99,13 @@
       <h1 id="heading" class="align-left">Outbound Forecast Generator</h1>
       <div id="user-welcome" class="align-left" hidden></div>
       <!-- Loading section -->
-      <section id="loading-section">
+      <section id="main-loading-section">
         <gux-page-loading-spinner
           screenreader-text="Loading..."
         ></gux-page-loading-spinner>
       </section>
       <!-- Main -->
-      <main>
+      <main id="main">
         <div id="page-one" class="active-page">
           <fieldset>
             <legend>Forecast Parameters</legend>
@@ -256,7 +256,7 @@
               "https://apmaries.github.io/outboundForecastGenerator/wfm-outbound.html"
             );
             sessionStorage.setItem("client_id", clientId.value);
-            sessionStorage.setItem("client_env", clientEnvironment.value);
+            console.log("[OFG] Logged in with Cloud");
           } catch (e) {
             console.error("[OFG] Error logging in", e);
           }
@@ -313,7 +313,7 @@
         await populateDropdown(businessUnitListbox, businessUnits);
 
         // Hide loading spinner and show main
-        await hideLoadingSpinner();
+        await hideLoadingSpinner("main-loading-section", "main");
       })();
     </script>
 

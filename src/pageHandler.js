@@ -1,11 +1,13 @@
 // Function to hide loading spinner and show content
-export async function hideLoadingSpinner() {
+export async function hideLoadingSpinner(spinner, elem) {
   console.log("OFG: hideLoadingSpinner");
 
-  document.getElementById("loading-section").style.display = "none";
+  const spinnerElem = document.getElementById(spinner);
+  const elemElem = document.getElementById(elem);
 
-  const mainElements = document.getElementsByTagName("main");
-  for (let i = 0; i < mainElements.length; i++) {
-    mainElements[i].style.display = "block";
-  }
+  console.log("OFG: spinnerElem", spinnerElem);
+  console.log("OFG: elemElem", elemElem);
+
+  spinnerElem.style.display = "none";
+  elemElem.style.display = "block";
 }
