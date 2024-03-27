@@ -236,7 +236,7 @@
 
     <!-- Script to login with Cloud -->
     <script>
-      (async function () {
+      window.onload = async function () {
         if (window.isTesting) {
           console.log("[OFG] Testing mode");
         } else {
@@ -284,7 +284,7 @@
             console.error("[OFG] Error logging in", e);
           }
         }
-      })();
+      };
     </script>
 
     <!-- Primary page script -->
