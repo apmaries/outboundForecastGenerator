@@ -136,7 +136,7 @@
               <label for="weekStart" class="slotted">Week start</label>
               <gux-datepicker
                 start-day-of-week="1"
-                id="weekStart"
+                id="week-start"
                 format="dd/mm/yyyy"
                 class="width"
               ></gux-datepicker>
@@ -212,11 +212,11 @@
     <script>
       // Define a global error handler function
       window.onerror = function (message, source, lineno, colno, error) {
-        console.error("OFG: An error occurred:", message);
-        console.error("OFG: Source:", source);
-        console.error("OFG: Line:", lineno);
-        console.error("OFG: Column:", colno);
-        console.error("OFG: Error object:", error);
+        console.error("[OFG] An error occurred:", message);
+        console.error("[OFG] Source:", source);
+        console.error("[OFG] Line:", lineno);
+        console.error("[OFG] Column:", colno);
+        console.error("[OFG] Error object:", error);
       };
     </script>
 
@@ -354,8 +354,25 @@
 
     <!-- Event listeners -->
     <script type="module">
-      import { switchPages } from "./src/pageHandler.js";
+      import { switchPages, getBusinessUnit } from "./src/pageHandler.js";
       document.addEventListener("DOMContentLoaded", function () {
+        // Event listener for business unit dropdown
+        const businessUnitDropdown = document.getElementById(
+          "business-unit-dropdown"
+        );
+        if (businessUnitDropdown) {
+          businessUnitDropdown.addEventListener("change", async () => {
+            // Get selected business unit
+            const selectedBuId = businessUnitDropdown.value;
+            console.log(
+              `[OFG] Business Unit dropdown changed to ${selectedBuId}`
+            );
+            await getBusinessUnit();
+          });
+        } else {
+          console.error("[OFG] Business Unit dropdown not found");
+        }
+
         // Event listener for next button
         const nextButton = document.getElementById("next-button");
         if (nextButton) {
@@ -363,7 +380,7 @@
             switchPages("page-one", "page-two")
           );
         } else {
-          console.error("OFG: Next button not found");
+          console.error("[OFG] Next button not found");
         }
 
         // Event listener for back button
@@ -373,7 +390,7 @@
             switchPages("page-two", "page-one")
           );
         } else {
-          console.error("OFG: Back button not found");
+          console.error("[OFG] Back button not found");
         }
       });
 
@@ -381,10 +398,10 @@
       const runButton = document.getElementById("run-button");
       if (runButton) {
         runButton.addEventListener("click", () => {
-          console.log("OFG: Run button clicked");
+          console.log("[OFG] Run button clicked");
         });
       } else {
-        console.error("OFG: Run button not found");
+        console.error("[OFG] Run button not found");
       }
     </script>
 
@@ -560,7 +577,7 @@
         await getOrgLevelStuff();
 
         if (test) {
-          console.log("OFG: Running in test mode");
+          console.log("[OFG] Running in test mode");
 
           // add element test-mode dive
           var testDiv = document.getElementById("test-mode");
@@ -582,7 +599,7 @@
               console.error(error);
             });
         } else {
-          console.log("OFG: Running in production mode");
+          console.log("[OFG] Running in production mode");
           let buData;
 
           let allBuData = await makeApiCallWithRetry(
@@ -675,7 +692,7 @@
     // Check if numContacts is 0
     if (numContacts === "0") {
       alert("Number of Contacts must be greater than 0.");
-      console.error("OFG: Number of Contacts must be greater than 0.");
+      console.error("[OFG] Number of Contacts must be greater than 0.");
       highlightInputError(numContactsCell);
       return;
     } else {
@@ -686,7 +703,7 @@
     if (!/^\d+$/.test(numContacts)) {
       alert("Number of Contacts must be a positive integer.");
       console.error(
-        "OFG: Number of Contacts must be a positive integer."
+        "[OFG] Number of Contacts must be a positive integer."
       );
       highlightInputError(numContactsCell);
       return;
@@ -712,7 +729,7 @@
         ")."
     );
     console.error(
-      "OFG: Week Start day must match Business Unit's startDayOfWeek (" +
+      "[OFG] Week Start day must match Business Unit's startDayOfWeek (" +
         selectedBuStartDayOfWeek +
         ")."
     );
