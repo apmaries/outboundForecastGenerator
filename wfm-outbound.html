@@ -51,12 +51,14 @@
         display: inline-flex;
         flex-direction: column;
       }
+
       .slotted {
         font-family: Roboto, sans-serif;
         font-weight: 600;
         font-size: 12px;
         line-height: 16px;
       }
+
       .error {
         border: 2px solid red;
       }
@@ -91,6 +93,13 @@
         display: none;
         opacity: 0;
         transition: opacity 0.5s ease-in-out;
+      }
+
+      #bu-settings-div {
+        display: flex;
+        > div {
+          flex: 1;
+        }
       }
     </style>
   </head>
@@ -133,13 +142,23 @@
                 >
               </gux-form-field-number>
 
-              <label for="weekStart" class="slotted">Week start</label>
-              <gux-datepicker
-                start-day-of-week="1"
-                id="week-start"
-                format="dd/mm/yyyy"
-                class="width"
-              ></gux-datepicker>
+              <div
+                id="bu-settings-div"
+                style="display: flex; justify-content: space-between"
+              >
+                <div>
+                  <label for="weekStart" class="slotted">Week start</label>
+                  <gux-datepicker
+                    start-day-of-week="1"
+                    id="week-start"
+                    format="dd/mm/yyyy"
+                    class="width"
+                  ></gux-datepicker>
+                </div>
+                <div>
+                  <label for="weekStart" class="slotted">Time Zone</label>
+                </div>
+              </div>
 
               <div id="toggle-sch" style="display: none">
                 <!-- temporarily hidden until functionality added -->
@@ -299,58 +318,6 @@
         loadPageOne();
       });
     </script>
-
-    <!-- Primary page script
-    <script type="module">
-      import { handleApiCalls, globalPageOpts } from "./src/apiHandler.js";
-      import { populateDropdown } from "./src/dropdownHandler.js";
-      import { hideLoadingSpinner } from "./src/pageHandler.js";
-
-      console.log("[OFG] Primary page script loaded");
-
-
-
-      // Functions start here
-
-      // Functions end here
-
-      // Main code in an async IIFE
-      (async () => {
-        // Main code starts here
-        if (window.isTesting) {
-          // Testing mode - Get Business Units from ./test/source/businessUnits.json
-          try {
-            const response = await fetch(
-              "/outboundForecastGenerator/test/source/businessUnits.json"
-            );
-            const data = await response.json();
-            businessUnits = data.entities;
-            console.log(
-              `[OFG] ${businessUnits.length} Business Units loaded from test data`,
-              businessUnits
-            );
-          } catch (error) {
-            console.error("[OFG] Error loading test data", error);
-          }
-        } else {
-          // Production mode
-          businessUnits = await handleApiCalls(
-            "WorkforceManagementApi.getWorkforcemanagementBusinessunits"
-          );
-          console.log(
-            `[OFG] ${businessUnits.length} Business Units loaded`,
-            businessUnits
-          );
-        }
-
-        // Populate Business Unit dropdown
-        await populateDropdown(businessUnitListbox, businessUnits);
-
-        // Hide loading spinner and show main
-        await hideLoadingSpinner("main-loading-section", "main");
-      })();
-    </script>
-    -->
 
     <!-- Event listeners -->
     <script type="module">
