@@ -36,7 +36,7 @@ export const globalPageOpts = {
 // Handle errors in API calls
 async function handleApiErrors(error, apiFunctionStr) {
   // temp logging
-  console.warn("WPT: Error = ", error);
+  console.warn("[OFG] Error = ", error);
 
   if (error.body) {
     let errorStatus = error.body.status;
@@ -60,13 +60,13 @@ async function handleApiErrors(error, apiFunctionStr) {
       retryAfter = errorHeaders["Retry-After"]; // override default retryAfter, value is seconds
       if (retryAfter) {
         console.warn(
-          `WPT: Rate limit exceeded. Retrying after ${retryAfter} seconds.`,
+          `[OFG] Rate limit exceeded. Retrying after ${retryAfter} seconds.`,
           errorBody
         );
       } else {
         // if retryAfter is missing, log the error and throw it
         console.error(
-          `WPT: Rate limit exceeded but Retry-After header is missing.`,
+          `[OFG] Rate limit exceeded but Retry-After header is missing.`,
           errorBody
         );
         throw error;
@@ -75,7 +75,7 @@ async function handleApiErrors(error, apiFunctionStr) {
     // Handle 400 malformed syntax
     else if (errorStatus === 400) {
       console.error(
-        `WPT: Malformed syntax in request to ${apiFunctionStr}.`,
+        `[OFG] Malformed syntax in request to ${apiFunctionStr}.`,
         errorBody
       );
       throw error;
@@ -85,14 +85,14 @@ async function handleApiErrors(error, apiFunctionStr) {
       isRetryable = true; // set to retryable
       retryAfter = 3; // override default retryAfter to initial 3 second delay
       console.warn(
-        `WPT: Retryable error occurred. Retrying request to ${apiFunctionStr}.`,
+        `[OFG] Retryable error occurred. Retrying request to ${apiFunctionStr}.`,
         errorBody
       );
     }
     // Handle any other errors
     else {
       console.error(
-        `WPT: Error making API call to ${apiFunctionStr}. Status = ${errorStatus}`,
+        `[OFG] Error making API call to ${apiFunctionStr}. Status = ${errorStatus}`,
         errorBody
       );
       throw new Error(`Error making API call to ${apiFunctionStr}`);
@@ -103,7 +103,7 @@ async function handleApiErrors(error, apiFunctionStr) {
 
 // Handle API calls
 export async function handleApiCalls(apiFunctionStr, ...args) {
-  console.debug(`WPT: Making API call to ${apiFunctionStr}...`);
+  console.debug(`[OFG] Making API call to ${apiFunctionStr}...`);
   // Split the apiFunctionStr string and get the API instance and function
   const [apiInstanceName, functionName] = apiFunctionStr.split(".");
 
@@ -159,7 +159,7 @@ export async function handleApiCalls(apiFunctionStr, ...args) {
           apiFunctionArgs.push(updatedRequestBody);
         }
         console.debug(
-          `WPT: Making API call to ${apiFunctionStr} with function args: `,
+          `[OFG] Making API call to ${apiFunctionStr} with function args: `,
 
           apiFunctionArgs
         );
@@ -172,7 +172,7 @@ export async function handleApiCalls(apiFunctionStr, ...args) {
         const responseBody = response.body;
 
         console.debug(
-          `WPT: ${apiInstanceName}.${functionName} response body: `,
+          `[OFG] ${apiInstanceName}.${functionName} response body: `,
           responseBody
         );
 
@@ -195,27 +195,27 @@ export async function handleApiCalls(apiFunctionStr, ...args) {
             // If the current page is less than the pageCount, request the next page
             if (currentPage < responseBody.pageCount) {
               console.debug(
-                `WPT: ${apiInstanceName}.${functionName} is paginated - processing page ${currentPage} of ${pageCount}...`
+                `[OFG] ${apiInstanceName}.${functionName} is paginated - processing page ${currentPage} of ${pageCount}...`
               );
 
               currentPage += 1; // Increment currentPage directly
 
               console.debug(
-                `WPT: ${apiInstanceName}.${functionName} Requesting next page of results. requestBody = `,
+                `[OFG] ${apiInstanceName}.${functionName} Requesting next page of results. requestBody = `,
                 updatedRequestBody
               );
             }
             // If the current page is equal to the pageCount, break out of the loop
             else {
               console.debug(
-                `WPT: ${apiInstanceName}.${functionName} - No more pages to process`
+                `[OFG] ${apiInstanceName}.${functionName} - No more pages to process`
               );
               break;
             }
           } else {
             // Return the response body if it is not paginated
             console.debug(
-              `WPT: ${apiInstanceName}.${functionName} is not paginated.`
+              `[OFG] ${apiInstanceName}.${functionName} is not paginated.`
             );
             // Return the entities if in responseBody
             if (responseBody.entities) {
@@ -228,7 +228,7 @@ export async function handleApiCalls(apiFunctionStr, ...args) {
           }
         } else {
           // Return an empty object if the response body is blank
-          console.warn(`WPT: Response body is blank for ${apiFunctionStr}!`);
+          console.warn(`[OFG] Response body is blank for ${apiFunctionStr}!`);
           return {};
         }
       }
@@ -240,7 +240,7 @@ export async function handleApiCalls(apiFunctionStr, ...args) {
         return allResults;
       }
     } catch (error) {
-      console.error(`WPT: Error making API call to ${apiFunctionStr}!`);
+      console.error(`[OFG] Error making API call to ${apiFunctionStr}!`);
 
       // Check error using handleApiErrors function
       const { isRetryable, retryAfter } = await handleApiErrors(
@@ -252,10 +252,10 @@ export async function handleApiCalls(apiFunctionStr, ...args) {
       if (isRetryable) {
         if (error.status !== 429) {
           let backoffRetry = retryAfter * 1000 * 3 ** retryCount;
-          console.warn(`WPT: Retrying after ${backoffRetry} seconds`);
+          console.warn(`[OFG] Retrying after ${backoffRetry} seconds`);
           await new Promise((resolve) => setTimeout(resolve, backoffRetry));
         } else {
-          console.warn(`WPT: Retrying after ${retryAfter} seconds`);
+          console.warn(`[OFG] Retrying after ${retryAfter} seconds`);
           await new Promise((resolve) =>
             setTimeout(resolve, retryAfter * 1000)
           );
@@ -272,6 +272,6 @@ export async function handleApiCalls(apiFunctionStr, ...args) {
   }
 
   throw new Error(
-    `WPT: Failed to make API call to ${apiFunctionStr} after ${maxRetries} retries`
+    `[OFG] Failed to make API call to ${apiFunctionStr} after ${maxRetries} retries`
   );
 }
