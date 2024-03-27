@@ -7,7 +7,7 @@ const businessUnitListbox = document.getElementById("business-unit-listbox");
 
 // Function to hide loading spinner and show content
 export async function hideLoadingSpinner(spinner, elem) {
-  console.log("OFG: hideLoadingSpinner");
+  console.log("[OFG] hideLoadingSpinner");
 
   const spinnerElem = document.getElementById(spinner);
   const elemElem = document.getElementById(elem);
@@ -28,6 +28,36 @@ export function switchPages(currentPageId, nextPageId) {
     nextPage.classList.add("active-page");
     nextPage.classList.remove("inactive-page");
   }, 100); // Delay for a smoother transition
+}
+
+// Function to load selected Business Unit data
+export async function getBusinessUnit() {
+  if (window.isTesting) {
+    // Testing mode - Get Business Unit data from ./test/source/bu.json
+    try {
+      const response = await fetch(
+        "/outboundForecastGenerator/test/source/bu.json"
+      );
+      const data = await response.json();
+      console.log("[OFG] Business Unit data loaded from test data", data);
+      return data;
+    } catch (error) {
+      console.error("[OFG] Error loading test data", error);
+    }
+  } else {
+    // Production mode
+    const selectedBuId = businessUnitListbox.value;
+    console.log("[OFG] Selected Business Unit ID", selectedBuId);
+    const businessUnitData = await handleApiCalls(
+      "WorkforceManagementApi.getWorkforcemanagementBusinessunit",
+      selectedBuId, // Pass selected Business Unit ID
+      {
+        "expand": ["settings.timeZone, settings.startDayOfWeek"], // [String] | Include to access additional data on the business unit
+      }
+    );
+    console.log("[OFG] Business Unit data loaded", businessUnitData);
+    return businessUnitData;
+  }
 }
 
 export async function loadPageOne() {
