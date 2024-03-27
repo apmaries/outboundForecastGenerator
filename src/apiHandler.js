@@ -103,6 +103,7 @@ async function handleApiErrors(error, apiFunctionStr) {
 
 // Handle API calls
 export async function handleApiCalls(apiFunctionStr, ...args) {
+  console.debug(`WPT: Making API call to ${apiFunctionStr}...`);
   // Split the apiFunctionStr string and get the API instance and function
   const [apiInstanceName, functionName] = apiFunctionStr.split(".");
 
