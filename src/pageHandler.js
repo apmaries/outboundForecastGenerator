@@ -156,7 +156,8 @@ export async function loadPageTwo() {
       // Production mode
       try {
         planningGroups = await handleApiCalls(
-          "WorkforceManagementApi.getWorkforcemanagementBusinessunitPlanninggroups"
+          "WorkforceManagementApi.getWorkforcemanagementBusinessunitPlanninggroups",
+          selectedBuId
         );
         console.log(
           `[OFG] ${planningGroups.length} Business Units loaded`,
