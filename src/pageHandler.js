@@ -32,32 +32,34 @@ export function switchPages(currentPageId, nextPageId) {
 
 // Function to load selected Business Unit data
 export async function getBusinessUnit() {
+  let businessUnitData;
   if (window.isTesting) {
     // Testing mode - Get Business Unit data from ./test/source/bu.json
     try {
       const response = await fetch(
         "/outboundForecastGenerator/test/source/bu.json"
       );
-      const data = await response.json();
-      console.log("[OFG] Business Unit data loaded from test data", data);
-      return data;
+      businessUnitData = await response.json();
+      console.log(
+        "[OFG] Business Unit data loaded from test data",
+        businessUnitData
+      );
     } catch (error) {
       console.error("[OFG] Error loading test data", error);
     }
   } else {
     // Production mode
     const selectedBuId = businessUnitListbox.value;
-    console.log("[OFG] Selected Business Unit ID", selectedBuId);
-    const businessUnitData = await handleApiCalls(
+    businessUnitData = await handleApiCalls(
       "WorkforceManagementApi.getWorkforcemanagementBusinessunit",
       selectedBuId, // Pass selected Business Unit ID
       {
         "expand": ["settings.timeZone, settings.startDayOfWeek"], // [String] | Include to access additional data on the business unit
       }
     );
-    console.log("[OFG] Business Unit data loaded", businessUnitData);
-    return businessUnitData;
+    console.log(`[OFG] Business Unit '${businessUnitData.name}' loaded`);
   }
+  return businessUnitData;
 }
 
 export async function loadPageOne() {
