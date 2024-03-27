@@ -16,7 +16,7 @@ client.config.logger.setLogger(); // To apply above changes
 
 // Get the environment & access token from session storage
 var accessToken = sessionStorage.getItem("oauth_token");
-var environment = sessionStorage.getItem("org-_env");
+var environment = sessionStorage.getItem("org_env");
 
 // Set the client configuration
 client.setEnvironment(environment);
