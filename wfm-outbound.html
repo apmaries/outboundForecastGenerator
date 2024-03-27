@@ -140,9 +140,10 @@
                   <gux-form-field-text-like label-position="above">
                     <label slot="label">Time zone</label>
                     <input
+                      id="bu-timezone"
                       slot="input"
                       type="text"
-                      value="This/That"
+                      value=""
                       disabled
                     />
                   </gux-form-field-text-like>
@@ -150,7 +151,6 @@
                 <div>
                   <label slot="label" class="slotted">Week start</label>
                   <gux-datepicker
-                    start-day-of-week="1"
                     id="week-start"
                     format="dd/mm/yyyy"
                   ></gux-datepicker>
