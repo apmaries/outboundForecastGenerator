@@ -257,9 +257,29 @@
               clientId,
               "https://apmaries.github.io/outboundForecastGenerator/wfm-outbound.html"
             );
-            sessionStorage.setItem("client_id", clientId.value);
-            sessionStorage.setItem("environment", environment);
+            sessionStorage.setItem("oauth_clientd", clientId.value);
+            sessionStorage.setItem("org_env", environment);
             console.log("[OFG] Logged in with Cloud");
+
+            // Parse the URL hash
+            const hash = window.location.hash.substr(1);
+
+            // Split the hash into key-value pairs
+            const pairs = hash.split("&");
+
+            // Find the access token pair
+            const tokenPair = pairs.find((pair) =>
+              pair.startsWith("access_token=")
+            );
+
+            // If the access token pair exists, store the access token in sessionStorage
+            if (tokenPair) {
+              const token = tokenPair.split("=")[1];
+              sessionStorage.setItem("oauth_token", token);
+              console.log("[OFG] Access token stored");
+            } else {
+              console.error("[OFG] Access token not found in URL");
+            }
           } catch (e) {
             console.error("[OFG] Error logging in", e);
           }
