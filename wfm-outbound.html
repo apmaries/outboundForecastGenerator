@@ -318,7 +318,11 @@
 
     <!-- Event listeners -->
     <script type="module">
-      import { switchPages, getBusinessUnit } from "./src/pageHandler.js";
+      import {
+        switchPages,
+        getBusinessUnit,
+        loadPageTwo,
+      } from "./src/pageHandler.js";
       document.addEventListener("DOMContentLoaded", function () {
         // Event listener for business unit dropdown
         const businessUnitDropdown = document.getElementById(
@@ -344,9 +348,10 @@
         // Event listener for next button
         const nextButton = document.getElementById("next-button");
         if (nextButton) {
-          nextButton.addEventListener("click", () =>
-            switchPages("page-one", "page-two")
-          );
+          nextButton.addEventListener("click", async () => {
+            switchPages("page-one", "page-two");
+            await loadPageTwo();
+          });
         } else {
           console.error("[OFG] Next button not found");
         }
