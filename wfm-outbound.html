@@ -16,7 +16,7 @@
     <title>Outbound Forecast Generator</title>
 
     <script>
-      console.log("Outbound Forecast Generator (OFG) initiated");
+      console.log("Outbound Forecast Generator [OFG] initiated");
     </script>
 
     <!-- Genesys stuff -->
@@ -269,7 +269,7 @@
               clientId,
               "https://apmaries.github.io/outboundForecastGenerator/wfm-outbound.html"
             );
-            sessionStorage.setItem("oauth_clientd", clientId.value);
+            sessionStorage.setItem("oauth_client", clientId.value);
             sessionStorage.setItem("org_env", environment);
             console.log("[OFG] Logged in with Cloud");
 
@@ -290,7 +290,7 @@
               sessionStorage.setItem("oauth_token", token);
               console.log("[OFG] Access token stored");
             } else {
-              console.error("[OFG] Access token not found in URL");
+              console.error("[OFG] Access token not found in URL. Hash:", hash);
             }
           } catch (e) {
             console.error("[OFG] Error logging in", e);
