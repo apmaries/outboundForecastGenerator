@@ -180,7 +180,11 @@
                 screenreader-text="Loading..."
               ></gux-page-loading-spinner>
               <div id="planning-groups-container" style="display: none">
-                <gux-table resizable-columns id="planning-groups-table" compact>
+                <gux-table-beta
+                  resizable-columns
+                  id="planning-groups-table"
+                  compact
+                >
                   <table slot="data">
                     <thead>
                       <tr>
@@ -192,13 +196,17 @@
                           Campaign name
                           <gux-sort-control include-unsorted />
                         </th>
-                        <th data-column-name="n-contacts" data-cell-numeric>
+                        <th
+                          class="align-left"
+                          data-column-name="n-contacts"
+                          data-cell-numeric
+                        >
                           Number of contacts
                         </th>
                       </tr>
                     </thead>
                     <tbody></tbody></table
-                ></gux-table>
+                ></gux-table-beta>
                 <label for="ignoreZeroes"
                   >Ignore zero values when generating averages?</label
                 >
@@ -240,6 +248,17 @@
     <script>
       // Check testing mode by protocol. If https then production, else testing
       window.isTesting = window.location.protocol !== "https:";
+
+      // Update the test-mode div with the current mode
+      const testModeDiv = document.getElementById("test-mode");
+      testModeDiv.textContent = `Running in ${
+        window.isTesting ? "test" : "production"
+      } mode`;
+
+      // Remove hidden attribute from testModeDiv if in testing mode
+      if (window.isTesting) {
+        testModeDiv.removeAttribute("hidden");
+      }
     </script>
 
     <!-- Load the PureCloud platform client library -->
