@@ -4,11 +4,8 @@ export async function hideLoadingSpinner() {
 
   document.getElementById("loading-section").style.display = "none";
 
-  // Use setTimeout to delay the execution of the rest of the code
-  setTimeout(() => {
-    const mainElements = document.getElementsByTagName("main");
-    for (let i = 0; i < mainElements.length; i++) {
-      mainElements[i].style.display = "block";
-    }
-  }, 0); // Delay of 0 milliseconds
+  const mainElements = document.getElementsByTagName("main");
+  for (let i = 0; i < mainElements.length; i++) {
+    mainElements[i].style.display = "block";
+  }
 }
