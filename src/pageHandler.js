@@ -357,6 +357,10 @@ export async function loadPageTwo() {
         row.style.fontStyle = "italic";
         row.style.color = "grey";
         // TODO: Would like to move row to the bottom of the table if no matching campaign found - pending fix to sortable table
+
+        // Unhide inbound-forecast-mode div
+        document.getElementById("inbound-forecast-mode").style.display =
+          "block";
       } else {
         // Add data attribute to indicate that a matching campaign was found
         campaignNameCell.dataset.matchedCampaign = "true";
