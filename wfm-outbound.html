@@ -245,9 +245,11 @@
           var platformClient = window.require("platformClient");
 
           var clientId = "6f99c63b-3dfb-43cf-9792-a9b5c295d0ca";
+          var environment = "usw2.pure.cloud";
 
           window.client = platformClient.ApiClient.instance;
-          client.setEnvironment("usw2.pure.cloud");
+
+          client.setEnvironment(environment);
           client.setPersistSettings(true, "ofg");
 
           try {
@@ -256,6 +258,7 @@
               "https://apmaries.github.io/outboundForecastGenerator/wfm-outbound.html"
             );
             sessionStorage.setItem("client_id", clientId.value);
+            sessionStorage.setItem("environment", environment);
             console.log("[OFG] Logged in with Cloud");
           } catch (e) {
             console.error("[OFG] Error logging in", e);
