@@ -320,22 +320,9 @@
     </script>
 
     <!-- Event listeners -->
-    <script>
+    <script type="module">
+      import { switchPages } from "./src/pageHandler.js";
       document.addEventListener("DOMContentLoaded", function () {
-        // Function to handle page transitions
-        function switchPages(currentPageId, nextPageId) {
-          const currentPage = document.getElementById(currentPageId);
-          const nextPage = document.getElementById(nextPageId);
-
-          currentPage.classList.remove("active-page");
-          currentPage.classList.add("inactive-page");
-
-          setTimeout(() => {
-            nextPage.classList.add("active-page");
-            nextPage.classList.remove("inactive-page");
-          }, 100); // Delay for a smoother transition
-        }
-
         // Event listener for next button
         const nextButton = document.getElementById("next-button");
         if (nextButton) {
