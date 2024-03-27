@@ -82,15 +82,15 @@
         margin-right: auto;
       }
 
-      .page {
+      .active-page {
+        display: block;
+        opacity: 1;
+      }
+
+      .inactive-page {
         display: none;
         opacity: 0;
         transition: opacity 0.5s ease-in-out;
-      }
-
-      .page.active {
-        display: block;
-        opacity: 1;
       }
     </style>
   </head>
@@ -104,8 +104,9 @@
           screenreader-text="Loading..."
         ></gux-page-loading-spinner>
       </section>
+      <!-- Main -->
       <main>
-        <div id="page-one" class="page.active">
+        <div id="page-one" class="active-page">
           <fieldset>
             <legend>Forecast Parameters</legend>
 
@@ -149,12 +150,12 @@
                   unchecked-label="No"
                 ></gux-toggle>
               </div>
-              <gux-button accent="secondary">Next</gux-button>
+              <gux-button id="next-button" accent="secondary">Next</gux-button>
             </div>
           </fieldset>
         </div>
 
-        <div id="page-two" class="page">
+        <div id="page-two" class="inactive-page">
           <fieldset>
             <legend>Planning Groups</legend>
             <div id="planning-groups">
@@ -194,10 +195,12 @@
               </div>
             </div>
             <div id="buttons" class="row" style="padding-top: 20px">
-              <gux-button accent="secondary" class="align-left"
+              <gux-button id="back-button" accent="secondary" class="align-left"
                 >Back</gux-button
               >
-              <gux-button accent="primary" class="align-right">Run!</gux-button>
+              <gux-button id="run-button" accent="primary" class="align-right"
+                >Run!</gux-button
+              >
             </div>
           </fieldset>
         </div>
@@ -308,8 +311,59 @@
 
         // Populate Business Unit dropdown
         await populateDropdown(businessUnitListbox, businessUnits);
+
+        // Hide loading spinner and show main
         await hideLoadingSpinner();
       })();
+    </script>
+
+    <!-- Event listeners -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Function to handle page transitions
+        function switchPages(currentPageId, nextPageId) {
+          const currentPage = document.getElementById(currentPageId);
+          const nextPage = document.getElementById(nextPageId);
+
+          currentPage.classList.remove("active-page");
+          currentPage.classList.add("inactive-page");
+
+          setTimeout(() => {
+            nextPage.classList.add("active-page");
+            nextPage.classList.remove("inactive-page");
+          }, 100); // Delay for a smoother transition
+        }
+
+        // Event listener for next button
+        const nextButton = document.getElementById("next-button");
+        if (nextButton) {
+          nextButton.addEventListener("click", () =>
+            switchPages("page-one", "page-two")
+          );
+        } else {
+          console.error("OFG: Next button not found");
+        }
+
+        // Event listener for back button
+        const backButton = document.getElementById("back-button");
+        if (backButton) {
+          backButton.addEventListener("click", () =>
+            switchPages("page-two", "page-one")
+          );
+        } else {
+          console.error("OFG: Back button not found");
+        }
+      });
+
+      // Event listener for Run button
+      const runButton = document.getElementById("run-button");
+      if (runButton) {
+        runButton.addEventListener("click", () => {
+          console.log("OFG: Run button clicked");
+        });
+      } else {
+        console.error("OFG: Run button not found");
+      }
     </script>
 
     <!-- Original Page script 
