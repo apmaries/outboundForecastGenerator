@@ -1,5 +1,4 @@
 import { handleApiCalls, globalPageOpts } from "./apiHandler.js";
-import { populateDropdown } from "./dropdownHandler.js";
 
 // Global variables
 let businessUnits = [];
@@ -14,6 +13,49 @@ export async function hideLoadingSpinner(spinner, elem) {
 
   spinnerElem.style.display = "none";
   elemElem.style.display = "block";
+}
+
+// Function to populate dropdowns with provided data
+function populateDropdown(dropdown, data, sortAttribute = "name") {
+  return new Promise((resolve, reject) => {
+    try {
+      if (data.length === 0) {
+        dropdown.innerHTML = '<gux-option value="">No data found</gux-option>';
+        resolve();
+        return;
+      }
+
+      if (typeof data[0] === "object") {
+        // sort data by sortAttribute (not case sensitive)
+        data.sort((a, b) =>
+          a[sortAttribute].localeCompare(b[sortAttribute], undefined, {
+            sensitivity: "base",
+          })
+        );
+        dropdown.innerHTML = "";
+        data.forEach((item) => {
+          const option = document.createElement("gux-option");
+          option.value = item.id;
+          option.dataset.buName = item.name;
+          option.innerHTML = item.name;
+          dropdown.appendChild(option);
+        });
+      } else if (typeof data[0] === "string") {
+        // sort data
+        data.sort();
+        dropdown.innerHTML = "";
+        data.forEach((item) => {
+          const option = document.createElement("gux-option");
+          option.value = item;
+          option.innerHTML = item;
+          dropdown.appendChild(option);
+        });
+      }
+      resolve();
+    } catch (error) {
+      reject(error);
+    }
+  });
 }
 
 // Function to handle page transitions

@@ -281,7 +281,7 @@
     ></script>
     <script
       type="module"
-      src="/outboundForecastGenerator/src/dropdownHandler.js"
+      src="/outboundForecastGenerator/src/sessionHandler.js"
     ></script>
     <script
       type="module"
@@ -298,6 +298,7 @@
 
     <!-- Script to login with Cloud -->
     <script type="module">
+      import { startSession } from "./src/sessionHandler.js";
       import { loadPageOne } from "./src/pageHandler.js";
       console.log("[OFG] Login script loaded");
 
@@ -325,30 +326,11 @@
             sessionStorage.setItem("oauth_client", clientId.value);
             sessionStorage.setItem("org_env", environment);
             console.log("[OFG] Logged in with Cloud");
-
-            // Parse the URL hash
-            const hash = window.location.hash.substr(1);
-
-            // Split the hash into key-value pairs
-            const pairs = hash.split("&");
-
-            // Find the access token pair
-            const tokenPair = pairs.find((pair) =>
-              pair.startsWith("access_token=")
-            );
-
-            // If the access token pair exists, store the access token in sessionStorage
-            if (tokenPair) {
-              const token = tokenPair.split("=")[1];
-              sessionStorage.setItem("oauth_token", token);
-              console.log("[OFG] Access token stored");
-            } else {
-              console.error("[OFG] Access token not found in URL. Hash:", hash);
-            }
           } catch (e) {
             console.error("[OFG] Error logging in", e);
           }
         }
+        await startSession();
         loadPageOne();
       });
     </script>
