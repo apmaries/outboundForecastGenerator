@@ -1,3 +1,10 @@
+import {
+  prepFcMetrics,
+  groupByIndexNumber,
+  generateAverages,
+  applyContacts,
+} from "./numberHandler.js";
+
 export async function runGenerator(
   testMode,
   businessUnitName,

@@ -1,3 +1,4 @@
+/*
 export function getTotalLength(arrayOfArrays) {
   let totalLength = 0;
 
@@ -15,10 +16,11 @@ export function getTotalLength(arrayOfArrays) {
 
   return totalLength;
 }
+*/
 
 export async function prepFcMetrics(campaignData) {
   const campaignId = campaignData.campaignId;
-  console.log(`OFG: [${campaignId}] Prepping Contact Rate & AHT metrics.`);
+  console.log(`[OFG] [${campaignId}] Prepping Contact Rate & AHT metrics.`);
   var historicalWeeks = campaignData.historicalWeeks;
 
   function l2Values(attempted, connected, time, handled) {
@@ -118,7 +120,7 @@ export async function prepFcMetrics(campaignData) {
       !historicalWeeks[w].dailySummary
     ) {
       console.error(
-        `OFG: ${campaignId} Both intradayValues and dailySummary are required in the input object.`
+        `[OFG] ${campaignId} Both intradayValues and dailySummary are required in the input object.`
       );
       return;
     }
@@ -152,7 +154,7 @@ export async function prepFcMetrics(campaignData) {
 export async function groupByIndexNumber(campaignData) {
   const campaignId = campaignData.campaignId;
   console.log(
-    `OFG: [${campaignId}] Grouping CR and AHT values by day of week.`
+    `[OFG] [${campaignId}] Grouping CR and AHT values by day of week.`
   );
   // function to group CR and AHT values by index number
   campaignData.fcHistoricalPatternData = {};
@@ -200,7 +202,7 @@ export async function groupByIndexNumber(campaignData) {
 
 export async function generateAverages(campaignData, ignoreZeroes = true) {
   const campaignId = campaignData.campaignId;
-  console.log(`OFG: [${campaignId}] Averaging CR and AHT values`);
+  console.log(`[OFG] [${campaignId}] Averaging CR and AHT values`);
   campaignData.fcData = {};
 
   function normalizeToDistribution(array) {
@@ -322,7 +324,7 @@ export async function applyContacts(campaignData, pgArray, testMode) {
       campaignId = "958c03c1-24a6-49ff-ba32-5824237deabe";
     } else {
       console.error(
-        `OFG: Campaign ID ${campaignId} not found in planningGroupsArray`
+        `[OFG] Campaign ID ${campaignId} not found in planningGroupsArray`
       );
       return;
     }
@@ -338,11 +340,11 @@ export async function applyContacts(campaignData, pgArray, testMode) {
   try {
     if (campaignContacts === undefined) {
       throw new Error(
-        `OFG: No contacts found for campaign ${campaignId}. Please check inputs.`
+        `[OFG] No contacts found for campaign ${campaignId}. Please check inputs.`
       );
     } else {
       console.log(
-        `OFG: [${campaignId}] Applying ${campaignContacts} contacts to Contact Rate forecast.`
+        `[OFG] [${campaignId}] Applying ${campaignContacts} contacts to Contact Rate forecast.`
       );
       // distribute contacts over daily distribution
       let distributedContactsDaily = await distributeContacts(
@@ -371,7 +373,7 @@ export async function applyContacts(campaignData, pgArray, testMode) {
       campaignData.pgId = campaignPgId;
     }
   } catch (error) {
-    console.error(`OFG: ${error}`);
+    console.error(`[OFG] ${error}`);
     console.error(planningGroupContactsArray);
     return;
   }
