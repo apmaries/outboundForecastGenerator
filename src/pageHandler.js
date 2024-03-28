@@ -39,6 +39,26 @@ export function getRadioValue(ele) {
   }
 }
 
+// Function to download JSON data
+export function downloadJson(body, jsonName) {
+  var jsonData = JSON.stringify(body);
+  var blob = new Blob([jsonData], {
+    type: "application/json",
+  });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  a.download = `${jsonName}.json`;
+  a.href = url;
+  a.textContent = `Download ${jsonName}.json`;
+
+  // Create a div for each download link
+  var div = document.createElement("div");
+  div.appendChild(a);
+
+  var container = document.getElementById("test-mode");
+  container.appendChild(div);
+}
+
 // Function to load selected Business Unit data
 export async function getBusinessUnit() {
   let businessUnitData;

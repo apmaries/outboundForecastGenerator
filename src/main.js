@@ -1,9 +1,11 @@
+import { downloadJson } from "./pageHandler.js";
 import {
   prepFcMetrics,
   groupByIndexNumber,
   generateAverages,
   applyContacts,
 } from "./numberHandler.js";
+import { prepFcImportBody, generateUrl, importFc } from "./importHandler.js";
 
 export async function runGenerator(
   testMode,
@@ -251,27 +253,6 @@ export async function runGenerator(
           }
         }
       }
-    }
-  }
-
-  function downloadJson(body, jsonName) {
-    if (testMode) {
-      var jsonData = JSON.stringify(body);
-      var blob = new Blob([jsonData], {
-        type: "application/json",
-      });
-      var url = URL.createObjectURL(blob);
-      var a = document.createElement("a");
-      a.download = `${jsonName}.json`;
-      a.href = url;
-      a.textContent = `Download ${jsonName}.json`;
-
-      // Create a div for each download link
-      var div = document.createElement("div");
-      div.appendChild(a);
-
-      var container = document.getElementById("test-mode");
-      container.appendChild(div);
     }
   }
 

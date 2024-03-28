@@ -1,25 +1,8 @@
-async function prepFcImportBody(campaignsData) {
-  console.log("OFG: Preparing Forecast Import Body and encoding to gzip");
+import { handleApiCalls } from "./apiHandler";
+import { downloadJson } from "./pageHandler";
 
-  // TODO: need to do this smarter so that it's not needed in main and importFc
-  function downloadJson(body, jsonName) {
-    var jsonData = JSON.stringify(body);
-    var blob = new Blob([jsonData], {
-      type: "application/json",
-    });
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement("a");
-    a.download = `${jsonName}.json`;
-    a.href = url;
-    a.textContent = `Download ${jsonName}.json`;
-
-    // Create a div for each download link
-    var div = document.createElement("div");
-    div.appendChild(a);
-
-    var container = document.getElementById("test-mode");
-    container.appendChild(div);
-  }
+export async function prepFcImportBody(campaignsData) {
+  console.log("[OFG] Preparing Forecast Import Body and encoding to gzip");
 
   // function to gzip encode the body
   function gzipEncode(body) {
@@ -61,38 +44,48 @@ async function prepFcImportBody(campaignsData) {
   let fcImportGzip = gzipEncode(fcImportBody);
   let contentLengthBytes = fcImportGzip.length;
 
-  console.log(`OFG: Body encoded to gzip with length: ${contentLengthBytes}`);
+  console.log(`[OFG] Body encoded to gzip with length: ${contentLengthBytes}`);
 
   return [fcImportGzip, contentLengthBytes];
 }
 
-async function generateUrl(businessUnitId, weekDateId, contentLengthBytes) {
-  console.log("OFG: Generating URL for import");
-  console.debug("OFG: Content Length Bytes: " + contentLengthBytes);
+export async function generateUrl(
+  businessUnitId,
+  weekDateId,
+  contentLengthBytes
+) {
+  console.log("[OFG] Generating URL for import");
+  console.debug("[OFG] Content Length Bytes: " + contentLengthBytes);
 
-  const importUrl = await makeApiCallWithRetry(
-    `/api/v2/workforcemanagement/businessunits/${businessUnitId}/weeks/${weekDateId}/shorttermforecasts/import/uploadurl`,
-    "POST",
+  const importUrl = await handleApiCalls(
+    "WorkforceManagementApi.postWorkforcemanagementBusinessunitWeekShorttermforecastsImportUploadurl",
+    businessUnitId, // Pass selected Business Unit ID
+    weekDateId, // Pass selected Week Date ID
     {
       "contentLengthBytes": contentLengthBytes,
     }
   );
-  console.debug("OFG: Import URL: ", importUrl);
+  console.debug("[OFG] Import URL: ", importUrl);
 
   return importUrl;
 }
 
-async function importFc(businessUnitId, weekDateId, gzip, uploadAttributes) {
-  console.log("OFG: Uploading forecast");
+export async function importFc(
+  businessUnitId,
+  weekDateId,
+  gzip,
+  uploadAttributes
+) {
+  console.log("[OFG] Uploading forecast");
 
   const uploadKey = uploadAttributes.uploadKey;
   const uploadUrl = uploadAttributes.url;
   const uploadHeaders = uploadAttributes.headers;
 
   //temp logging
-  console.debug("OFG: Upload Key: ", uploadKey);
-  console.debug("OFG: Upload URL: ", uploadUrl);
-  console.debug("OFG: Upload Headers: " + JSON.stringify(uploadHeaders));
+  console.debug("[OFG] Upload Key: ", uploadKey);
+  console.debug("[OFG] Upload URL: ", uploadUrl);
+  console.debug("[OFG] Upload Headers: " + JSON.stringify(uploadHeaders));
   console.debug(JSON.stringify(uploadHeaders));
   console.debug(uploadHeaders);
   // this all looks fine but the upload is being blocked on CORS :(
@@ -106,30 +99,33 @@ async function importFc(businessUnitId, weekDateId, gzip, uploadAttributes) {
 
   // Add debugging for response
   console.log(
-    "OFG: Upload Response: ",
+    "[OFG] Upload Response: ",
     uploadResponse.status,
     uploadResponse.statusText
   );
 
   // check if upload was successful
   if (uploadResponse.ok) {
-    console.log("OFG: Forecast uploaded successfully");
+    console.log("[OFG] Forecast uploaded successfully");
 
     // complete the import
     const importAttributes = {
       "uploadKey": uploadKey,
     };
 
-    const importResponse = await makeApiCallWithRetry(
-      `/api/v2/workforcemanagement/businessunits/${businessUnitId}/weeks/${weekDateId}/shorttermforecasts/import`,
-      "POST",
-      importAttributes
+    const importResponse = await handleApiCalls(
+      "WorkforceManagementApi.postWorkforcemanagementBusinessunitWeekShorttermforecastsImport",
+      businessUnitId, // Pass selected Business Unit ID
+      weekDateId, // Pass selected Week Date ID
+      {
+        "uploadKey": uploadKey,
+      }
     );
 
-    console.log("OFG: Forecast import complete");
+    console.log("[OFG] Forecast import complete");
     return importResponse;
   } else {
-    console.error("OFG: Forecast upload failed");
+    console.error("[OFG] Forecast upload failed");
     return null;
   }
 }
