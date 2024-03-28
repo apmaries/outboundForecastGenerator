@@ -1,5 +1,5 @@
-import { handleApiCalls } from "./apiHandler";
-import { downloadJson } from "./pageHandler";
+import { handleApiCalls } from "./apiHandler.js";
+import { downloadJson } from "./pageHandler.js";
 
 export async function prepFcImportBody(campaignsData) {
   console.log("[OFG] Preparing Forecast Import Body and encoding to gzip");
