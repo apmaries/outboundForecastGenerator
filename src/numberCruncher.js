@@ -1,4 +1,4 @@
-function getTotalLength(arrayOfArrays) {
+export function getTotalLength(arrayOfArrays) {
   let totalLength = 0;
 
   function calculateLength(array) {
@@ -16,7 +16,7 @@ function getTotalLength(arrayOfArrays) {
   return totalLength;
 }
 
-async function prepFcMetrics(campaignData) {
+export async function prepFcMetrics(campaignData) {
   const campaignId = campaignData.campaignId;
   console.log(`OFG: [${campaignId}] Prepping Contact Rate & AHT metrics.`);
   var historicalWeeks = campaignData.historicalWeeks;
@@ -149,7 +149,7 @@ async function prepFcMetrics(campaignData) {
   return campaignData;
 }
 
-async function groupByIndexNumber(campaignData) {
+export async function groupByIndexNumber(campaignData) {
   const campaignId = campaignData.campaignId;
   console.log(
     `OFG: [${campaignId}] Grouping CR and AHT values by day of week.`
@@ -198,7 +198,7 @@ async function groupByIndexNumber(campaignData) {
   return campaignData;
 }
 
-async function generateAverages(campaignData, ignoreZeroes = true) {
+export async function generateAverages(campaignData, ignoreZeroes = true) {
   const campaignId = campaignData.campaignId;
   console.log(`OFG: [${campaignId}] Averaging CR and AHT values`);
   campaignData.fcData = {};
@@ -299,7 +299,7 @@ async function generateAverages(campaignData, ignoreZeroes = true) {
   return campaignData;
 }
 
-async function applyContacts(campaignData, pgArray, testMode) {
+export async function applyContacts(campaignData, pgArray, testMode) {
   let campaignId = campaignData.campaignId;
   const planningGroupContactsArray = pgArray;
   const dailyCrDistrib = campaignData.fcData.contactRateDailyDistrib;
