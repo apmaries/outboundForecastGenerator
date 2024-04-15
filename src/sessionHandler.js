@@ -1,9 +1,13 @@
 import { handleApiCalls } from "./apiHandler.js";
 
 export async function startSession() {
+  console.log("[OFG] Starting session");
+
   // Declare global variables
   const indexPage = "./not-authorized.html";
   const isTesting = window.isTesting;
+
+  console.log("[OFG] Testing mode: ", isTesting);
 
   // Functions start here
   function getParameterByName(name) {
@@ -19,9 +23,9 @@ export async function startSession() {
   function internalUserCheck(emailAddress) {
     const domain = emailAddress.split("@")[1];
     if (domain.toLowerCase() === "genesys.com") {
-      console.log("OFG: Authorised user");
+      console.log("[OFG] Authorised user");
     } else {
-      console.log("OFG: Unauthorised user!");
+      console.log("[OFG] Unauthorised user!");
       alert("Sorry, you are not authorised to use this page :(");
       window.location.replace(indexPage);
     }
@@ -33,7 +37,7 @@ export async function startSession() {
     let userWelcome = document.getElementById("user-welcome");
 
     if (isTesting) {
-      console.log("OFG: Testing mode enabled. Skipping user details");
+      console.log("[OFG] Testing mode enabled. Skipping user details");
       userWelcome.innerHTML = `Welcome, Test User!`;
 
       return;
@@ -43,7 +47,7 @@ export async function startSession() {
       let udata = await handleApiCalls("UsersApi.getUsersMe");
 
       if (udata) {
-        console.log("OFG: User details returned", udata);
+        console.log("[OFG] User details returned", udata);
         const userName = udata.name;
         const userId = udata.id;
         const userEmail = udata.email;
@@ -69,11 +73,11 @@ export async function startSession() {
 
         // Append
       } else {
-        console.error(`OFG: Error getting user details. `, udata);
+        console.error(`[OFG] Error getting user details. `, udata);
         window.location.replace(indexPage);
       }
     } catch (error) {
-      console.error(`OFG: Error getting user`, error);
+      console.error(`[OFG] Error getting user`, error);
       window.location.replace(indexPage);
     }
     userWelcome.removeAttribute("hidden");
@@ -86,13 +90,13 @@ export async function startSession() {
     );
 
     if (channel) {
-      console.log("OFG: Notifications channel opened");
+      console.log("[OFG] Notifications channel opened");
       const notificationsUri = channel.connectUri;
       const notificationsId = channel.id;
       sessionStorage.setItem("notifications_uri", notificationsUri);
       sessionStorage.setItem("notifications_id", notificationsId);
     } else {
-      console.error(`OFG: Error creating notifications channel`);
+      console.error(`[OFG] Error creating notifications channel`);
     }
   }
 
@@ -102,7 +106,7 @@ export async function startSession() {
 
   if (window.location.hash) {
     // Set the token in session storage
-    console.log("OFG: Retrieving access token");
+    console.log("[OFG] Retrieving access token");
     const token = getParameterByName("access_token");
     sessionStorage.setItem("oauth_token", token);
 
