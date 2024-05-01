@@ -115,7 +115,7 @@
       <main id="main">
         <div id="page-one" class="active-page">
           <fieldset>
-            <legend>Forecast Parameters</legend>
+            <legend>Parameters</legend>
 
             <div id="parameters">
               <gux-form-field-dropdown class="width">
@@ -177,12 +177,13 @@
 
         <div id="page-two" class="inactive-page">
           <fieldset id="page-two-fieldset">
-            <legend>Planning Groups</legend>
+            <legend>Inputs</legend>
             <div id="planning-groups">
               <gux-page-loading-spinner
                 id="planning-groups-loading"
                 screenreader-text="Loading..."
               ></gux-page-loading-spinner>
+
               <div id="planning-groups-container" style="display: none">
                 <gux-table-beta id="planning-groups-table" compact>
                   <table slot="data">
@@ -207,7 +208,8 @@
                   checked
                 ></gux-toggle>
 
-                <div id="inbound-forecast-mode">
+                <div id="inbound-forecast-mode" style="display: none">
+                  <!-- temporarily hidden until functionality added -->
                   <label for="inbound-forecast-mode"
                     >Inbound Forecast Mode</label
                   >
