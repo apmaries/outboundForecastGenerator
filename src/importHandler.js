@@ -23,6 +23,23 @@ export async function prepFcImportBody(campaignsData) {
     const averageHandleTimeSecondsPerInterval =
       campaign.fcData.ahtIntraday.flat();
 
+    // function to round the values to 2 decimal places
+    function roundToTwo(num) {
+      return +(Math.round(num + "e+2") + "e-2");
+    }
+
+    // round the average handle time to 2 decimal places
+    for (let i = 0; i < averageHandleTimeSecondsPerInterval.length; i++) {
+      averageHandleTimeSecondsPerInterval[i] = roundToTwo(
+        averageHandleTimeSecondsPerInterval[i]
+      );
+    }
+
+    // round the offered per interval to 2 decimal places
+    for (let i = 0; i < offeredPerInterval.length; i++) {
+      offeredPerInterval[i] = roundToTwo(offeredPerInterval[i]);
+    }
+
     let pgObj = {
       "planningGroupId": campaigPgId,
       "offeredPerInterval": offeredPerInterval,
@@ -36,7 +53,6 @@ export async function prepFcImportBody(campaignsData) {
     "description": fcDescription,
     "weekCount": 1,
     "planningGroups": planningGroupsArray,
-    "canUseForScheduling": true,
   };
 
   downloadJson(fcImportBody, "fcImportBody");
