@@ -229,11 +229,11 @@ export async function loadPageTwo() {
           selectedBuId
         );
         console.log(
-          `[OFG] ${planningGroups.length} Business Units loaded`,
+          `[OFG] ${planningGroups.length} Planning Groups loaded`,
           planningGroups
         );
       } catch (error) {
-        console.error("[OFG] Error loading business units", error);
+        console.error("[OFG] Error loading planning groups", error);
       }
     }
 
