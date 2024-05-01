@@ -1,7 +1,7 @@
 import { handleApiCalls } from "./apiHandler.js";
 import { downloadJson } from "./pageHandler.js";
 
-export async function prepFcImportBody(campaignsData) {
+export async function prepFcImportBody(campaignsData, buStartDayOfWeek) {
   console.log("[OFG] Preparing Forecast Import Body and encoding to gzip");
 
   // function to gzip encode the body
@@ -19,9 +19,34 @@ export async function prepFcImportBody(campaignsData) {
   for (let i = 0; i < campaignsData.length; i++) {
     const campaign = campaignsData[i];
     const campaigPgId = campaign.pgId;
-    const offeredPerInterval = campaign.fcData.contactsIntraday.flat();
-    const averageHandleTimeSecondsPerInterval =
-      campaign.fcData.ahtIntraday.flat();
+
+    // Reorder arrays to align to BU start day of week
+    const contactsIntraday = campaign.fcData.contactsIntraday;
+    const ahtIntraday = campaign.fcData.ahtIntraday;
+
+    const dayOfWeek = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
+
+    const buStartDayIndex = dayOfWeek.indexOf(buStartDayOfWeek);
+
+    const contactsIntradayReordered = [];
+    const ahtIntradayReordered = [];
+
+    for (let i = 0; i < contactsIntraday.length; i++) {
+      const index = (buStartDayIndex + i) % 7;
+      contactsIntradayReordered.push(contactsIntraday[index]);
+      ahtIntradayReordered.push(ahtIntraday[index]);
+    }
+
+    const offeredPerInterval = contactsIntradayReordered.flat();
+    const averageHandleTimeSecondsPerInterval = ahtIntradayReordered.flat();
 
     // function to round the values to 2 decimal places
     function roundToTwo(num) {
