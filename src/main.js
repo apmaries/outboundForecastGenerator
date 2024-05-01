@@ -305,7 +305,8 @@ export async function runGenerator(
 
       let [importGzip, contentLength] = await prepFcImportBody(
         completedCampaigns,
-        businessUnitStartDayOfWeek
+        businessUnitStartDayOfWeek,
+        forecastDescription
       );
       let uploadAttributes = await generateUrl(
         businessUnitId,
