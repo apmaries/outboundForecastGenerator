@@ -340,6 +340,7 @@
           window.client = platformClient.ApiClient.instance;
 
           client.setEnvironment(environment);
+          console.log("[OFG] Environment set to", environment);
           client.setPersistSettings(true, "ofg");
 
           try {
