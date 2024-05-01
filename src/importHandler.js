@@ -1,7 +1,11 @@
 import { handleApiCalls } from "./apiHandler.js";
 import { downloadJson } from "./pageHandler.js";
 
-export async function prepFcImportBody(campaignsData, buStartDayOfWeek) {
+export async function prepFcImportBody(
+  campaignsData,
+  buStartDayOfWeek,
+  description
+) {
   console.log("[OFG] Preparing Forecast Import Body and encoding to gzip");
 
   // function to gzip encode the body
@@ -12,8 +16,6 @@ export async function prepFcImportBody(campaignsData, buStartDayOfWeek) {
   }
 
   // build the body for the forecast import
-  const fcDescription = "Outbound Forecast";
-
   let planningGroupsArray = [];
 
   for (let i = 0; i < campaignsData.length; i++) {
@@ -75,7 +77,7 @@ export async function prepFcImportBody(campaignsData, buStartDayOfWeek) {
   }
 
   let fcImportBody = {
-    "description": fcDescription,
+    "description": description,
     "weekCount": 1,
     "planningGroups": planningGroupsArray,
   };
