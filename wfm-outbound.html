@@ -236,9 +236,10 @@
                 <div id="fc-description-input">
                   <gux-form-field-text-like>
                     <input
+                      id="fc-description"
                       slot="input"
                       type="text"
-                      value="Enter a description"
+                      placeholder="Enter a description"
                     />
                     <label slot="label">Forecast description</label>
                   </gux-form-field-text-like>
@@ -469,6 +470,8 @@
             "inbound-forecast-radio"
           );
           const inboundForecastMode = getRadioValue(inboundForecastModeRadio);
+          const forecastDescription =
+            document.getElementById("fc-description").value;
 
           // Run forecast generator
           await runGenerator(
@@ -481,7 +484,8 @@
             historicalWeeks,
             planningGroupContactsArray,
             ignoreZeroes,
-            inboundForecastMode
+            inboundForecastMode,
+            forecastDescription
           );
         });
       } else {
