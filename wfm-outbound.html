@@ -95,6 +95,10 @@
         opacity: 0;
         transition: opacity 0.5s ease-in-out;
       }
+
+      fieldset > div > div {
+        margin-bottom: 20px;
+      }
     </style>
   </head>
   <body>
@@ -172,7 +176,7 @@
         </div>
 
         <div id="page-two" class="inactive-page">
-          <fieldset>
+          <fieldset id="page-two-fieldset">
             <legend>Planning Groups</legend>
             <div id="planning-groups">
               <gux-page-loading-spinner
@@ -191,6 +195,8 @@
                     </thead>
                     <tbody></tbody></table
                 ></gux-table-beta>
+              </div>
+              <div>
                 <label for="ignoreZeroes"
                   >Ignore zero values when generating averages?</label
                 >
@@ -201,7 +207,7 @@
                   checked
                 ></gux-toggle>
 
-                <div id="inbound-forecast-mode" style="display: none">
+                <div id="inbound-forecast-mode">
                   <label for="inbound-forecast-mode"
                     >Inbound Forecast Mode</label
                   >
@@ -225,6 +231,17 @@
                     />
                     <label slot="label">Automatic Best Method Selection</label>
                   </gux-form-field-radio>
+                </div>
+
+                <div id="fc-description-input">
+                  <gux-form-field-text-like>
+                    <input
+                      slot="input"
+                      type="text"
+                      value="Enter a description"
+                    />
+                    <label slot="label">Forecast description</label>
+                  </gux-form-field-text-like>
                 </div>
               </div>
             </div>
@@ -398,6 +415,7 @@
           const test = window.isTesting;
           const buName = selectedBusinessUnit.name;
           const buId = selectedBusinessUnit.id;
+          const buStartDayOfWeek = selectedBusinessUnit.settings.startDayOfWeek;
           const buTimeZone = selectedBusinessUnit.settings.timeZone;
           const weekStart = document.getElementById("week-start").value;
           const historicalWeeks =
@@ -457,6 +475,7 @@
             test,
             buName,
             buId,
+            buStartDayOfWeek,
             buTimeZone,
             weekStart,
             historicalWeeks,
