@@ -11,6 +11,7 @@ export async function runGenerator(
   testMode,
   businessUnitName,
   businessUnitId,
+  businessUnitStartDayOfWeek,
   selectedBuTimeZone,
   weekStart,
   historicalWeeks,
@@ -24,6 +25,8 @@ export async function runGenerator(
     console.warn(`[OFG] Running with test mode: ${testMode}`);
   }
   console.log("[OFG] User selected BU Name:", businessUnitName);
+  console.log("[OFG] User selected BU ID:", businessUnitId);
+  console.log("[OFG] User selected BU Start Day:", businessUnitStartDayOfWeek);
   console.log("[OFG] User selected BU TimeZone:", selectedBuTimeZone);
   console.log("[OFG] User selected week Start:", weekStart);
   console.log("[OFG] User selected historical Weeks:", historicalWeeks);
@@ -299,7 +302,8 @@ export async function runGenerator(
       downloadJson(completedCampaigns, "completedCampaigns");
 
       let [importGzip, contentLength] = await prepFcImportBody(
-        completedCampaigns
+        completedCampaigns,
+        businessUnitStartDayOfWeek
       );
       let uploadAttributes = await generateUrl(
         businessUnitId,
