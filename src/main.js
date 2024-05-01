@@ -17,7 +17,8 @@ export async function runGenerator(
   historicalWeeks,
   planningGroupContactsArray,
   ignoreZeroes,
-  inboundForecastMode
+  inboundForecastMode,
+  forecastDescription
 ) {
   // Log user variables
   console.log("[OFG] Forecast generation initiated");
@@ -42,6 +43,7 @@ export async function runGenerator(
     "[OFG] User selected inbound Forecast Mode:",
     inboundForecastMode
   );
+  console.log("[OFG] User selected forecast Description:", forecastDescription);
 
   // Declare variables
   let queryResults = [];
