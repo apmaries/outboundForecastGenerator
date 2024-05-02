@@ -308,30 +308,36 @@ export async function loadPageTwo() {
 
     // loop through campaigns to build array of campaign objects
     for (let i = 0; i < campaigns.length; i++) {
-      const campaign = campaigns[i];
-      console.log(
-        `[OFG] Processing campaign ${i + 1}: ${campaign.name} (${campaign.id})`
-      );
+      try {
+        const campaign = campaigns[i];
+        console.log(
+          `[OFG] Processing campaign ${i + 1}: ${campaign.name} (${
+            campaign.id
+          })`
+        );
 
-      // get campaign data
-      const campaignId = campaign.id;
-      const campaignName = campaign.name;
-      const campaignQueueId = campaign.queue.id;
-      const campaignQueueName = campaign.queue.name;
+        // get campaign data
+        const campaignId = campaign.id;
+        const campaignName = campaign.name;
+        const campaignQueueId = campaign.queue.id;
+        const campaignQueueName = campaign.queue.name;
 
-      // create a new campaign object
-      let campaignObj = {
-        "campaignId": campaignId,
-        "campaignName": campaignName,
-        "campaignQueueId": campaignQueueId,
-        "campaignQueueName": campaignQueueName,
-      };
+        // create a new campaign object
+        let campaignObj = {
+          "campaignId": campaignId,
+          "campaignName": campaignName,
+          "campaignQueueId": campaignQueueId,
+          "campaignQueueName": campaignQueueName,
+        };
 
-      // add campaign object to array
-      campaignsArray.push(campaignObj);
-      console.debug(
-        `[OFG] Campaign[${i + 1}] = ` + JSON.stringify(campaignObj)
-      );
+        // add campaign object to array
+        campaignsArray.push(campaignObj);
+        console.debug(
+          `[OFG] Campaign[${i + 1}] = ` + JSON.stringify(campaignObj)
+        );
+      } catch (error) {
+        console.error(`[OFG] Error processing campaign ${i + 1}`, error);
+      }
     }
 
     return campaignsArray;
