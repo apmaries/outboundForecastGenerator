@@ -235,6 +235,12 @@ export async function loadPageTwo() {
       } catch (error) {
         console.error("[OFG] Error loading planning groups", error);
       }
+
+      if (planningGroups.length === 0) {
+        // Special handling when 0 planning groups are loaded
+        console.log("[OFG] No planning groups found");
+        return;
+      }
     }
 
     // loop through planning groups to build array of planning group objects
