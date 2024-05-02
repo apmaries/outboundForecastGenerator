@@ -129,6 +129,7 @@ export async function importFc(
   console.debug("[OFG] Upload Key: ", uploadKey);
   console.debug("[OFG] Upload URL: ", uploadUrl);
   console.debug("[OFG] Upload Headers: " + JSON.stringify(uploadHeaders));
+  console.debug("[OFG] gzip: ", gzip);
   console.debug(JSON.stringify(uploadHeaders));
   console.debug(uploadHeaders);
   // this all looks fine but the upload is being blocked on CORS :(
