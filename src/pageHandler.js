@@ -113,10 +113,12 @@ export function downloadGzip(gzip) {
 
   // Create a div for each download link
   var div = document.createElement("div");
+
   div.appendChild(a);
 
   var container = document.getElementById("test-mode");
   container.appendChild(div);
+  container.style.display = "block";
 }
 
 // Function to load selected Business Unit data
