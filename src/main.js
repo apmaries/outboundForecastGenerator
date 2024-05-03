@@ -92,12 +92,11 @@ export async function runGenerator(
 
   // Function to execute queries
   async function executeQueries() {
-    let queryResults = [];
     console.log(`[OFG] Executing queries`);
 
     // Needs to be completed - using test data for now
     // load test data
-    fetch("./test/testData.json")
+    return fetch("./test/testData.json")
       .then((response) => response.json())
       .then((testData) => {
         // replace planning group id's in test data with actual planning group id's from sco org
@@ -113,14 +112,12 @@ export async function runGenerator(
             testData[i].group.outboundCampaignId = amCampaign2;
           }
         }
-        queryResults = testData;
         console.log("[OFG] Test data loaded");
+        return testData;
       })
       .catch((error) => {
         console.error(error);
       });
-
-    return queryResults;
   }
 
   // Returns the ISO week of the date.
