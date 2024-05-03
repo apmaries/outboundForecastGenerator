@@ -1,5 +1,5 @@
 import { handleApiCalls } from "./apiHandler.js";
-import { downloadJson } from "./pageHandler.js";
+import { downloadJson, downloadGzip } from "./pageHandler.js";
 
 export async function prepFcImportBody(
   campaignsData,
@@ -133,6 +133,9 @@ export async function importFc(
   console.debug(JSON.stringify(uploadHeaders));
   console.debug(uploadHeaders);
   // this all looks fine but the upload is being blocked on CORS :(
+
+  // download the gzip file
+  downloadGzip(gzip);
 
   // upload gzip to upload url with uploadHeaders
   const uploadResponse = await fetch(uploadUrl, {

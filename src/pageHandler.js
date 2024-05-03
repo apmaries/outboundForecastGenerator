@@ -99,6 +99,25 @@ export function downloadJson(body, jsonName) {
   container.appendChild(div);
 }
 
+// Function to download gzip data
+export function downloadGzip(gzip) {
+  var blob = new Blob([gzip], {
+    type: "application/gzip",
+  });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  a.download = "forecast-import.json.gz";
+  a.href = url;
+  a.textContent = "Download forecast-import.json.gz";
+
+  // Create a div for each download link
+  var div = document.createElement("div");
+  div.appendChild(a);
+
+  var container = document.getElementById("test-mode");
+  container.appendChild(div);
+}
+
 // Function to load selected Business Unit data
 export async function getBusinessUnit() {
   let businessUnitData;
