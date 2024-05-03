@@ -137,6 +137,7 @@ export async function importFc(
   // download the gzip file
   downloadGzip(gzip);
 
+  /*
   // upload gzip to upload url with uploadHeaders
   const uploadResponse = await fetch(uploadUrl, {
     method: "PUT",
@@ -175,4 +176,5 @@ export async function importFc(
     console.error("[OFG] Forecast upload failed");
     return null;
   }
+  */
 }

@@ -101,6 +101,7 @@ export function downloadJson(body, jsonName) {
 
 // Function to download gzip data
 export function downloadGzip(gzip) {
+  console.log("[OFG] Downloading gzip file");
   var blob = new Blob([gzip], {
     type: "application/gzip",
   });
