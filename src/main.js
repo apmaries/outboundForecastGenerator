@@ -82,8 +82,11 @@ export async function runGenerator(
   async function queryBuilder() {
     let queriesArray = [];
     console.log(`[OFG] Query Builder initiated`);
-    console.log(planningGroupContactsArray);
-    console.log(historicalWeeks);
+    console.log(
+      "[OFG] planningGroupContactsArray: ",
+      planningGroupContactsArray
+    );
+    console.log("[OFG] historicalWeeks: ", historicalWeeks);
     return queriesArray;
   }
 

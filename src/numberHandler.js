@@ -34,7 +34,6 @@ export async function prepFcMetrics(campaignData) {
       var nAttemptedValue = attempted[i];
       var nConnectedValue = connected[i];
 
-      let value;
       if (nAttemptedValue === 0) {
         crValues.push(0);
       } else {
