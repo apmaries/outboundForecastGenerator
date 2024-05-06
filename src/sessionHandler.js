@@ -57,6 +57,7 @@ export async function startSession() {
         sessionStorage.setItem("user_name", userName);
         sessionStorage.setItem("user_id", userId);
 
+        /* Dont worry about user images... that's a bit unneccessary 
         const userImage = udata.images[0].imageUri;
 
         // Set user welcome message
@@ -68,6 +69,7 @@ export async function startSession() {
         userImageElement.style =
           "width: 50px; height: 50px; border-radius: 50%; margin-right: 10px;";
         userWelcome.appendChild(userImageElement);
+        */
 
         userWelcome.innerHTML = `Welcome, ${userName}!`;
 
