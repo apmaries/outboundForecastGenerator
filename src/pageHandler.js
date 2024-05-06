@@ -358,7 +358,7 @@ export async function loadPageTwo() {
           `[OFG] Campaign[${i + 1}] = ` + JSON.stringify(campaignObj)
         );
       } catch (error) {
-        console.error(`[OFG] Error processing campaign ${i + 1}`, error);
+        console.warn(`[OFG] Error processing campaign ${i + 1}`, error);
       }
     }
 
