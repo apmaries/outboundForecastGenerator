@@ -89,7 +89,7 @@ export async function prepFcImportBody(
 
   console.log(`[OFG] Body encoded to gzip with length: ${contentLengthBytes}`);
 
-  return [fcImportGzip, contentLengthBytes];
+  return [fcImportBody, fcImportGzip, contentLengthBytes];
 }
 
 export async function generateUrl(
