@@ -113,7 +113,7 @@ export async function generateUrl(
   return importUrl;
 }
 
-export async function importFc(
+export async function importFcOld(
   businessUnitId,
   weekDateId,
   gzip,
@@ -189,9 +189,6 @@ export async function invokeGCF(uploadAttributes, campaignsData) {
     "https://us-central1-outboundforecastgenerator.cloudfunctions.net/makePUT"; // GCF URL
   const apiKey = clientId; // Using users OAuth client id as API key
 
-  // temp logging
-  console.debug("[OFG] API Key: ", apiKey);
-
   const uploadUrl = uploadAttributes.url;
   const uploadHeaders = uploadAttributes.headers;
 
@@ -215,7 +212,23 @@ export async function invokeGCF(uploadAttributes, campaignsData) {
     return null;
   }
 
-  const result = await response.text();
-  console.log(`[OFG] GCF result: `, result);
-  return result;
+  console.log(`[OFG] GCF response status: `, response.status);
+  return response.status;
+}
+
+export async function importFc(businessUnitId, weekDateId, uploadKey) {
+  console.log("[OFG] Importing forecast");
+
+  const importResponse = await handleApiCalls(
+    "WorkforceManagementApi.postWorkforcemanagementBusinessunitWeekShorttermforecastsImport",
+    businessUnitId, // Pass selected Business Unit ID
+    weekDateId, // Pass selected Week Date ID
+    {
+      "uploadKey": uploadKey,
+    }
+  );
+
+  console.log("[OFG] Import response: ", importResponse);
+  console.log("[OFG] Forecast import complete");
+  return importResponse;
 }
