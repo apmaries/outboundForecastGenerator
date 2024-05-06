@@ -189,6 +189,9 @@ export async function invokeGCF(uploadAttributes, campaignsData) {
     "https://us-central1-outboundforecastgenerator.cloudfunctions.net/makePUT"; // GCF URL
   const apiKey = clientId; // Using users OAuth client id as API key
 
+  // temp logging
+  console.debug("[OFG] API Key: ", apiKey);
+
   const uploadUrl = uploadAttributes.url;
   const uploadHeaders = uploadAttributes.headers;
 
