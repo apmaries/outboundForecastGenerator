@@ -104,6 +104,7 @@ export async function startSession() {
 
   // main code starts here
 
+  /*
   if (window.location.hash) {
     // Set the token in session storage
     console.log("[OFG] Retrieving access token");
@@ -114,4 +115,9 @@ export async function startSession() {
     await getUser();
     await openNotificationsChannel();
   }
+  */
+
+  // make sure user is authorised before continuing
+  await getUser();
+  await openNotificationsChannel();
 }
