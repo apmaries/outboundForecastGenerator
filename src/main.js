@@ -354,7 +354,7 @@ export async function runGenerator(
         console.log(
           "[OFG] Forecast uploaded successfully. Calling import method."
         );
-        const importResponse = importFc(businessUnitId, weekDateId, uploadKey);
+        const importResponse = importFc(businessUnitId, weekStart, uploadKey);
       }
     });
   }
