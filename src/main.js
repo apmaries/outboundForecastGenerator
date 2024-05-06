@@ -348,6 +348,14 @@ export async function runGenerator(
 
       // importFc(businessUnitId, weekStart, importGzip, uploadAttributes);
       const uploadResponse = await invokeGCF(uploadAttributes, fcImportBody);
+
+      if (uploadResponse === 200) {
+        const uploadKey = uploadAttributes.uploadKey;
+        console.log(
+          "[OFG] Forecast uploaded successfully. Calling import method."
+        );
+        const importResponse = importFc(businessUnitId, weekDateId, uploadKey);
+      }
     });
   }
 
