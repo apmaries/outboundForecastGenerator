@@ -50,7 +50,7 @@ export async function runGenerator(
     "[OFG] User selected inbound Forecast Mode:",
     inboundForecastMode
   );
-  console.log("[OFG] User selected forecast Description:", forecastDescription);
+  console.log("[OFG] User forecast description:", forecastDescription);
 
   // Declare variables
   let queryResults = [];
