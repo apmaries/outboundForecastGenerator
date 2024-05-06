@@ -163,16 +163,20 @@ export async function groupByIndexNumber(campaignData) {
   var historicalWeeks = campaignData.historicalWeeks;
 
   // loop through historical weeks and group by day of week
+  // Loop through each historical week
   for (let i = 0; i < historicalWeeks.length; i++) {
     let historicalWeek = historicalWeeks[i];
 
+    // Get the contact rate distribution for the daily summary of the historical week
     var dowContactRateDistrib =
       historicalWeek.dailySummary.contactRateDistribution;
     crDaily.push(dowContactRateDistrib);
 
+    // Get the average handle time for the daily summary of the historical week
     var dowAverHandleTime = historicalWeek.dailySummary.averHandleTime;
     ahtDaily.push(dowAverHandleTime);
 
+    // Create the contact rate intraday array by mapping the contact rate distribution for each historical week
     campaignData.fcHistoricalPatternData.contactRateIntraday =
       campaignData.historicalWeeks[0].intradayValues.contactRateDistribution.map(
         (_, i) =>
@@ -181,6 +185,7 @@ export async function groupByIndexNumber(campaignData) {
           )
       );
 
+    // Create the average handle time intraday array by mapping the average handle time for each historical week
     campaignData.fcHistoricalPatternData.averHandleTimeIntraday =
       campaignData.historicalWeeks[0].intradayValues.averHandleTime.map(
         (_, i) =>
@@ -189,9 +194,18 @@ export async function groupByIndexNumber(campaignData) {
           )
       );
 
+    // Assign the daily contact rate and average handle time arrays to the fcHistoricalPatternData object
     campaignData.fcHistoricalPatternData.contactRateDaily = crDaily;
     campaignData.fcHistoricalPatternData.averHandleTimeDaily = ahtDaily;
   }
+
+  // Replicate the first array (index 0) to the end of the array (index 8) - GC needs an 8th day at end of forecast
+  campaignData.fcHistoricalPatternData.contactRateIntraday.push(
+    campaignData.fcHistoricalPatternData.contactRateIntraday[0]
+  );
+  campaignData.fcHistoricalPatternData.averHandleTimeIntraday.push(
+    campaignData.fcHistoricalPatternData.averHandleTimeIntraday[0]
+  );
 
   // delete the now obsolete historicalWeeks property from the campaignData object
   delete campaignData.historicalWeeks;
