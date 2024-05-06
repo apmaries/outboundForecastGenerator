@@ -351,7 +351,6 @@ export async function runGenerator(
         uploadAttributes,
         completedCampaigns
       );
-      console.log("[OFG] Forecast import response: ", uploadResponse);
     });
   }
 
