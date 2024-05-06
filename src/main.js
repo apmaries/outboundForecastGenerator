@@ -347,7 +347,10 @@ export async function runGenerator(
       );
 
       // importFc(businessUnitId, weekStart, importGzip, uploadAttributes);
-      const uploadResponse = invokeGCF(uploadAttributes, completedCampaigns);
+      const uploadResponse = await invokeGCF(
+        uploadAttributes,
+        completedCampaigns
+      );
       console.log("[OFG] Forecast import response: ", uploadResponse);
     });
   }
