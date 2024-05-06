@@ -180,6 +180,7 @@ export async function importFc(
 }
 
 export async function invokeGCF(uploadAttributes, campaignsData) {
+  console.log("[OFG] Invoking GCF");
   // Get client id from session storage
   const clientId = sessionStorage.getItem("oauth_client");
 
@@ -207,11 +208,10 @@ export async function invokeGCF(uploadAttributes, campaignsData) {
   });
 
   if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+    throw new Error(`[OFG]: HTTP error! status: ${response.status}`);
   }
 
   const result = await response.text();
-  console.log(result);
+  console.log(`[OFG] GCF result: `, result);
+  return result;
 }
-
-invokeGCF().catch(console.error);
