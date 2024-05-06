@@ -366,7 +366,7 @@ export async function runGenerator(
 
     // Connection opened
     ws.addEventListener("open", (event) => {
-      console.log("WebSocket connection opened");
+      console.log("[OFG]: WebSocket connection opened");
       subscribe(businessUnitId);
       // Send a subscribe message if your WebSocket server requires it
       // ws.send(JSON.stringify({ type: 'subscribe', channel: 'your-channel' }));
