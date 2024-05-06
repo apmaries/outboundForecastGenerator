@@ -211,7 +211,8 @@ export async function invokeGCF(uploadAttributes, campaignsData) {
   });
 
   if (!response.ok) {
-    throw new Error(`[OFG]: HTTP error! status: ${response.status}`);
+    console.error(`[OFG]: HTTP error! status: ${response.status}`);
+    return null;
   }
 
   const result = await response.text();
