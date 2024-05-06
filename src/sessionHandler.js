@@ -33,6 +33,7 @@ export async function startSession() {
 
   // get user details
   async function getUser() {
+    console.log("[OFG] Getting user details");
     // Get user welcome div in page
     let userWelcome = document.getElementById("user-welcome");
 
@@ -87,6 +88,7 @@ export async function startSession() {
 
   // open notification channel
   async function openNotificationsChannel() {
+    console.log("[OFG] Opening notifications channel");
     let channel = await handleApiCalls(
       "NotificationsApi.postNotificationsChannels"
     );
@@ -122,4 +124,5 @@ export async function startSession() {
   // make sure user is authorised before continuing
   await getUser();
   await openNotificationsChannel();
+  console.log("[OFG] Session started");
 }
