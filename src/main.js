@@ -364,7 +364,7 @@ export async function runGenerator(
   // Main code starts here
 
   // Create a WebSocket connection
-  const notificationsUri = sessionStorage.getItem("notificationsUri");
+  const notificationsUri = sessionStorage.getItem("notifications_uri");
   if (notificationsUri) {
     const ws = new WebSocket(notificationsUri);
 
