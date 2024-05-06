@@ -200,6 +200,8 @@ export async function groupByIndexNumber(campaignData) {
   }
 
   // Replicate the first array (index 0) to the end of the array (index 8) - GC needs an 8th day at end of forecast
+
+  // TODO: Probably better to move the creation of 8th day to after numbers are applied
   campaignData.fcHistoricalPatternData.contactRateIntraday.push(
     campaignData.fcHistoricalPatternData.contactRateIntraday[0]
   );
