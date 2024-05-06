@@ -335,7 +335,7 @@ export async function runGenerator(
       console.log("[OFG] All campaigns have been processed.");
       // downloadJson(completedCampaigns, "completedCampaigns");
 
-      let [importGzip, contentLength] = await prepFcImportBody(
+      let [fcImportBody, importGzip, contentLength] = await prepFcImportBody(
         completedCampaigns,
         businessUnitStartDayOfWeek,
         forecastDescription
@@ -347,10 +347,7 @@ export async function runGenerator(
       );
 
       // importFc(businessUnitId, weekStart, importGzip, uploadAttributes);
-      const uploadResponse = await invokeGCF(
-        uploadAttributes,
-        completedCampaigns
-      );
+      const uploadResponse = await invokeGCF(uploadAttributes, fcImportBody);
     });
   }
 
