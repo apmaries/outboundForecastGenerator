@@ -5,7 +5,14 @@ import {
   generateAverages,
   applyContacts,
 } from "./numberHandler.js";
-import { prepFcImportBody, generateUrl, importFc } from "./importHandler.js";
+import {
+  prepFcImportBody,
+  generateUrl,
+  invokeGCF,
+  importFc,
+} from "./importHandler.js";
+// invokeGCF calls a Google Cloud Function to make PUT request
+// importFc makes a PUT request to the upload URL - need CORS fixed before being able to switch to this
 
 export async function runGenerator(
   testMode,
@@ -339,7 +346,8 @@ export async function runGenerator(
         contentLength
       );
 
-      importFc(businessUnitId, weekStart, importGzip, uploadAttributes);
+      // importFc(businessUnitId, weekStart, importGzip, uploadAttributes);
+      invokeGCF(uploadAttributes, completedCampaigns);
     });
   }
 
