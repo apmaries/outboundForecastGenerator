@@ -1,23 +1,3 @@
-/*
-export function getTotalLength(arrayOfArrays) {
-  let totalLength = 0;
-
-  function calculateLength(array) {
-    if (Array.isArray(array)) {
-      array.forEach((subArray) => {
-        calculateLength(subArray);
-      });
-    } else {
-      totalLength++;
-    }
-  }
-
-  calculateLength(arrayOfArrays);
-
-  return totalLength;
-}
-*/
-
 export async function prepFcMetrics(campaignData) {
   const campaignId = campaignData.campaignId;
   console.log(`[OFG] [${campaignId}] Prepping Contact Rate & AHT metrics.`);

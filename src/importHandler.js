@@ -82,7 +82,7 @@ export async function prepFcImportBody(
     "planningGroups": planningGroupsArray,
   };
 
-  downloadJson(fcImportBody, "fcImportBody");
+  // downloadJson(fcImportBody, "fcImportBody");
 
   let fcImportGzip = gzipEncode(fcImportBody);
   let contentLengthBytes = fcImportGzip.length;

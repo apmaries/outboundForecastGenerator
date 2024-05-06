@@ -289,7 +289,7 @@ export async function runGenerator(
   async function runFunctionOnCampaign(campaign, func, funcName, ...args) {
     try {
       campaign = await func(campaign, ...args);
-      downloadJson(campaign, `${funcName}_${campaign.campaignId}`);
+      // downloadJson(campaign, `${funcName}_${campaign.campaignId}`);
     } catch (error) {
       console.error(`[OFG] Error occurred while running ${funcName}:`, error);
     }
@@ -326,7 +326,7 @@ export async function runGenerator(
 
     Promise.all(fcPrepPromises).then(async (completedCampaigns) => {
       console.log("[OFG] All campaigns have been processed.");
-      downloadJson(completedCampaigns, "completedCampaigns");
+      // downloadJson(completedCampaigns, "completedCampaigns");
 
       let [importGzip, contentLength] = await prepFcImportBody(
         completedCampaigns,
@@ -393,7 +393,7 @@ export async function runGenerator(
         await processQueryResults(queryResults);
 
         // added download for testing purposes
-        downloadJson(historicalDataByCampaign, "historicalDataByCampaign_base");
+        // downloadJson(historicalDataByCampaign, "historicalDataByCampaign_base");
 
         prepareForecast(); // Call the function to continue execution
       })
