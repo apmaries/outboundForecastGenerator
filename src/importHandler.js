@@ -178,3 +178,40 @@ export async function importFc(
   }
   */
 }
+
+export async function invokeGCF(uploadAttributes, campaignsData) {
+  // Get client id from session storage
+  const clientId = sessionStorage.getItem("oauth_client");
+
+  // Define the URL for the GCF
+  const url =
+    "https://us-central1-outboundforecastgenerator.cloudfunctions.net/makePUT"; // GCF URL
+  const apiKey = clientId; // Using users OAuth client id as API key
+
+  const uploadUrl = uploadAttributes.url;
+  const uploadHeaders = uploadAttributes.headers;
+
+  const data = {
+    url: uploadUrl,
+    header: uploadHeaders,
+    data: campaignsData,
+  };
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": apiKey,
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  const result = await response.text();
+  console.log(result);
+}
+
+invokeGCF().catch(console.error);
