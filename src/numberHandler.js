@@ -193,14 +193,6 @@ export async function groupByIndexNumber(campaignData) {
     campaignData.fcHistoricalPatternData.averHandleTimeDaily = ahtDaily;
   }
 
-  // Replicate the first array (index 0) to the end of the array (index 8) - GC needs an 8th day at end of forecast
-  campaignData.fcHistoricalPatternData.contactRateIntraday.push(
-    campaignData.fcHistoricalPatternData.contactRateIntraday[0]
-  );
-  campaignData.fcHistoricalPatternData.averHandleTimeIntraday.push(
-    campaignData.fcHistoricalPatternData.averHandleTimeIntraday[0]
-  );
-
   // delete the now obsolete historicalWeeks property from the campaignData object
   delete campaignData.historicalWeeks;
 
