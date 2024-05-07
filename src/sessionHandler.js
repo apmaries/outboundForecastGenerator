@@ -7,9 +7,8 @@ export async function startSession() {
   const indexPage = "./not-authorized.html";
   const isTesting = window.isTesting;
 
-  console.log("[OFG] Testing mode: ", isTesting);
-
   // Functions start here
+  /* don't need this anymore
   function getParameterByName(name) {
     name = name.replace(/[\\[]/, "\\[").replace(/[\]]/, "\\]");
     var regex = new RegExp("[\\#&]" + name + "=([^&#]*)"),
@@ -18,6 +17,7 @@ export async function startSession() {
       ? ""
       : decodeURIComponent(results[1].replace(/\+/g, " "));
   }
+  */
 
   // check if account being used to log in with is internal genesys
   function internalUserCheck(emailAddress) {
