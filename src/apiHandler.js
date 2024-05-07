@@ -271,3 +271,35 @@ export async function handleApiCalls(apiFunctionStr, ...args) {
     `[OFG] Failed to make API call to ${apiFunctionStr} after ${maxRetries} retries`
   );
 }
+
+export async function subscribeToNotifications(buId) {
+  console.info("[OFG] Subscribing to notifications...");
+  let apiInstance = new platformClient.NotificationsApi();
+
+  let channelId = "channelId_example"; // String | Channel ID
+  let body = [
+    { "id": `v2.workforcemanagement.businessunits.${buId}.shorttermforecasts` },
+  ]; // Object | Body
+  let opts = {
+    "ignoreErrors": false, // Boolean | Optionally prevent throwing of errors for failed permissions checks.
+  };
+
+  // Add a list of subscriptions to the existing list of subscriptions
+  apiInstance
+    .postNotificationsChannelSubscriptions(channelId, body, opts)
+    .then((data) => {
+      console.log(
+        `postNotificationsChannelSubscriptions success! data: ${JSON.stringify(
+          data,
+          null,
+          2
+        )}`
+      );
+    })
+    .catch((err) => {
+      console.log(
+        "There was a failure calling postNotificationsChannelSubscriptions"
+      );
+      console.error(err);
+    });
+}
