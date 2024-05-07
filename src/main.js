@@ -63,31 +63,26 @@ export async function runGenerator(
     const channelId = sessionStorage.getItem("notifications_id");
 
     console.log(`[OFG] Subscribing to forecast notifications for BU ${id}`);
-    const forecastTopic = `v2.workforcemanagement.businessunits.${id}.shorttermforecasts.import`;
-
-    const forecastTopicBody = {
-      "channelId": channelId,
-      "topic": forecastTopic,
-    };
+    const forecastTopic = [
+      { "id": `v2.workforcemanagement.businessunits.${id}.shorttermforecasts` },
+    ];
 
     // temp logging
-    console.warn(`{OFG] ${JSON.stringify(forecastTopicBody)}`);
+    console.warn(`{OFG] ${JSON.stringify(forecastTopic)}`);
 
-    // Subscribe to the forecast topic
-    const subscribeToForecast = await handleApiCalls(
-      "NotificationsApi.postNotificationsChannelSubscriptions",
-      channelId,
-      forecastTopicBody
-    );
+    try {
+      // Subscribe to the forecast topic
+      const subscribeToForecast = await handleApiCalls(
+        "NotificationsApi.postNotificationsChannelSubscriptions",
+        channelId,
+        forecastTopic
+      );
 
-    // log response from subscribeToForecast
-    subscribeToForecast
-      .then(() => {
-        console.log(`[OFG] Subscribed to forecast topic ${forecastTopic}`);
-      })
-      .catch((error) => {
-        console.error(`[OFG] Error subscribing to forecast topic:`, error);
-      });
+      // log response from subscribeToForecast
+      console.log(`[OFG] Subscribed to forecast topic ${forecastTopic}`);
+    } catch (error) {
+      console.error(`[OFG] Error subscribing to forecast topic:`, error);
+    }
   }
 
   function unsubscribe(buId) {
