@@ -58,7 +58,7 @@ export async function runGenerator(
   var historicalDataByCampaign = [];
 
   // Functions start here
-  function subscribe(buId) {
+  async function subscribe(buId) {
     const id = buId;
     const channelId = sessionStorage.getItem("notifications_id");
 
@@ -74,7 +74,7 @@ export async function runGenerator(
     console.warn(`{OFG] ${JSON.stringify(forecastTopicBody)}`);
 
     // Subscribe to the forecast topic
-    const subscribeToForecast = handleApiCalls(
+    const subscribeToForecast = await handleApiCalls(
       "NotificationsApi.postNotificationsChannelSubscriptions",
       channelId,
       forecastTopicBody
@@ -401,17 +401,23 @@ export async function runGenerator(
     // Connection opened
     ws.addEventListener("open", (event) => {
       console.log("[OFG]: WebSocket connection opened");
-      subscribe(businessUnitId);
-      // Send a subscribe message if your WebSocket server requires it
-      // ws.send(JSON.stringify({ type: 'subscribe', channel: 'your-channel' }));
+
+      // Create an async function inside the event listener to pause execution until the subscribe function is complete
+      (async () => {
+        await subscribe(businessUnitId);
+      })();
     });
 
     // Listen for messages
     ws.addEventListener("message", (event) => {
       const notification = event.data;
       const topicName = notification.topicName;
+
+      // temp logging
+      console.warn(`[OFG] Notification received with ${topicName} topic name`);
+
       if (topicName !== "channel.metadata") {
-        console.log("[OFG] Message from server: ", event.data);
+        console.log("[OFG] Message from server: ", notification);
       }
       // If the data is JSON, you might want to parse it
       // const data = JSON.parse(event.data);
