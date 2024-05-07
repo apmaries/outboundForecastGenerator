@@ -59,12 +59,13 @@ export async function runGenerator(
 
   // Functions start here
   async function subscribe(buId) {
-    const id = buId;
     const channelId = sessionStorage.getItem("notifications_id");
 
-    console.log(`[OFG] Subscribing to forecast notifications for BU ${id}`);
+    console.log(`[OFG] Subscribing to forecast notifications for BU ${buId}`);
     const forecastTopic = [
-      { "id": `v2.workforcemanagement.businessunits.${id}.shorttermforecasts` },
+      {
+        "id": `v2.workforcemanagement.businessunits.${buId}.shorttermforecasts`,
+      },
     ];
 
     // temp logging
