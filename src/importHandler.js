@@ -108,7 +108,6 @@ export async function generateUrl(
       "contentLengthBytes": contentLengthBytes,
     }
   );
-  console.debug("[OFG] Import URL: ", importUrl);
 
   return importUrl;
 }
