@@ -1,5 +1,5 @@
 import { downloadJson } from "./pageHandler.js";
-import { handleApiCalls } from "./apiHandler.js";
+import { handleApiCalls, subscribeToNotifications } from "./apiHandler.js";
 import {
   prepFcMetrics,
   groupByIndexNumber,
@@ -399,7 +399,7 @@ export async function runGenerator(
 
       // Create an async function inside the event listener to pause execution until the subscribe function is complete
       (async () => {
-        await subscribe(businessUnitId);
+        await subscribeToNotifications(businessUnitId);
       })();
     });
 
