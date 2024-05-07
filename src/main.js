@@ -163,10 +163,11 @@ export async function runGenerator(
   }
 
   async function processQueryResults(results) {
+    console.log(`[OFG] Processing ${results.length} groups in query results`);
     // loop through results and crunch numbers
     for (let i = 0; i < results.length; i++) {
       var resultsGrouping = results[i];
-      console.log(`[OFG] Processing query group ${i + 1}`);
+      console.debug(`[OFG] Processing query group ${i + 1}`);
       var group = resultsGrouping.group;
       var data = resultsGrouping.data;
       var campaignId = group.outboundCampaignId;
@@ -213,7 +214,7 @@ export async function runGenerator(
       };
 
       // for each interval in the data, get the week number and add to the campaign object
-      console.log(`[OFG] [${campaignId}] Extracting data from query results`);
+      console.debug(`[OFG] [${campaignId}] Extracting data from query results`);
       for (let j = 0; j < data.length; j++) {
         var interval = data[j].interval;
         var metrics = data[j].metrics;
