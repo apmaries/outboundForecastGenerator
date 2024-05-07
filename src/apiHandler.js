@@ -158,7 +158,7 @@ export async function handleApiCalls(apiFunctionStr, ...args) {
         if (Object.keys(updatedRequestBody).length > 0) {
           apiFunctionArgs.push(updatedRequestBody);
         }
-        console.debug(`[OFG] ${apiFunctionStr} args: `, apiFunctionArgs);
+        console.info(`[OFG] ${apiFunctionStr} args: `, apiFunctionArgs);
         const response = await apiFunction(...apiFunctionArgs);
 
         // If the response is blank and the API function is 'deleteTokensMe', return a success message
