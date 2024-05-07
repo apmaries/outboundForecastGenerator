@@ -59,7 +59,7 @@ export async function runGenerator(
   // Functions start here
   function subscribe(buId) {
     const id = buId;
-    const channelId = sessionStorage.getItem("notificationsId");
+    const channelId = sessionStorage.getItem("notifications_id");
 
     console.log(`[OFG] Subscribing to forecast notifications for BU ${id}`);
     const forecastTopic = `v2.workforcemanagement.businessunits.${id}.shorttermforecasts.import`;
@@ -70,7 +70,7 @@ export async function runGenerator(
     };
 
     // temp logging
-    console.warn(JSON.stringify(forecastTopicBody));
+    console.warn(`{OFG] ${JSON.stringify(forecastTopicBody)}`);
 
     // Subscribe to the forecast topic
     const subscribeToForecast = handleApiCalls(
@@ -89,15 +89,39 @@ export async function runGenerator(
       });
   }
 
+  function unsubscribe(buId) {
+    const id = buId;
+    const channelId = sessionStorage.getItem("notifications_id");
+
+    console.log(`[OFG] Unsubscribing from forecast notifications for BU ${id}`);
+
+    const unsubscribeFromForecast = handleApiCalls(
+      "NotificationsApi.deleteNotificationsChannelSubscriptions",
+      channelId
+    );
+
+    // log response from unsubscribeFromForecast
+    unsubscribeFromForecast
+      .then(() => {
+        console.log(`[OFG] Unsubscribed from forecast notifications`);
+      })
+      .catch((error) => {
+        console.error(
+          `[OFG] Error unsubscribing from forecast notifications:`,
+          error
+        );
+      });
+  }
+
   // Function to build query body
   async function queryBuilder() {
     let queriesArray = [];
     console.log(`[OFG] Query Builder initiated`);
-    console.log(
+    console.debug(
       "[OFG] planningGroupContactsArray: ",
       planningGroupContactsArray
     );
-    console.log("[OFG] historicalWeeks: ", historicalWeeks);
+    console.debug("[OFG] historicalWeeks: ", historicalWeeks);
     return queriesArray;
   }
 
