@@ -72,7 +72,7 @@ export async function runGenerator(
 
     try {
       // Subscribe to the forecast topic
-      const subscribeToForecast = await handleApiCalls(
+      await handleApiCalls(
         "NotificationsApi.postNotificationsChannelSubscriptions",
         channelId,
         forecastTopic
@@ -85,28 +85,27 @@ export async function runGenerator(
     }
   }
 
-  function unsubscribe(buId) {
+  async function unsubscribe(buId) {
     const id = buId;
     const channelId = sessionStorage.getItem("notifications_id");
 
     console.log(`[OFG] Unsubscribing from forecast notifications for BU ${id}`);
 
-    const unsubscribeFromForecast = handleApiCalls(
-      "NotificationsApi.deleteNotificationsChannelSubscriptions",
-      channelId
-    );
+    try {
+      // Unsubscribe from the forecast notifications
+      await handleApiCalls(
+        "NotificationsApi.deleteNotificationsChannelSubscriptions",
+        channelId
+      );
 
-    // log response from unsubscribeFromForecast
-    unsubscribeFromForecast
-      .then(() => {
-        console.log(`[OFG] Unsubscribed from forecast notifications`);
-      })
-      .catch((error) => {
-        console.error(
-          `[OFG] Error unsubscribing from forecast notifications:`,
-          error
-        );
-      });
+      // log response from unsubscribeFromForecast
+      console.log(`[OFG] Unsubscribed from forecast notifications`);
+    } catch (error) {
+      console.error(
+        `[OFG] Error unsubscribing from forecast notifications:`,
+        error
+      );
+    }
   }
 
   // Function to build query body
