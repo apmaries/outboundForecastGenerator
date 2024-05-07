@@ -103,7 +103,7 @@ async function handleApiErrors(error, apiFunctionStr) {
 
 // Handle API calls
 export async function handleApiCalls(apiFunctionStr, ...args) {
-  console.debug(`[OFG] Making API call to ${apiFunctionStr}...`);
+  console.info(`[OFG] Making API call to ${apiFunctionStr}...`);
   // Split the apiFunctionStr string and get the API instance and function
   const [apiInstanceName, functionName] = apiFunctionStr.split(".");
 
@@ -158,11 +158,7 @@ export async function handleApiCalls(apiFunctionStr, ...args) {
         if (Object.keys(updatedRequestBody).length > 0) {
           apiFunctionArgs.push(updatedRequestBody);
         }
-        console.debug(
-          `[OFG] Making API call to ${apiFunctionStr} with function args: `,
-
-          apiFunctionArgs
-        );
+        console.debug(`[OFG] ${apiFunctionStr} args: `, apiFunctionArgs);
         const response = await apiFunction(...apiFunctionArgs);
 
         // If the response is blank and the API function is 'deleteTokensMe', return a success message
