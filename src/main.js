@@ -61,7 +61,7 @@ export async function runGenerator(
     const id = buId;
     const channelId = sessionStorage.getItem("notificationsId");
 
-    console.log(`[OFG] Subscribing to notifications for BU ${id}`);
+    console.log(`[OFG] Subscribing to forecast notifications for BU ${id}`);
     const forecastTopic = `v2.workforcemanagement.businessunits.${id}.shorttermforecasts.import`;
 
     const forecastTopicBody = {
@@ -73,16 +73,20 @@ export async function runGenerator(
     console.warn(JSON.stringify(forecastTopicBody));
 
     // Subscribe to the forecast topic
-    const subscribeToForecast = makeApiCallWithRetry(
-      `/api/v2/notifications/channels/${channelId}/subscriptions`,
-      "POST",
-      [forecastTopicBody]
+    const subscribeToForecast = handleApiCalls(
+      "NotificationsApi.postNotificationsChannelSubscriptions",
+      channelId,
+      forecastTopicBody
     );
 
     // log response from subscribeToForecast
-    subscribeToForecast.then(() => {
-      console.log(`[OFG] Subscribed to forecast topic ${forecastTopic}`);
-    });
+    subscribeToForecast
+      .then(() => {
+        console.log(`[OFG] Subscribed to forecast topic ${forecastTopic}`);
+      })
+      .catch((error) => {
+        console.error(`[OFG] Error subscribing to forecast topic:`, error);
+      });
   }
 
   // Function to build query body
