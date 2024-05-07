@@ -1,4 +1,5 @@
 import { downloadJson } from "./pageHandler.js";
+import { handleApiCalls } from "./apiHandler.js";
 import {
   prepFcMetrics,
   groupByIndexNumber,
