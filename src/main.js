@@ -470,7 +470,11 @@ export async function runGenerator(
 
         // Import forecast
         updateLoadingMessage("Importing forecast");
-        const importResponse = importFc(businessUnitId, weekStart, uploadKey);
+        const importResponse = await importFc(
+          businessUnitId,
+          weekStart,
+          uploadKey
+        );
 
         // Check if operation id is in response
         if (importResponse) {
