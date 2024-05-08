@@ -405,7 +405,7 @@ export async function runGenerator(
 
     // Listen for messages
     ws.addEventListener("message", (event) => {
-      const notification = event.data;
+      const notification = JSON.parse(event.data);
       const topicName = notification.topicName;
 
       // temp logging
