@@ -494,5 +494,5 @@ export async function loadPageTwo() {
 
 export async function loadPageThree() {
   // Hide page 2 and show page 3
-  switchPages("page-2", "page-3");
+  switchPages("page-two", "page-three");
 }
