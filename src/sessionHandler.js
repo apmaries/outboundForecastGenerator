@@ -88,19 +88,21 @@ export async function startSession() {
 
   // open notification channel
   async function openNotificationsChannel() {
-    console.log("[OFG] Opening notifications channel");
-    let channel = await handleApiCalls(
-      "NotificationsApi.postNotificationsChannels"
-    );
+    if (!isTesting) {
+      console.log("[OFG] Opening notifications channel");
+      let channel = await handleApiCalls(
+        "NotificationsApi.postNotificationsChannels"
+      );
 
-    if (channel) {
-      console.log("[OFG] Notifications channel opened");
-      const notificationsUri = channel.connectUri;
-      const notificationsId = channel.id;
-      sessionStorage.setItem("notifications_uri", notificationsUri);
-      sessionStorage.setItem("notifications_id", notificationsId);
-    } else {
-      console.error(`[OFG] Error creating notifications channel`);
+      if (channel) {
+        console.log("[OFG] Notifications channel opened");
+        const notificationsUri = channel.connectUri;
+        const notificationsId = channel.id;
+        sessionStorage.setItem("notifications_uri", notificationsUri);
+        sessionStorage.setItem("notifications_id", notificationsId);
+      } else {
+        console.error(`[OFG] Error creating notifications channel`);
+      }
     }
   }
 
