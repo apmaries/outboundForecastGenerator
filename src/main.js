@@ -357,6 +357,7 @@ export async function runGenerator(
       if (topicName !== "channel.metadata") {
         // temp logging
         console.warn("[OFG] Import operation ID: ", importOperationId);
+        console.warn("[OFG] Message from server: ", notification);
 
         // Check if eventBody and operationId are in notification
         if (
@@ -377,8 +378,8 @@ export async function runGenerator(
             successMessage.role = "alert";
             successMessage.innerHTML = "Forecast imported successfully!";
             resultsContainer.appendChild(successMessage);
-          } else if (status === "Failed") {
-            console.error("[OFG] Forecast import failed.");
+          } else if (status === "Error") {
+            console.error("[OFG] Forecast import failed.", notification);
 
             // Insert div to id="results-container" with error message
             const resultsContainer =
