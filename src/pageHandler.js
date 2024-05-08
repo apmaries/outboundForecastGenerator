@@ -491,3 +491,8 @@ export async function loadPageTwo() {
   // Execute queueCampaignMatcher after getPlanningGroups and getCampaigns complete
   await queueCampaignMatcher(planningGroups, campaigns);
 }
+
+export async function loadPageThree() {
+  // Hide page 2 and show page 3
+  switchPages("page-2", "page-3");
+}
