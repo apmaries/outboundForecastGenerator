@@ -61,6 +61,12 @@ export async function runGenerator(
 
   // Functions start here
 
+  // Function to replace the text in loading message
+  function updateLoadingMessage(message) {
+    const loadingMessage = document.getElementById("loading-message");
+    loadingMessage.innerHTML = message;
+  }
+
   // Function to build query body
   async function queryBuilder() {
     let queriesArray = [];
@@ -363,7 +369,25 @@ export async function runGenerator(
           if (status === "Complete") {
             console.log("[OFG] Forecast import completed successfully!");
 
-            // Move to completed page
+            // Insert div to id="results-container" with success message
+            const resultsContainer =
+              document.getElementById("results-container");
+            const successMessage = document.createElement("div");
+            successMessage.className = "alert alert-success";
+            successMessage.role = "alert";
+            successMessage.innerHTML = "Forecast imported successfully!";
+            resultsContainer.appendChild(successMessage);
+          } else if (status === "Failed") {
+            console.error("[OFG] Forecast import failed.");
+
+            // Insert div to id="results-container" with error message
+            const resultsContainer =
+              document.getElementById("results-container");
+            const errorMessage = document.createElement("div");
+            errorMessage.className = "alert alert-danger";
+            errorMessage.role = "alert";
+            errorMessage.innerHTML = "Forecast import failed.";
+            resultsContainer.appendChild(errorMessage);
           }
         } else {
           console.log("[OFG] Message from server: ", notification);
@@ -408,18 +432,23 @@ export async function runGenerator(
         "[OFG] Running in live mode - this has not yet been completed!"
       );
       // Execute queryBuilder after queueCampaignMatcher complete
+      updateLoadingMessage("Building queries");
       var queriesArray = await queryBuilder();
 
       // Execute historical data queries
+      updateLoadingMessage("Executing queries");
       queryResults = await executeQueries(queriesArray);
 
       // Process query results
+      updateLoadingMessage("Processing query results");
       await processQueryResults(queryResults);
 
       // Prepare forecast
+      updateLoadingMessage("Preparing forecast");
       let [fcImportBody, importGzip, contentLength] = await prepareForecast();
 
       // Generate URL for upload
+      updateLoadingMessage("Generating URL for upload");
       let uploadAttributes = await generateUrl(
         businessUnitId,
         weekStart,
@@ -427,6 +456,7 @@ export async function runGenerator(
       );
 
       // Upload forecast
+      updateLoadingMessage("Uploading forecast");
       /* GCF function being used until CORS blocking removed */
       // importFc(businessUnitId, weekStart, importGzip, uploadAttributes);
       const uploadResponse = await invokeGCF(uploadAttributes, fcImportBody);
@@ -439,6 +469,7 @@ export async function runGenerator(
         );
 
         // Import forecast
+        updateLoadingMessage("Importing forecast");
         const importResponse = importFc(businessUnitId, weekStart, uploadKey);
 
         // Check if operation id is in response
