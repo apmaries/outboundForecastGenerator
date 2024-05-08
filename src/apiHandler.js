@@ -272,11 +272,10 @@ export async function handleApiCalls(apiFunctionStr, ...args) {
   );
 }
 
-export async function subscribeToNotifications(buId) {
-  console.info("[OFG] Subscribing to notifications...");
+export async function subscribeToNotifications(buId, channelId) {
+  console.info("[OFG] Subscribing to forecast notifications");
   let apiInstance = new platformClient.NotificationsApi();
 
-  let channelId = "channelId_example"; // String | Channel ID
   let body = [
     { "id": `v2.workforcemanagement.businessunits.${buId}.shorttermforecasts` },
   ]; // Object | Body
@@ -288,18 +287,12 @@ export async function subscribeToNotifications(buId) {
   apiInstance
     .postNotificationsChannelSubscriptions(channelId, body, opts)
     .then((data) => {
-      console.log(
-        `postNotificationsChannelSubscriptions success! data: ${JSON.stringify(
-          data,
-          null,
-          2
-        )}`
-      );
+      console.log("[OFG] postNotificationsChannelSubscriptions data: ", data);
     })
     .catch((err) => {
-      console.log(
-        "There was a failure calling postNotificationsChannelSubscriptions"
+      console.error(
+        "[OFG] There was a failure calling postNotificationsChannelSubscriptions",
+        err
       );
-      console.error(err);
     });
 }
