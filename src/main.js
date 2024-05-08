@@ -474,6 +474,9 @@ export async function runGenerator(
 
         // Check if operation id is in response
         if (importResponse) {
+          // temp logging
+          console.warn("[OFG] Import operation ID: ", importResponse);
+
           importOperationId = importResponse.operationId;
           console.log(
             `[OFG] Forecast import initiated. Operation ID: ${importOperationId}`
