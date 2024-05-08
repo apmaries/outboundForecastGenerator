@@ -277,7 +277,12 @@ export async function subscribeToNotifications(buId, channelId) {
   let apiInstance = new platformClient.NotificationsApi();
 
   let body = [
-    { "id": `v2.workforcemanagement.businessunits.${buId}.shorttermforecasts` },
+    {
+      "id": `v2.workforcemanagement.businessunits.${buId}.shorttermforecasts.generate`,
+    },
+    {
+      "id": `v2.workforcemanagement.businessunits.${buId}.shorttermforecasts.import`,
+    },
   ]; // Object | Body
   let opts = {
     "ignoreErrors": false, // Boolean | Optionally prevent throwing of errors for failed permissions checks.
