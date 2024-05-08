@@ -348,11 +348,16 @@ export async function runGenerator(
       const notification = JSON.parse(event.data);
       const topicName = notification.topicName;
 
-      // temp logging
-      console.warn(`[OFG] Notification received with ${topicName} topic name`);
-
       if (topicName !== "channel.metadata") {
-        console.log("[OFG] Message from server: ", notification);
+        // temp logging
+        console.warn("[OFG] Import operation ID: ", importOperationId);
+
+        // Check if operationId is in notification
+        if (notification.operationId === importOperationId) {
+          console.log("[OFG] Forecast import update: ", notification);
+        } else {
+          console.log("[OFG] Message from server: ", notification);
+        }
       }
     });
 
