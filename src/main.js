@@ -352,9 +352,14 @@ export async function runGenerator(
         // temp logging
         console.warn("[OFG] Import operation ID: ", importOperationId);
 
-        // Check if operationId is in notification
-        if (notification.operationId === importOperationId) {
-          console.log("[OFG] Forecast import update: ", notification);
+        // Check if eventBody and operationId are in notification
+        if (
+          notification.eventBody &&
+          notification.eventBody.operationId === importOperationId
+        ) {
+          console.log(
+            `[OFG] Forecast import status updated <${notification.eventBody.status}>`
+          );
         } else {
           console.log("[OFG] Message from server: ", notification);
         }
