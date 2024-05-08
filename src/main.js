@@ -357,9 +357,14 @@ export async function runGenerator(
           notification.eventBody &&
           notification.eventBody.operationId === importOperationId
         ) {
-          console.log(
-            `[OFG] Forecast import status updated <${notification.eventBody.status}>`
-          );
+          const status = notification.eventBody.status;
+          console.log(`[OFG] Forecast import status updated <${status}>`);
+
+          if (status === "Complete") {
+            console.log("[OFG] Forecast import completed successfully!");
+
+            // Move to completed page
+          }
         } else {
           console.log("[OFG] Message from server: ", notification);
         }
