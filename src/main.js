@@ -377,7 +377,7 @@ export async function runGenerator(
       if (uploadResponse === 200) {
         const uploadKey = uploadAttributes.uploadKey;
         console.log(
-          "[OFG] Forecast uploaded successfully. Calling import method."
+          "[OFG] Forecast uploaded successfully! Calling import method."
         );
         const importResponse = importFc(businessUnitId, weekStart, uploadKey);
       }
