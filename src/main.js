@@ -56,6 +56,8 @@ export async function runGenerator(
   // Declare variables
   let queryResults = [];
   var historicalDataByCampaign = [];
+  let importOperationId = null;
+  let generateOperationId = null;
 
   // Functions start here
 
@@ -306,7 +308,7 @@ export async function runGenerator(
       return campaign;
     });
 
-    Promise.all(fcPrepPromises).then(async (completedCampaigns) => {
+    return Promise.all(fcPrepPromises).then(async (completedCampaigns) => {
       console.log("[OFG] All campaigns have been processed.");
       // downloadJson(completedCampaigns, "completedCampaigns");
 
@@ -423,6 +425,19 @@ export async function runGenerator(
 
         // Import forecast
         const importResponse = importFc(businessUnitId, weekStart, uploadKey);
+
+        // Check if operation id is in response
+        if (importResponse) {
+          importOperationId = importResponse.operationId;
+          console.log(
+            `[OFG] Forecast import initiated. Operation ID: ${importOperationId}`
+          );
+
+          // Assign operationId to global importOperationId variable
+          importOperationId = importResponse.operationId;
+        } else {
+          console.error("[OFG] Forecast import failed.");
+        }
       }
     }
   }
