@@ -407,7 +407,7 @@ export async function runGenerator(
       await processQueryResults(queryResults);
 
       // Prepare forecast
-      let [fcImportBody, importGzip, contentLength] = prepareForecast();
+      let [fcImportBody, importGzip, contentLength] = await prepareForecast();
 
       // Generate URL for upload
       let uploadAttributes = await generateUrl(
