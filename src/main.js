@@ -58,56 +58,6 @@ export async function runGenerator(
   var historicalDataByCampaign = [];
 
   // Functions start here
-  async function subscribe(buId) {
-    const channelId = sessionStorage.getItem("notifications_id");
-
-    console.log(`[OFG] Subscribing to forecast notifications for BU ${buId}`);
-    const forecastTopic = [
-      {
-        "id": `v2.workforcemanagement.businessunits.${buId}.shorttermforecasts`,
-      },
-    ];
-
-    // temp logging
-    console.warn(`{OFG] ${JSON.stringify(forecastTopic)}`);
-
-    try {
-      // Subscribe to the forecast topic
-      await handleApiCalls(
-        "NotificationsApi.postNotificationsChannelSubscriptions",
-        channelId,
-        forecastTopic
-      );
-
-      // log response from subscribeToForecast
-      console.log(`[OFG] Subscribed to forecast topic ${forecastTopic}`);
-    } catch (error) {
-      console.error(`[OFG] Error subscribing to forecast topic:`, error);
-    }
-  }
-
-  async function unsubscribe(buId) {
-    const id = buId;
-    const channelId = sessionStorage.getItem("notifications_id");
-
-    console.log(`[OFG] Unsubscribing from forecast notifications for BU ${id}`);
-
-    try {
-      // Unsubscribe from the forecast notifications
-      await handleApiCalls(
-        "NotificationsApi.deleteNotificationsChannelSubscriptions",
-        channelId
-      );
-
-      // log response from unsubscribeFromForecast
-      console.log(`[OFG] Unsubscribed from forecast notifications`);
-    } catch (error) {
-      console.error(
-        `[OFG] Error unsubscribing from forecast notifications:`,
-        error
-      );
-    }
-  }
 
   // Function to build query body
   async function queryBuilder() {
@@ -365,22 +315,8 @@ export async function runGenerator(
         businessUnitStartDayOfWeek,
         forecastDescription
       );
-      let uploadAttributes = await generateUrl(
-        businessUnitId,
-        weekStart,
-        contentLength
-      );
 
-      // importFc(businessUnitId, weekStart, importGzip, uploadAttributes);
-      const uploadResponse = await invokeGCF(uploadAttributes, fcImportBody);
-
-      if (uploadResponse === 200) {
-        const uploadKey = uploadAttributes.uploadKey;
-        console.log(
-          "[OFG] Forecast uploaded successfully! Calling import method."
-        );
-        const importResponse = importFc(businessUnitId, weekStart, uploadKey);
-      }
+      return [fcImportBody, importGzip, contentLength];
     });
   }
 
@@ -459,8 +395,35 @@ export async function runGenerator(
 
       // Execute historical data queries
       queryResults = await executeQueries(queriesArray);
+
+      // Process query results
       await processQueryResults(queryResults);
-      prepareForecast(); // Call the function to continue execution
+
+      // Prepare forecast
+      let [fcImportBody, importGzip, contentLength] = prepareForecast();
+
+      // Generate URL for upload
+      let uploadAttributes = await generateUrl(
+        businessUnitId,
+        weekStart,
+        contentLength
+      );
+
+      // Upload forecast
+      /* GCF function being used until CORS blocking removed */
+      // importFc(businessUnitId, weekStart, importGzip, uploadAttributes);
+      const uploadResponse = await invokeGCF(uploadAttributes, fcImportBody);
+
+      // Check if upload was successful
+      if (uploadResponse === 200) {
+        const uploadKey = uploadAttributes.uploadKey;
+        console.log(
+          "[OFG] Forecast uploaded successfully! Calling import method."
+        );
+
+        // Import forecast
+        const importResponse = importFc(businessUnitId, weekStart, uploadKey);
+      }
     }
   }
 }
