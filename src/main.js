@@ -386,8 +386,6 @@ export async function runGenerator(
 
   // Functions end here
 
-  // Main code starts here
-
   // Create a WebSocket connection
   const notificationsUri = sessionStorage.getItem("notifications_uri");
   if (notificationsUri) {
@@ -395,12 +393,15 @@ export async function runGenerator(
 
     // Connection opened
     ws.addEventListener("open", (event) => {
-      console.log("[OFG]: WebSocket connection opened");
+      console.log("[OFG] WebSocket connection opened");
 
       // Create an async function inside the event listener to pause execution until the subscribe function is complete
       (async () => {
         await subscribeToNotifications(businessUnitId);
       })();
+
+      // Call main function
+      main();
     });
 
     // Listen for messages
@@ -414,8 +415,6 @@ export async function runGenerator(
       if (topicName !== "channel.metadata") {
         console.log("[OFG] Message from server: ", notification);
       }
-      // If the data is JSON, you might want to parse it
-      // const data = JSON.parse(event.data);
     });
 
     // Connection closed
@@ -429,35 +428,38 @@ export async function runGenerator(
     });
   }
 
-  if (testMode) {
-    // load test data
-    fetch("./test/testData.json")
-      .then((response) => response.json())
-      .then(async (testData) => {
-        queryResults = testData;
-        console.log("[OFG] Test data loaded");
+  // Main code starts here
+  async function main() {
+    if (testMode) {
+      // load test data
+      fetch("./test/testData.json")
+        .then((response) => response.json())
+        .then(async (testData) => {
+          queryResults = testData;
+          console.log("[OFG] Test data loaded");
 
-        await processQueryResults(queryResults);
+          await processQueryResults(queryResults);
 
-        // added download for testing purposes
-        // downloadJson(historicalDataByCampaign, "historicalDataByCampaign_base");
+          // added download for testing purposes
+          // downloadJson(historicalDataByCampaign, "historicalDataByCampaign_base");
 
-        prepareForecast(); // Call the function to continue execution
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  } else {
-    // TODO: Update for production
-    console.warn(
-      "[OFG] Running in live mode - this has not yet been completed!"
-    );
-    // Execute queryBuilder after queueCampaignMatcher complete
-    var queriesArray = await queryBuilder();
+          prepareForecast(); // Call the function to continue execution
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    } else {
+      // TODO: Update for production
+      console.warn(
+        "[OFG] Running in live mode - this has not yet been completed!"
+      );
+      // Execute queryBuilder after queueCampaignMatcher complete
+      var queriesArray = await queryBuilder();
 
-    // Execute historical data queries
-    queryResults = await executeQueries(queriesArray);
-    await processQueryResults(queryResults);
-    prepareForecast(); // Call the function to continue execution
+      // Execute historical data queries
+      queryResults = await executeQueries(queriesArray);
+      await processQueryResults(queryResults);
+      prepareForecast(); // Call the function to continue execution
+    }
   }
 }
