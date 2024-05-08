@@ -388,6 +388,7 @@ export async function runGenerator(
 
   // Create a WebSocket connection
   const notificationsUri = sessionStorage.getItem("notifications_uri");
+  const notificationsId = sessionStorage.getItem("notifications_id");
   if (notificationsUri) {
     const ws = new WebSocket(notificationsUri);
 
@@ -397,7 +398,7 @@ export async function runGenerator(
 
       // Create an async function inside the event listener to pause execution until the subscribe function is complete
       (async () => {
-        await subscribeToNotifications(businessUnitId);
+        await subscribeToNotifications(businessUnitId, notificationsId);
       })();
 
       // Call main function
