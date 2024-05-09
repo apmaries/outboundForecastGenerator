@@ -394,7 +394,7 @@ export async function runGenerator(
             resultsContainer.appendChild(errorMessage);
 
             const errorReason = document.createElement("div");
-            errorReason.className = "alert-danger";
+
             errorReason.innerHTML = userMessage;
             resultsContainer.appendChild(errorReason);
           }
