@@ -1,4 +1,4 @@
-import { handleApiCalls } from "./apiHandler.js";
+import { handleApiCalls, toastUser } from "./apiHandler.js";
 
 export async function startSession() {
   console.log("[OFG] Starting session");
@@ -57,6 +57,8 @@ export async function startSession() {
 
         sessionStorage.setItem("user_name", userName);
         sessionStorage.setItem("user_id", userId);
+
+        toastUser();
 
         /* Dont worry about user images... that's a bit unneccessary 
         const userImage = udata.images[0].imageUri;
