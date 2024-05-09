@@ -1,4 +1,4 @@
-import { downloadJson } from "./pageHandler.js";
+import { downloadJson, hideLoadingSpinner } from "./pageHandler.js";
 import { handleApiCalls, subscribeToNotifications } from "./apiHandler.js";
 import {
   prepFcMetrics,
@@ -367,6 +367,9 @@ export async function runGenerator(
           const status = notification.eventBody.status;
           console.log(`[OFG] Forecast import status updated <${status}>`);
 
+          // Hide loading spinner div
+          hideLoadingSpinner("results-loading", "results-container");
+
           if (status === "Complete") {
             console.log("[OFG] Forecast import completed successfully!");
 
@@ -374,20 +377,19 @@ export async function runGenerator(
             const resultsContainer =
               document.getElementById("results-container");
             const successMessage = document.createElement("div");
-            successMessage.className = "alert alert-success";
-            successMessage.role = "alert";
+            successMessage.className = "alert-success";
             successMessage.innerHTML = "Forecast imported successfully!";
             resultsContainer.appendChild(successMessage);
           } else if (status === "Error") {
             console.error("[OFG] Forecast import failed.", notification);
+            const userMessage = notification.metadata.errorInfo.userMessage;
 
             // Insert div to id="results-container" with error message
             const resultsContainer =
               document.getElementById("results-container");
             const errorMessage = document.createElement("div");
-            errorMessage.className = "alert alert-danger";
-            errorMessage.role = "alert";
-            errorMessage.innerHTML = "Forecast import failed.";
+            errorMessage.className = "alert-danger";
+            errorMessage.innerHTML = userMessage;
             resultsContainer.appendChild(errorMessage);
           }
         } else {
