@@ -387,7 +387,6 @@ export async function runGenerator(
           restartButton.setAttribute("accent", "secondary");
           restartButton.className = "align-left";
           restartButton.textContent = "Restart";
-          buttonsContainer.appendChild(restartButton);
 
           // Create a button to open forecast
           const openForecastButton = document.createElement("gux-button");
@@ -396,7 +395,6 @@ export async function runGenerator(
           openForecastButton.setAttribute("disabled", "true");
           openForecastButton.className = "align-right";
           openForecastButton.textContent = "Open Forecast";
-          buttonsContainer.appendChild(openForecastButton);
 
           // Add event listener to restart button
           restartButton.addEventListener("click", (event) => {
@@ -438,6 +436,10 @@ export async function runGenerator(
             errorReason.innerHTML = userMessage;
             resultsContainer.appendChild(errorReason);
           }
+
+          // Append buttons to the results container
+          buttonsContainer.appendChild(restartButton);
+          buttonsContainer.appendChild(openForecastButton);
         } else {
           console.log("[OFG] Message from server: ", notification);
         }
