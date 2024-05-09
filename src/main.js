@@ -387,10 +387,16 @@ export async function runGenerator(
             // Insert div to id="results-container" with error message
             const resultsContainer =
               document.getElementById("results-container");
+
             const errorMessage = document.createElement("div");
             errorMessage.className = "alert-danger";
-            errorMessage.innerHTML = userMessage;
+            errorMessage.innerHTML = "Forecast import failed!";
             resultsContainer.appendChild(errorMessage);
+
+            const errorReason = document.createElement("div");
+            errorReason.className = "alert-danger";
+            errorReason.innerHTML = userMessage;
+            resultsContainer.appendChild(errorReason);
           }
         } else {
           console.log("[OFG] Message from server: ", notification);
