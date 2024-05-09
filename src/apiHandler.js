@@ -25,7 +25,7 @@ client.setPersistSettings(true, "wpt");
 // TODO: Why does the client need to be set up again? Can't we use the one from index.html?
 
 // Configure Client App
-let ClientApp = window.purecloud.apps.ClientApp;
+let ClientApp = window.require("purecloud-client-app-sdk");
 let myClientApp = new ClientApp({
   pcEnvironment: environment,
 });
