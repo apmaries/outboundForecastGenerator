@@ -21,7 +21,7 @@ var environment = sessionStorage.getItem("org_env");
 // Set the client configuration
 client.setEnvironment(environment);
 client.setAccessToken(accessToken);
-client.setPersistSettings(true, "wpt");
+client.setPersistSettings(true, "ofg");
 // TODO: Why does the client need to be set up again? Can't we use the one from index.html?
 
 // Configure Client App
@@ -311,7 +311,7 @@ export async function subscribeToNotifications(buId, channelId) {
 export async function toastUser() {
   console.log("[OFG] Toasting user");
 
-  myClientApp.alerting.showToastPopup(
+  window.myClientApp.alerting.showToastPopup(
     `Hi ${userDetails.name}`,
     "Never gonna give you up, never gonna let you down 😊"
   );

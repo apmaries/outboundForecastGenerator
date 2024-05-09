@@ -405,6 +405,14 @@
           console.log("[OFG] Environment set to", environment);
           client.setPersistSettings(true, "ofg");
 
+          // Configure Client App
+          let ClientApp = window.require("purecloud-client-app-sdk");
+          let myClientApp = new ClientApp({
+            pcEnvironment: environment,
+          });
+
+          window.myClientApp = myClientApp;
+
           try {
             await client.loginImplicitGrant(
               clientId,
