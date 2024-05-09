@@ -404,23 +404,25 @@ export async function runGenerator(
             loadPageOne();
           });
 
-          // Add event listener to open forecast button
-          openForecastButton.addEventListener("click", (event) => {
-            window.top.location.href = "https://www.new-url.com";
-          });
-
           if (status === "Complete") {
             console.log("[OFG] Forecast import completed successfully!");
+
+            const forecastId = notification.result.id;
+
+            // Add event listener to open forecast button
+            openForecastButton.addEventListener("click", (event) => {
+              window.top.location.href = `/directory/#/admin/wfm/forecasts/${businessUnitId}/update/${weekStart}${forecastId}`;
+            });
+
+            // Enable open forecast button
+            openForecastButton.removeAttribute("disabled");
 
             // Insert div to id="results-container" with success message
             const successMessage = document.createElement("div");
             successMessage.className = "alert-success";
             successMessage.innerHTML = "Forecast imported successfully!";
             resultsContainer.appendChild(successMessage);
-
-            // Enable open forecast button
-            openForecastButton.removeAttribute("disabled");
-          } else if (status === "Error") {
+          } else if (status === "Error" || status === "Canceled") {
             console.error("[OFG] Forecast import failed.", notification);
             const userMessage = notification.metadata.errorInfo.userMessage;
 
