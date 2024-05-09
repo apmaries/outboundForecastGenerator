@@ -377,40 +377,6 @@ export async function runGenerator(
 
           const resultsContainer = document.getElementById("results-container");
 
-          if (status === "Complete") {
-            console.log("[OFG] Forecast import completed successfully!");
-
-            const forecastId = notification.eventBody.result.id;
-
-            // Add event listener to open forecast button
-            openForecastButton.addEventListener("click", (event) => {
-              window.top.location.href = `/directory/#/admin/wfm/forecasts/${businessUnitId}/update/${weekStart}${forecastId}`;
-            });
-
-            // Enable open forecast button
-            openForecastButton.removeAttribute("disabled");
-
-            // Insert div to id="results-container" with success message
-            const successMessage = document.createElement("div");
-            successMessage.className = "alert-success";
-            successMessage.innerHTML = "Forecast imported successfully!";
-            resultsContainer.appendChild(successMessage);
-          } else if (status === "Error" || status === "Canceled") {
-            console.error("[OFG] Forecast import failed.", notification);
-            const userMessage = notification.metadata.errorInfo.userMessage;
-
-            // Insert div to id="results-container" with error message
-
-            const errorMessage = document.createElement("div");
-            errorMessage.className = "alert-danger";
-            errorMessage.innerHTML = "Forecast import failed!";
-            resultsContainer.appendChild(errorMessage);
-
-            const errorReason = document.createElement("div");
-
-            errorReason.innerHTML = userMessage;
-            resultsContainer.appendChild(errorReason);
-          }
           // Append a buttons to the results container
           const buttonsContainer =
             document.getElementById("page-three-buttons");
@@ -432,10 +398,45 @@ export async function runGenerator(
 
           // Add event listener to restart button
           restartButton.addEventListener("click", (event) => {
-            console.log("[OFG] Restarting!");
             switchPages("page-three", "page-one");
             loadPageOne();
           });
+
+          let message;
+          if (status === "Complete") {
+            console.log("[OFG] Forecast import completed successfully!");
+
+            const forecastId = notification.eventBody.result.id;
+
+            // Add event listener to open forecast button
+            openForecastButton.addEventListener("click", (event) => {
+              window.top.location.href = `/directory/#/admin/wfm/forecasts/${businessUnitId}/update/${weekStart}${forecastId}`;
+            });
+
+            // Enable open forecast button
+            openForecastButton.removeAttribute("disabled");
+
+            // Insert div to id="results-container" with success message
+            message = document.createElement("div");
+            message.className = "alert-success";
+            message.innerHTML = "Forecast imported successfully!";
+            resultsContainer.appendChild(message);
+          } else if (status === "Error" || status === "Canceled") {
+            console.error("[OFG] Forecast import failed.", notification);
+            const userMessage = notification.metadata.errorInfo.userMessage;
+
+            // Insert div to id="results-container" with error message
+
+            message = document.createElement("div");
+            message.className = "alert-danger";
+            message.innerHTML = "Forecast import failed!";
+            resultsContainer.appendChild(message);
+
+            const errorReason = document.createElement("div");
+
+            errorReason.innerHTML = userMessage;
+            resultsContainer.appendChild(errorReason);
+          }
 
           // Append buttons to the results container
           buttonsContainer.appendChild(restartButton);
