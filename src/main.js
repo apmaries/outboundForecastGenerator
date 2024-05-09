@@ -441,12 +441,12 @@ export async function runGenerator(
           buttonsContainer.className = "row";
           buttonsContainer.style.paddingTop = "20px";
 
-          // Append the div to the body (or another container)
-          document.body.appendChild(div);
-
           // Append buttons to the results container
           buttonsContainer.appendChild(restartButton);
           buttonsContainer.appendChild(openForecastButton);
+
+          // Append the buttonsContainer
+          resultsContainer.body.appendChild(buttonsContainer);
         } else {
           console.log("[OFG] Message from server: ", notification);
         }
