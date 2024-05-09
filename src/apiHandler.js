@@ -25,7 +25,7 @@ client.setPersistSettings(true, "ofg");
 // TODO: Why does the client need to be set up again? Can't we use the one from index.html?
 
 // Configure Client App
-let ClientApp = window.require("purecloud-client-app-sdk");
+var ClientApp = window.purecloud.apps.ClientApp;
 let myClientApp = new ClientApp({
   pcEnvironment: environment,
 });
