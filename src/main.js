@@ -370,12 +370,13 @@ export async function runGenerator(
           // Hide loading spinner div
           hideLoadingSpinner("results-loading", "results-container");
 
+          const resultsContainer = document.getElementById("results-container");
+
           if (status === "Complete") {
             console.log("[OFG] Forecast import completed successfully!");
 
             // Insert div to id="results-container" with success message
-            const resultsContainer =
-              document.getElementById("results-container");
+
             const successMessage = document.createElement("div");
             successMessage.className = "alert-success";
             successMessage.innerHTML = "Forecast imported successfully!";
@@ -385,8 +386,6 @@ export async function runGenerator(
             const userMessage = notification.metadata.errorInfo.userMessage;
 
             // Insert div to id="results-container" with error message
-            const resultsContainer =
-              document.getElementById("results-container");
 
             const errorMessage = document.createElement("div");
             errorMessage.className = "alert-danger";
@@ -398,6 +397,14 @@ export async function runGenerator(
             errorReason.innerHTML = userMessage;
             resultsContainer.appendChild(errorReason);
           }
+
+          // Append a restart button to the results container
+          const restartButton = document.createElement("gux-button");
+          restartButton.id = "restart-button";
+          restartButton.setAttribute("accent", "secondary");
+          restartButton.className = "align-left";
+          restartButton.textContent = "Restart";
+          resultsContainer.appendChild(restartButton);
         } else {
           console.log("[OFG] Message from server: ", notification);
         }
