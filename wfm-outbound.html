@@ -293,7 +293,15 @@
                 <div slot="additional-guidance">Thank you for waiting.</div>
               </gux-loading-message>
             </div>
-            <div id="results-container" style="display: none"></div>
+            <div id="results-container" style="display: none">
+              <gux-button
+                id="restart-button"
+                accent="primary"
+                class="align-left"
+              >
+                Restart
+              </gux-button>
+            </div>
           </fieldset>
         </div>
         <div id="test-mode" class="align-left" hidden></div>
@@ -539,6 +547,17 @@
         });
       } else {
         console.error("[OFG] Run button not found");
+      }
+
+      // Event listener for restart button
+      const restartButton = document.getElementById("restart-button");
+      if (restartButton) {
+        restartButton.addEventListener("click", () => {
+          switchPages("page-three", "page-one");
+          loadPageOne();
+        });
+      } else {
+        console.error("[OFG] Restart button not found");
       }
     </script>
   </body>
