@@ -407,7 +407,7 @@ export async function runGenerator(
           if (status === "Complete") {
             console.log("[OFG] Forecast import completed successfully!");
 
-            const forecastId = notification.result.id;
+            const forecastId = notification.eventBody.result.id;
 
             // Add event listener to open forecast button
             openForecastButton.addEventListener("click", (event) => {
