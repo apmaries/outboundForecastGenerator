@@ -377,31 +377,6 @@ export async function runGenerator(
 
           const resultsContainer = document.getElementById("results-container");
 
-          // Append a buttons to the results container
-          const buttonsContainer =
-            document.getElementById("page-three-buttons");
-
-          // Create a button to restart the process
-          const restartButton = document.createElement("gux-button");
-          restartButton.id = "restart-button";
-          restartButton.setAttribute("accent", "secondary");
-          restartButton.className = "align-left";
-          restartButton.textContent = "Restart";
-
-          // Create a button to open forecast
-          const openForecastButton = document.createElement("gux-button");
-          openForecastButton.id = "open-forecast-button";
-          openForecastButton.setAttribute("accent", "primary");
-          openForecastButton.setAttribute("disabled", "true");
-          openForecastButton.className = "align-right";
-          openForecastButton.textContent = "Open Forecast";
-
-          // Add event listener to restart button
-          restartButton.addEventListener("click", (event) => {
-            switchPages("page-three", "page-one");
-            loadPageOne();
-          });
-
           if (status === "Complete") {
             console.log("[OFG] Forecast import completed successfully!");
 
@@ -436,6 +411,30 @@ export async function runGenerator(
             errorReason.innerHTML = userMessage;
             resultsContainer.appendChild(errorReason);
           }
+          // Append a buttons to the results container
+          const buttonsContainer =
+            document.getElementById("page-three-buttons");
+
+          // Create a button to restart the process
+          const restartButton = document.createElement("gux-button");
+          restartButton.id = "restart-button";
+          restartButton.setAttribute("accent", "secondary");
+          restartButton.className = "align-left";
+          restartButton.textContent = "Restart";
+
+          // Create a button to open forecast
+          const openForecastButton = document.createElement("gux-button");
+          openForecastButton.id = "open-forecast-button";
+          openForecastButton.setAttribute("accent", "primary");
+          openForecastButton.setAttribute("disabled", "true");
+          openForecastButton.className = "align-right";
+          openForecastButton.textContent = "Open Forecast";
+
+          // Add event listener to restart button
+          restartButton.addEventListener("click", (event) => {
+            switchPages("page-three", "page-one");
+            loadPageOne();
+          });
 
           // Append buttons to the results container
           buttonsContainer.appendChild(restartButton);
