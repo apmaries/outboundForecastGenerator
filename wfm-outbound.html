@@ -406,7 +406,7 @@
           client.setPersistSettings(true, "ofg");
 
           // Configure Client App
-          let ClientApp = window.require("purecloud-client-app-sdk");
+          let ClientApp = window.purecloud.apps.ClientApp;
           let myClientApp = new ClientApp({
             pcEnvironment: environment,
           });
