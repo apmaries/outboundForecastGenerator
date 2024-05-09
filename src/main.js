@@ -1,4 +1,9 @@
-import { downloadJson, hideLoadingSpinner } from "./pageHandler.js";
+import {
+  downloadJson,
+  hideLoadingSpinner,
+  switchPages,
+  loadPageOne,
+} from "./pageHandler.js";
 import { handleApiCalls, subscribeToNotifications } from "./apiHandler.js";
 import {
   prepFcMetrics,
@@ -372,15 +377,49 @@ export async function runGenerator(
 
           const resultsContainer = document.getElementById("results-container");
 
+          // Append a buttons to the results container
+          const buttonsContainer =
+            document.getElementById("page-three-buttons");
+
+          // Create a button to restart the process
+          const restartButton = document.createElement("gux-button");
+          restartButton.id = "restart-button";
+          restartButton.setAttribute("accent", "secondary");
+          restartButton.className = "align-left";
+          restartButton.textContent = "Restart";
+          buttonsContainer.appendChild(restartButton);
+
+          // Create a button to open forecast
+          const openForecastButton = document.createElement("gux-button");
+          openForecastButton.id = "open-forecast-button";
+          openForecastButton.setAttribute("accent", "primary");
+          openForecastButton.setAttribute("disabled", "true");
+          openForecastButton.className = "align-right";
+          openForecastButton.textContent = "Open Forecast";
+          buttonsContainer.appendChild(openForecastButton);
+
+          // Add event listener to restart button
+          restartButton.addEventListener("click", (event) => {
+            switchPages("page-three", "page-one");
+            loadPageOne();
+          });
+
+          // Add event listener to open forecast button
+          openForecastButton.addEventListener("click", (event) => {
+            window.top.location.href = "https://www.new-url.com";
+          });
+
           if (status === "Complete") {
             console.log("[OFG] Forecast import completed successfully!");
 
             // Insert div to id="results-container" with success message
-
             const successMessage = document.createElement("div");
             successMessage.className = "alert-success";
             successMessage.innerHTML = "Forecast imported successfully!";
             resultsContainer.appendChild(successMessage);
+
+            // Enable open forecast button
+            openForecastButton.removeAttribute("disabled");
           } else if (status === "Error") {
             console.error("[OFG] Forecast import failed.", notification);
             const userMessage = notification.metadata.errorInfo.userMessage;
@@ -397,14 +436,6 @@ export async function runGenerator(
             errorReason.innerHTML = userMessage;
             resultsContainer.appendChild(errorReason);
           }
-
-          // Append a restart button to the results container
-          const restartButton = document.createElement("gux-button");
-          restartButton.id = "restart-button";
-          restartButton.setAttribute("accent", "secondary");
-          restartButton.className = "align-left";
-          restartButton.textContent = "Restart";
-          resultsContainer.appendChild(restartButton);
         } else {
           console.log("[OFG] Message from server: ", notification);
         }
