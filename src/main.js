@@ -432,6 +432,7 @@ export async function runGenerator(
 
           // Add event listener to restart button
           restartButton.addEventListener("click", (event) => {
+            console.log("[OFG] Restarting!");
             switchPages("page-three", "page-one");
             loadPageOne();
           });
