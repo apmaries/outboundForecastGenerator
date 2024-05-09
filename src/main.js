@@ -377,10 +377,6 @@ export async function runGenerator(
 
           const resultsContainer = document.getElementById("results-container");
 
-          // Append a buttons to the results container
-          const buttonsContainer =
-            document.getElementById("page-three-buttons");
-
           // Create a button to restart the process
           const restartButton = document.createElement("gux-button");
           restartButton.id = "restart-button";
@@ -437,6 +433,16 @@ export async function runGenerator(
             errorReason.innerHTML = userMessage;
             resultsContainer.appendChild(errorReason);
           }
+          // Create a new div
+          const buttonsContainer = document.createElement("div");
+
+          // Set the id, class, and style attributes
+          buttonsContainer.id = "page-three-buttons";
+          buttonsContainer.className = "row";
+          buttonsContainer.style.paddingTop = "20px";
+
+          // Append the div to the body (or another container)
+          document.body.appendChild(div);
 
           // Append buttons to the results container
           buttonsContainer.appendChild(restartButton);
