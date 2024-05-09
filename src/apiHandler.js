@@ -312,7 +312,7 @@ export async function toastUser() {
   console.log("[OFG] Toasting user");
 
   window.myClientApp.alerting.showToastPopup(
-    `Hi ${userDetails.name}`,
+    `Hi!`,
     "Never gonna give you up, never gonna let you down 😊"
   );
 }
