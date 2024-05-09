@@ -24,6 +24,12 @@ client.setAccessToken(accessToken);
 client.setPersistSettings(true, "wpt");
 // TODO: Why does the client need to be set up again? Can't we use the one from index.html?
 
+// Configure Client App
+let ClientApp = window.purecloud.apps.ClientApp;
+let myClientApp = new ClientApp({
+  pcEnvironment: environment,
+});
+
 // Define the API instances in an object
 const apiInstances = {}; // Is added to dynamically as calls are made
 
@@ -300,4 +306,13 @@ export async function subscribeToNotifications(buId, channelId) {
         err
       );
     });
+}
+
+export async function toastUser() {
+  console.log("[OFG] Toasting user");
+
+  myClientApp.alerting.showToastPopup(
+    `Hi ${userDetails.name}`,
+    "Never gonna give you up, never gonna let you down 😊"
+  );
 }
