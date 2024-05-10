@@ -446,7 +446,7 @@ export async function runGenerator(
           buttonsContainer.appendChild(openForecastButton);
 
           // Append the buttonsContainer
-          resultsContainer.body.appendChild(buttonsContainer);
+          resultsContainer.appendChild(buttonsContainer);
         } else {
           console.log("[OFG] Message from server: ", notification);
         }
