@@ -458,6 +458,12 @@ export async function loadPageTwo() {
 export async function loadPageThree() {
   // Hide page 2 and show page 3
   console.log("[OFG] Loading page 3 initiated");
+
+  // Populate Planning Groups dropdown
+  const planningGroupsTable = document.querySelector("#planning-groups-table");
+  const planningGroups = planningGroupsTable.querySelectorAll("td");
+  const planningGroupContactsArray = [];
+
   const chart11 = document.querySelector("#chart-11");
   const visualizationSpecLineAllPoints = {
     "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
