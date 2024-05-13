@@ -494,5 +494,28 @@ export async function loadPageTwo() {
 
 export async function loadPageThree() {
   // Hide page 2 and show page 3
-  switchPages("page-two", "page-three");
+  console.log("[OFG] Loading page 3 initiated");
+  const chart11 = document.querySelector("#chart-11");
+  const visualizationSpecLineAllPoints = {
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "data": { "url": "https://vega.github.io/editor/data/seattle-weather.csv" },
+    "width": 360,
+    "height": 360,
+    "mark": {
+      "type": "line",
+      "interpolate": "monotone",
+    },
+    "encoding": {
+      "x": { "field": "date", "type": "temporal" },
+      "y": { "field": "temp_max", "type": "quantitative" },
+      "tooltip": { "field": "temp_max", "type": "quantitative" },
+    },
+  };
+
+  chart11.visualizationSpec = visualizationSpecLineAllPoints;
+}
+
+export async function loadPageFour() {
+  // Hide page 3 and show page 4
+  switchPages("page-three", "page-four");
 }

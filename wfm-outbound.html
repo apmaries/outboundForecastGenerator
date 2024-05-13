@@ -202,7 +202,12 @@
                   unchecked-label="No"
                 ></gux-toggle>
               </div>
-              <gux-button id="next-button" accent="secondary">Next</gux-button>
+              <gux-button
+                id="p1-next-button"
+                name="next-button"
+                accent="secondary"
+                >Next</gux-button
+              >
             </div>
           </fieldset>
         </div>
@@ -281,9 +286,44 @@
               </div>
             </div>
             <div id="page-two-buttons" class="row" style="padding-top: 20px">
-              <gux-button id="back-button" accent="secondary" class="align-left"
+              <gux-button
+                id="p2-back-button"
+                name="back-button"
+                accent="secondary"
+                class="align-left"
                 >Back</gux-button
               >
+              <gux-button
+                id="p2-next-button"
+                name="next-button"
+                accent="secondary"
+                >Next</gux-button
+              >
+            </div>
+          </fieldset>
+        </div>
+
+        <div id="page-three" class="inactive-page">
+          <fieldset>
+            <legend>Outputs</legend>
+            <div id="forecast-outputs-container">
+              <gux-form-field-dropdown class="width">
+                <gux-dropdown id="business-unit-dropdown">
+                  <gux-listbox id="business-unit-listbox"> </gux-listbox>
+                </gux-dropdown>
+                <label slot="label">Planning Group</label>
+              </gux-form-field-dropdown>
+              <gux-visualization-beta id="chart-11"> </gux-visualization-beta>
+            </div>
+            <div id="page-three-buttons" class="row" style="padding-top: 20px">
+              <gux-button
+                id="p3-back-button"
+                name="back-button"
+                accent="secondary"
+                class="align-left"
+                >Back</gux-button
+              >
+
               <gux-button id="run-button" accent="primary" class="align-right"
                 >Run!</gux-button
               >
@@ -291,7 +331,7 @@
           </fieldset>
         </div>
 
-        <div id="page-three" class="inactive-page">
+        <div id="page-four" class="inactive-page">
           <fieldset>
             <legend>Results</legend>
             <div id="results-loading">
@@ -348,10 +388,6 @@
     <script src="https://sdk-cdn.mypurecloud.com/javascript/latest/purecloud-platform-client-v2.min.js"></script>
 
     <!-- Load the Client App SDK-->
-    <script
-      src="https://sdk-cdn.mypurecloud.com/client-apps/2.6.6/purecloud-client-app-sdk.js"
-      ;
-    ></script>
 
     <!-- Project modules -->
     <script
@@ -425,8 +461,15 @@
           } catch (e) {
             console.error("[OFG] Error logging in", e);
           }
+          await startSession();
+
+          // Append script to load the client library
+          const script = document.createElement("script");
+          script.src =
+            "https://sdk-cdn.mypurecloud.com/client-apps/2.6.6/purecloud-client-app-sdk.js";
+          document.body.appendChild(script);
         }
-        await startSession();
+
         loadPageOne();
       });
     </script>
@@ -439,6 +482,7 @@
         getBusinessUnit,
         loadPageTwo,
         loadPageThree,
+        loadPageFour,
       } from "./src/pageHandler.js";
       import { runGenerator } from "./src/main.js";
 
@@ -466,26 +510,67 @@
           console.error("[OFG] Business Unit dropdown not found");
         }
 
-        // Event listener for next button
-        const nextButton = document.getElementById("next-button");
-        if (nextButton) {
-          nextButton.addEventListener("click", async () => {
-            switchPages("page-one", "page-two");
-            await loadPageTwo();
-          });
-        } else {
-          console.error("[OFG] Next button not found");
-        }
+        // Get a reference to the next buttons
+        const nextButtons = document.getElementsByName("next-button");
 
-        // Event listener for back button
-        const backButton = document.getElementById("back-button");
-        if (backButton) {
-          backButton.addEventListener("click", () =>
-            switchPages("page-two", "page-one")
-          );
-        } else {
-          console.error("[OFG] Back button not found");
-        }
+        // Add event listener to each next button
+        nextButtons.forEach((nextButton) => {
+          nextButton.addEventListener("click", function () {
+            // Get the current active page
+            const currentPage = document.querySelector(".active-page");
+
+            // Determine the next page based on the current page
+            let nextPageId;
+            switch (currentPage.id) {
+              case "page-one":
+                console.log("[OFG] Loading page two");
+                nextPageId = "page-two";
+                loadPageTwo();
+                break;
+              case "page-two":
+                console.log("[OFG] Loading page three");
+                nextPageId = "page-three";
+                loadPageThree();
+                break;
+              // Add more cases as needed
+            }
+
+            // Switch to the next page
+            if (nextPageId) {
+              switchPages(currentPage.id, nextPageId);
+            }
+          });
+        });
+
+        // Get a reference to the back buttons
+        const backButtons = document.getElementsByName("back-button");
+
+        // Add event listener to each back button
+        backButtons.forEach((backButton) => {
+          backButton.addEventListener("click", function () {
+            // Get the current active page
+            const currentPage = document.querySelector(".active-page");
+
+            // Determine the previous page based on the current page
+            let previousPageId;
+            switch (currentPage.id) {
+              case "page-two":
+                console.log("[OFG] Loading page one");
+                previousPageId = "page-one";
+                break;
+              case "page-three":
+                console.log("[OFG] Loading page two");
+                previousPageId = "page-two";
+                break;
+              // Add more cases as needed
+            }
+
+            // Switch to the previous page
+            if (previousPageId) {
+              switchPages(currentPage.id, previousPageId);
+            }
+          });
+        });
       });
 
       // Event listener for Run button
@@ -553,7 +638,7 @@
           const forecastDescription =
             document.getElementById("fc-description").value;
 
-          await loadPageThree();
+          await loadPageFour();
 
           // Run forecast generator
           await runGenerator(
