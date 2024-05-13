@@ -462,15 +462,8 @@
           } catch (e) {
             console.error("[OFG] Error logging in", e);
           }
-          await startSession();
-
-          // Append script to load the client library
-          const script = document.createElement("script");
-          script.src =
-            "https://sdk-cdn.mypurecloud.com/client-apps/2.6.6/purecloud-client-app-sdk.js";
-          document.body.appendChild(script);
         }
-
+        await startSession();
         loadPageOne();
       });
     </script>
