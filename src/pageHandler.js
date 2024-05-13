@@ -125,19 +125,12 @@ export function downloadGzip(gzip) {
 export async function getBusinessUnit() {
   let businessUnitData;
   if (window.isTesting) {
-    // Testing mode - Get Business Unit data from ./test/source/bu.json
-    try {
-      const response = await fetch(
-        "/outboundForecastGenerator/test/source/bu.json"
-      );
-      businessUnitData = await response.json();
-      console.log(
-        "[OFG] Business Unit data loaded from test data",
-        businessUnitData
-      );
-    } catch (error) {
-      console.error("[OFG] Error loading test data", error);
-    }
+    // Testing mode - Get Business Unit data from mock PlatformClient
+    businessUnitData = await PlatformClient.MockWfmApi.getBusinessUnitData();
+    console.log(
+      "[OFG] Business Unit data loaded from test data",
+      businessUnitData
+    );
   } else {
     // Production mode
     const selectedBuId = businessUnitListbox.value;
@@ -184,20 +177,9 @@ export async function getBusinessUnit() {
 
 export async function loadPageOne() {
   if (window.isTesting) {
-    // Testing mode - Get Business Units from ./test/source/businessUnits.json
-    try {
-      const response = await fetch(
-        "/outboundForecastGenerator/test/source/businessUnits.json"
-      );
-      const data = await response.json();
-      businessUnits = data.entities;
-      console.log(
-        `[OFG] ${businessUnits.length} Business Units loaded from test data`,
-        businessUnits
-      );
-    } catch (error) {
-      console.error("[OFG] Error loading test data", error);
-    }
+    // Testing mode - Get Business Units from mock PlatformClient
+    businessUnits = await PlatformClient.MockWfmApi.getBusinessUnits();
+    console.log("[OFG] Business Units loaded from test data", businessUnits);
   } else {
     // Production mode
     try {
@@ -228,24 +210,16 @@ export async function loadPageTwo() {
     let planningGroups;
     let planningGroupsArray = [];
 
-    if (window.isTesting) {
-      // Testing mode - Get Planning Groups from ./test/source/planningGroups.json
-      try {
-        const response = await fetch(
-          "/outboundForecastGenerator/test/source/planningGroups.json"
-        );
-        const data = await response.json();
-        planningGroups = data.entities;
+    try {
+      if (window.isTesting) {
+        // Testing mode - Get Planning Groups from mock PlatformClient
+        planningGroups = await PlatformClient.MockWfmApi.getPlanningGroups();
         console.log(
           "[OFG] Planning Groups loaded from test data",
           planningGroups
         );
-      } catch (error) {
-        console.error("[OFG] Error loading test data", error);
-      }
-    } else {
-      // Production mode
-      try {
+      } else {
+        // Production mode
         planningGroups = await handleApiCalls(
           "WorkforceManagementApi.getWorkforcemanagementBusinessunitPlanninggroups",
           selectedBuId
@@ -254,15 +228,15 @@ export async function loadPageTwo() {
           `[OFG] ${planningGroups.length} Planning Groups loaded`,
           planningGroups
         );
-      } catch (error) {
-        console.error("[OFG] Error loading planning groups", error);
       }
+    } catch (error) {
+      console.error("[OFG] Error loading planning groups", error);
+    }
 
-      if (planningGroups.length === 0) {
-        // Special handling when 0 planning groups are loaded
-        console.log("[OFG] No planning groups found");
-        return;
-      }
+    if (!planningGroups || planningGroups.length === 0) {
+      // Special handling when 0 planning groups are loaded
+      console.log("[OFG] No planning groups found");
+      return;
     }
 
     // loop through planning groups to build array of planning group objects
@@ -300,20 +274,9 @@ export async function loadPageTwo() {
     console.log(`[OFG] Get Campaigns initiated`);
 
     if (window.isTesting) {
-      // Testing mode - Get Campaigns from ./test/source/campaigns.json
-      try {
-        const response = await fetch(
-          "/outboundForecastGenerator/test/source/campaigns.json"
-        );
-        const data = await response.json();
-        campaigns = data.entities;
-        console.log(
-          "[OFG] Planning Groups loaded from test data",
-          planningGroups
-        );
-      } catch (error) {
-        console.error("[OFG] Error loading test data", error);
-      }
+      // Testing mode - Get Campaigns from mock PlatformClient
+      campaigns = await PlatformClient.MockOutboundApi.getOutboundCampaigns();
+      console.log("[OFG] Campaigns loaded from test data", campaigns);
     } else {
       // Production mode
       try {

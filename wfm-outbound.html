@@ -433,22 +433,67 @@
           console.log("[OFG] Testing mode");
           var environment = "mypurecloud.com.au";
 
+          // Fetch static JSON data
+          let businessUnitsPromise = fetch(
+            "/outboundForecastGenerator/test/source/businessUnits.json"
+          )
+            .then((response) => response.json())
+            .then((data) => data.entities)
+            .catch((error) =>
+              console.error("[OFG] Error fetching business units data", error)
+            );
+
+          let businessUnitSettingsPromise = fetch(
+            "/outboundForecastGenerator/test/source/bu.json"
+          )
+            .then((response) => response.json())
+            .catch((error) =>
+              console.error(
+                "[OFG] Error fetching business unit settings data",
+                error
+              )
+            );
+
+          let planningGroupsPromise = fetch(
+            "/outboundForecastGenerator/test/source/planningGroups.json"
+          )
+            .then((response) => response.json())
+            .then((data) => data.entities)
+            .catch((error) =>
+              console.error("[OFG] Error fetching planning groups data", error)
+            );
+
+          let campaignsPromise = fetch(
+            "/outboundForecastGenerator/test/source/campaigns.json"
+          )
+            .then((response) => response.json())
+            .then((data) => data.entities)
+            .catch((error) =>
+              console.error("[OFG] Error fetching campaigns data", error)
+            );
+
           // Create mock objects for testing
           window.PlatformClient = {
-            // Add the properties and methods that your code is trying to access
-            someMethod: function () {
-              // Mock implementation
+            MockOutboundApi: {
+              getOutboundCampaigns: function () {
+                // Return promise from fetch
+                return campaignsPromise;
+              },
             },
-            someProperty: "mock value",
-            // ...
-          };
-
-          window.ClientApp = {
-            // Add the properties and methods that your code is trying to access
-            someMethod: function () {
-              // Mock implementation
+            MockWfmApi: {
+              getBusinessUnits: function () {
+                // Return promise from fetch
+                return businessUnitsPromise;
+              },
+              getBusinessUnitData: function () {
+                // Return promise from fetch
+                return businessUnitSettingsPromise;
+              },
+              getPlanningGroups: function () {
+                // Return promise from fetch
+                return planningGroupsPromise;
+              },
             },
-            someProperty: "mock value",
             // ...
           };
         } else {
