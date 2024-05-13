@@ -308,10 +308,16 @@
             <legend>Outputs</legend>
             <div id="forecast-outputs-container">
               <gux-form-field-dropdown class="width">
-                <gux-dropdown id="business-unit-dropdown">
-                  <gux-listbox id="business-unit-listbox"> </gux-listbox>
+                <gux-dropdown id="planning-group-dropdown">
+                  <gux-listbox id="planning-group-listbox"> </gux-listbox>
                 </gux-dropdown>
                 <label slot="label">Planning Group</label>
+              </gux-form-field-dropdown>
+              <gux-form-field-dropdown class="width">
+                <gux-dropdown id="week-day-dropdown">
+                  <gux-listbox id="week-day-listbox"> </gux-listbox>
+                </gux-dropdown>
+                <label slot="label">Day of Week</label>
               </gux-form-field-dropdown>
               <gux-visualization-beta id="chart-11"> </gux-visualization-beta>
             </div>
@@ -424,6 +430,9 @@
       document.addEventListener("DOMContentLoaded", async function () {
         if (window.isTesting) {
           console.log("[OFG] Testing mode");
+          var environment = "mypurecloud.com.au";
+          window.PlatformClient = "";
+          window.ClientApp = "";
         } else {
           console.log("[OFG] Production mode");
 
