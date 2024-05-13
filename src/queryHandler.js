@@ -1,4 +1,4 @@
-import { makeApiCall } from "./apiHandler.js";
+import { handleApiCalls } from "./apiHandler.js";
 
 // Function to build query body
 export async function queryBuilder() {
