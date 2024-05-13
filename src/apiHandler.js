@@ -298,18 +298,18 @@ export async function subscribeToNotifications(buId, channelId) {
   apiInstance
     .postNotificationsChannelSubscriptions(channelId, body, opts)
     .then((data) => {
-      console.log("[OFG] postNotificationsChannelSubscriptions data: ", data);
+      console.debug(
+        `[OFG] Subscribed to forecast notifications in BU ${buId}: `,
+        data
+      );
     })
     .catch((err) => {
-      console.error(
-        "[OFG] There was a failure calling postNotificationsChannelSubscriptions",
-        err
-      );
+      console.error("[OFG] Error subscribing to forecast notifications: ", err);
     });
 }
 
 export async function toastUser() {
-  console.log("[OFG] Toasting user");
+  //console.log("[OFG] Toasting user");
 
   window.myClientApp.alerting.showToastPopup(
     `Hi!`,
