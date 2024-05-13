@@ -25,12 +25,10 @@ client.setPersistSettings(true, "ofg");
 // TODO: Why does the client need to be set up again? Can't we use the one from index.html?
 
 // Configure Client App
-if (!window.isTesting) {
-  var ClientApp = window.purecloud.apps.ClientApp;
-  let myClientApp = new ClientApp({
-    pcEnvironment: environment,
-  });
-}
+var ClientApp = window.purecloud.apps.ClientApp;
+let myClientApp = new ClientApp({
+  pcEnvironment: environment,
+});
 
 // Define the API instances in an object
 const apiInstances = {}; // Is added to dynamically as calls are made
