@@ -446,7 +446,10 @@ export async function runGenerator(
       );
       // Execute queryBuilder after queueCampaignMatcher complete
       updateLoadingMessage("Building queries");
-      var queriesArray = await queryBuilder();
+      var queriesArray = await queryBuilder(
+        planningGroupContactsArray,
+        historicalWeeks
+      );
 
       // Execute historical data queries
       updateLoadingMessage("Executing queries");

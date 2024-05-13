@@ -1,7 +1,10 @@
 import { handleApiCalls } from "./apiHandler.js";
 
 // Function to build query body
-export async function queryBuilder() {
+export async function queryBuilder(
+  planningGroupContactsArray,
+  historicalWeeks
+) {
   let queriesArray = [];
   console.log(`[OFG] Query Builder initiated`);
   console.debug(
@@ -13,7 +16,7 @@ export async function queryBuilder() {
 }
 
 // Function to execute queries
-export async function executeQueries() {
+export async function executeQueries(queriesArray) {
   console.log(`[OFG] Executing queries`);
 
   // Needs to be completed - using test data for now
