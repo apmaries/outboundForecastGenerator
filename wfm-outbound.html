@@ -424,6 +424,7 @@
 
     <!-- Script to login with Cloud -->
     <script type="module">
+      import { setupClients } from "./src/apiHandler.js";
       import { startSession } from "./src/sessionHandler.js";
       import { loadPageOne } from "./src/pageHandler.js";
 
@@ -431,8 +432,25 @@
         if (window.isTesting) {
           console.log("[OFG] Testing mode");
           var environment = "mypurecloud.com.au";
-          window.PlatformClient = "";
-          window.ClientApp = "";
+
+          // Create mock objects for testing
+          window.PlatformClient = {
+            // Add the properties and methods that your code is trying to access
+            someMethod: function () {
+              // Mock implementation
+            },
+            someProperty: "mock value",
+            // ...
+          };
+
+          window.ClientApp = {
+            // Add the properties and methods that your code is trying to access
+            someMethod: function () {
+              // Mock implementation
+            },
+            someProperty: "mock value",
+            // ...
+          };
         } else {
           console.log("[OFG] Production mode");
 
@@ -446,22 +464,27 @@
           var clientId = "f8083a5d-f18a-4b45-93bb-994a88243c23";
           var environment = "mypurecloud.com.au";
 
+          // Configure Platform Client
           window.PlatformClient = platformClient.ApiClient.instance;
-
-          client.setEnvironment(environment);
-          console.log("[OFG] Environment set to", environment);
-          client.setPersistSettings(true, "ofg");
+          PlatformClient.setEnvironment(environment);
+          PlatformClient.setPersistSettings(true, "ofg");
 
           // Configure Client App
           let ClientApp = window.purecloud.apps.ClientApp;
           let myClientApp = new ClientApp({
             pcEnvironment: environment,
           });
-
           window.ClientApp = myClientApp;
 
+          // Setup clients
+          setupClients();
+
+          // temp logging
+          console.debug("[OFG] Platform Client", window.PlatformClient);
+          console.debug("[OFG] Client App", myClientApp);
+
           try {
-            await client.loginImplicitGrant(
+            await PlatformClient.loginImplicitGrant(
               clientId,
               "https://apmaries.github.io/outboundForecastGenerator/wfm-outbound.html"
             );

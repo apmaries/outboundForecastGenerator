@@ -1,9 +1,11 @@
 // Set up the platform client
-var client = window.PlatformClient;
-client.setReturnExtendedResponses(true);
+var PlatformClient;
+var ClientApp;
 
-// Configure Client App
-var ClientApp = window.ClientApp;
+export function setupClients() {
+  PlatformClient = window.PlatformClient;
+  ClientApp = window.ClientApp;
+}
 
 /*
 // Set client logging
@@ -16,6 +18,7 @@ client.config.logger.log_to_console = true;
 client.config.logger.setLogger(); // To apply above changes
 */
 
+/*
 // Get the environment & access token from session storage
 var accessToken = sessionStorage.getItem("oauth_token");
 var environment = sessionStorage.getItem("org_env");
@@ -25,6 +28,7 @@ client.setEnvironment(environment);
 client.setAccessToken(accessToken);
 client.setPersistSettings(true, "ofg");
 // TODO: Why does the client need to be set up again? Can't we use the one from index.html?
+*/
 
 // Define the API instances in an object
 const apiInstances = {}; // Is added to dynamically as calls are made
