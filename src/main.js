@@ -360,10 +360,6 @@ export async function runGenerator(
       const topicName = notification.topicName;
 
       if (topicName !== "channel.metadata") {
-        // temp logging
-        console.warn("[OFG] Import operation ID: ", importOperationId);
-        console.warn("[OFG] Message from server: ", notification);
-
         // Check if eventBody and operationId are in notification
         if (
           notification.eventBody &&
@@ -536,9 +532,6 @@ export async function runGenerator(
 
         // Check if operation id is in response
         if (importResponse) {
-          // temp logging
-          console.warn("[OFG] Import operation ID: ", importResponse);
-
           importOperationId = importResponse.operationId;
           console.log(
             `[OFG] Forecast import initiated. Operation ID: ${importOperationId}`
