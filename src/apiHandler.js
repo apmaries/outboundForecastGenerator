@@ -1,7 +1,9 @@
-// Set up the client
-var platformClient = window.require("platformClient");
-var client = platformClient.ApiClient.instance;
+// Set up the platform client
+var client = window.PlatformClient;
 client.setReturnExtendedResponses(true);
+
+// Configure Client App
+var ClientApp = window.ClientApp;
 
 /*
 // Set client logging
@@ -23,9 +25,6 @@ client.setEnvironment(environment);
 client.setAccessToken(accessToken);
 client.setPersistSettings(true, "ofg");
 // TODO: Why does the client need to be set up again? Can't we use the one from index.html?
-
-// Configure Client App
-var ClientApp = window.myClientApp;
 
 // Define the API instances in an object
 const apiInstances = {}; // Is added to dynamically as calls are made

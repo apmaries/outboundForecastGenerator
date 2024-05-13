@@ -437,7 +437,7 @@
           var clientId = "f8083a5d-f18a-4b45-93bb-994a88243c23";
           var environment = "mypurecloud.com.au";
 
-          window.client = platformClient.ApiClient.instance;
+          window.PlatformClient = platformClient.ApiClient.instance;
 
           client.setEnvironment(environment);
           console.log("[OFG] Environment set to", environment);
@@ -449,7 +449,7 @@
             pcEnvironment: environment,
           });
 
-          window.myClientApp = myClientApp;
+          window.ClientApp = myClientApp;
 
           try {
             await client.loginImplicitGrant(
