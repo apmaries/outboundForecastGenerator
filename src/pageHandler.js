@@ -1,11 +1,14 @@
 import { handleApiCalls, globalPageOpts } from "./apiHandler.js";
+import { validatePlanningGroupDropdown } from "./main.js";
 
 // Global variables
 let businessUnits = [];
 const businessUnitListbox = document.getElementById("business-unit-listbox");
+let planningGroupsSummary = []; // Array to store planning group name & id for later use in page three visualisations
+const planningGroupsListbox = document.getElementById("planning-group-listbox");
 
 // Function to hide loading spinner and show content
-export async function hideLoadingSpinner(spinner, elem) {
+export async function hideLoadingSpinner(elem, spinner) {
   const spinnerElem = document.getElementById(spinner);
   const elemElem = document.getElementById(elem);
 
@@ -13,12 +16,18 @@ export async function hideLoadingSpinner(spinner, elem) {
   elemElem.style.display = "block";
 }
 
+// Function to replace the text in loading message
+export async function updateLoadingMessage(elem, message) {
+  const loadingMessage = document.getElementById(elem);
+  loadingMessage.innerHTML = message;
+}
+
 // Function to populate dropdowns with provided data
-function populateDropdown(dropdown, data, sortAttribute = "name") {
+function populateDropdown(listbox, data, sortAttribute = "name") {
   return new Promise((resolve, reject) => {
     try {
       if (data.length === 0) {
-        dropdown.innerHTML = '<gux-option value="">No data found</gux-option>';
+        listbox.innerHTML = '<gux-option value="">No data found</gux-option>';
         resolve();
         return;
       }
@@ -30,23 +39,23 @@ function populateDropdown(dropdown, data, sortAttribute = "name") {
             sensitivity: "base",
           })
         );
-        dropdown.innerHTML = "";
+        listbox.innerHTML = "";
         data.forEach((item) => {
           const option = document.createElement("gux-option");
           option.value = item.id;
-          option.dataset.buName = item.name;
+          option.dataset.name = item.name;
           option.innerHTML = item.name;
-          dropdown.appendChild(option);
+          listbox.appendChild(option);
         });
       } else if (typeof data[0] === "string") {
         // sort data
         data.sort();
-        dropdown.innerHTML = "";
+        listbox.innerHTML = "";
         data.forEach((item) => {
           const option = document.createElement("gux-option");
           option.value = item;
           option.innerHTML = item;
-          dropdown.appendChild(option);
+          listbox.appendChild(option);
         });
       }
       resolve();
@@ -175,6 +184,7 @@ export async function getBusinessUnit() {
   return businessUnitData;
 }
 
+// Function to load page one
 export async function loadPageOne() {
   if (window.isTesting) {
     // Testing mode - Get Business Units from mock PlatformClient
@@ -199,9 +209,10 @@ export async function loadPageOne() {
   await populateDropdown(businessUnitListbox, businessUnits);
 
   // Hide loading spinner and show main
-  await hideLoadingSpinner("main-loading-section", "main");
+  await hideLoadingSpinner("main", "main-loading-section");
 }
 
+// Function to load page two
 export async function loadPageTwo() {
   const selectedBuId = businessUnitListbox.value;
   // Function to get planning groups from BU id
@@ -262,6 +273,12 @@ export async function loadPageTwo() {
       // add planning group object to array
       planningGroupsArray.push(pgObj);
       console.debug(`[OFG] PG[${i + 1}] = ` + JSON.stringify(pgObj));
+
+      // add planning group name & id to planningGroupsSummary array
+      planningGroupsSummary.push({
+        "name": groupName,
+        "id": groupId,
+      });
     }
 
     return planningGroupsArray;
@@ -455,35 +472,27 @@ export async function loadPageTwo() {
   await queueCampaignMatcher(planningGroups, campaigns);
 }
 
+// Function to load page three
 export async function loadPageThree() {
   // Hide page 2 and show page 3
   console.log("[OFG] Loading page 3 initiated");
 
   // Populate Planning Groups dropdown
-  const planningGroupsTable = document.querySelector("#planning-groups-table");
-  const planningGroups = planningGroupsTable.querySelectorAll("td");
-  const planningGroupContactsArray = [];
+  populateDropdown(planningGroupsListbox, planningGroupsSummary);
 
-  const chart11 = document.querySelector("#chart-11");
-  const visualizationSpecLineAllPoints = {
-    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-    "data": { "url": "https://vega.github.io/editor/data/seattle-weather.csv" },
-    "width": 360,
-    "height": 360,
-    "mark": {
-      "type": "line",
-      "interpolate": "monotone",
-    },
-    "encoding": {
-      "x": { "field": "date", "type": "temporal" },
-      "y": { "field": "temp_max", "type": "quantitative" },
-      "tooltip": { "field": "temp_max", "type": "quantitative" },
-    },
-  };
+  // Remove any dropdown options not in forecast data
+  validatePlanningGroupDropdown();
 
-  chart11.visualizationSpec = visualizationSpecLineAllPoints;
+  // Hide loading spinner and show page three
+  await hideLoadingSpinner(
+    "forecast-outputs-container",
+    "generate-loading-div"
+  );
+
+  switchPages("page-two", "page-three");
 }
 
+// Function to load page four
 export async function loadPageFour() {
   // Hide page 3 and show page 4
   switchPages("page-three", "page-four");

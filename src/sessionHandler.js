@@ -40,50 +40,33 @@ export async function startSession() {
     if (isTesting) {
       console.log("[OFG] Testing mode enabled. Skipping user details");
       userWelcome.innerHTML = `Welcome, Test User!`;
+    } else {
+      try {
+        let udata = await handleApiCalls("UsersApi.getUsersMe");
 
-      return;
-    }
+        if (udata) {
+          console.log("[OFG] User details returned", udata);
+          const userName = udata.name;
+          const userId = udata.id;
+          const userEmail = udata.email;
 
-    try {
-      let udata = await handleApiCalls("UsersApi.getUsersMe");
+          internalUserCheck(userEmail);
 
-      if (udata) {
-        console.log("[OFG] User details returned", udata);
-        const userName = udata.name;
-        const userId = udata.id;
-        const userEmail = udata.email;
+          sessionStorage.setItem("user_name", userName);
+          sessionStorage.setItem("user_id", userId);
 
-        internalUserCheck(userEmail);
+          // Toast not required if can't include custom buttons in toast to open generated forecast
+          //toastUser();
 
-        sessionStorage.setItem("user_name", userName);
-        sessionStorage.setItem("user_id", userId);
-
-        toastUser();
-
-        /* Dont worry about user images... that's a bit unneccessary 
-        const userImage = udata.images[0].imageUri;
-
-        // Set user welcome message
-
-        // Add user image to welcome message
-        const userImageElement = document.createElement("img");
-        userImageElement.src = userImage;
-        userImageElement.alt = "User Image";
-        userImageElement.style =
-          "width: 50px; height: 50px; border-radius: 50%; margin-right: 10px;";
-        userWelcome.appendChild(userImageElement);
-        */
-
-        userWelcome.innerHTML = `Welcome, ${userName}!`;
-
-        // Append
-      } else {
-        console.error(`[OFG] Error getting user details. `, udata);
+          userWelcome.innerHTML = `Welcome, ${userName}!`;
+        } else {
+          console.error(`[OFG] Error getting user details. `, udata);
+          window.location.replace(indexPage);
+        }
+      } catch (error) {
+        console.error(`[OFG] Error getting user`, error);
         window.location.replace(indexPage);
       }
-    } catch (error) {
-      console.error(`[OFG] Error getting user`, error);
-      window.location.replace(indexPage);
     }
     userWelcome.removeAttribute("hidden");
   }

@@ -1,8 +1,10 @@
 import {
   downloadJson,
   hideLoadingSpinner,
+  updateLoadingMessage,
   switchPages,
   loadPageOne,
+  loadPageThree,
 } from "./pageHandler.js";
 import { subscribeToNotifications } from "./apiHandler.js";
 import { queryBuilder, executeQueries } from "./queryHandler.js";
@@ -21,7 +23,11 @@ import {
 // invokeGCF calls a Google Cloud Function to make PUT request
 // importFc makes a PUT request to the upload URL - need CORS fixed before being able to switch to this
 
-export async function runGenerator(
+// Gloabl variables
+let completedPgForecast;
+
+// Generate forecast data
+export async function generateForecast(
   testMode,
   businessUnitName,
   businessUnitId,
@@ -34,44 +40,30 @@ export async function runGenerator(
   inboundForecastMode,
   forecastDescription
 ) {
+  console.info("[OFG] Forecast generation initiated");
+
   // Log user variables
-  console.log("[OFG] Forecast generation initiated");
-  if (testMode) {
-    console.warn(`[OFG] Running with test mode: ${testMode}`);
-  }
-  console.log("[OFG] User selected BU Name:", businessUnitName);
-  console.log("[OFG] User selected BU ID:", businessUnitId);
-  console.log("[OFG] User selected BU Start Day:", businessUnitStartDayOfWeek);
-  console.log("[OFG] User selected BU TimeZone:", selectedBuTimeZone);
-  console.log("[OFG] User selected week Start:", weekStart);
-  console.log("[OFG] User selected historical Weeks:", historicalWeeks);
-  console.log(
-    "[OFG] Number of Planning Groups:",
-    planningGroupContactsArray.length.toString()
-  );
-  for (let i = 0; i < planningGroupContactsArray.length; i++) {
-    console.log(`[OFG] ${JSON.stringify(planningGroupContactsArray[i])}`);
-  }
-  console.log("[OFG] User selected ignore Zeroes:", ignoreZeroes.toString());
-  console.log(
-    "[OFG] User selected inbound Forecast Mode:",
-    inboundForecastMode
-  );
-  console.log("[OFG] User forecast description:", forecastDescription);
+  let userSelections = {
+    testMode,
+    businessUnitName,
+    businessUnitId,
+    businessUnitStartDayOfWeek,
+    selectedBuTimeZone,
+    weekStart,
+    historicalWeeks,
+    planningGroupCount: planningGroupContactsArray.length,
+    planningGroupDetails: planningGroupContactsArray,
+    ignoreZeroes,
+    inboundForecastMode,
+    forecastDescription,
+  };
+  console.log("[OFG] User selections:", userSelections);
 
   // Declare variables
   let queryResults = [];
   var historicalDataByCampaign = [];
-  let importOperationId = null;
-  let generateOperationId = null;
 
   // Functions start here
-
-  // Function to replace the text in loading message
-  function updateLoadingMessage(message) {
-    const loadingMessage = document.getElementById("loading-message");
-    loadingMessage.innerHTML = message;
-  }
 
   // Returns the ISO week of the date.
   function getWeek(date) {
@@ -278,25 +270,87 @@ export async function runGenerator(
       return campaign;
     });
 
-    return Promise.all(fcPrepPromises).then(async (completedCampaigns) => {
-      console.log("[OFG] All campaigns have been processed.");
-      // downloadJson(completedCampaigns, "completedCampaigns");
-
-      let [fcImportBody, importGzip, contentLength] = await prepFcImportBody(
-        completedCampaigns,
-        businessUnitStartDayOfWeek,
-        forecastDescription
+    return Promise.all(fcPrepPromises).then(async (completedPgForecast) => {
+      console.log(
+        "[OFG] All campaigns have been processed.",
+        completedPgForecast
       );
-
-      return [fcImportBody, importGzip, contentLength];
+      return completedPgForecast;
     });
   }
 
   // Functions end here
 
+  // Main code starts here
+
+  if (testMode) {
+    console.warn(
+      "[OFG] Running in test mode - static data will be used for forecast generation"
+    );
+    // load test data
+    try {
+      const response = await fetch("./test/testData.json");
+      const testData = await response.json();
+
+      // Execute historical data queries
+      updateLoadingMessage("generate-loading-message", "Retrieving test data");
+      queryResults = testData;
+      console.log("[OFG] Test historical campaign data loaded");
+    } catch (error) {
+      console.error(error);
+    }
+  } else {
+    // TODO: Update for production
+    console.warn(
+      "[OFG] Running in live mode - this has not yet been completed!"
+    );
+    // Execute queryBuilder after queueCampaignMatcher complete
+    updateLoadingMessage("generate-loading-message", "Building queries");
+    var queriesArray = await queryBuilder(
+      planningGroupContactsArray,
+      historicalWeeks
+    );
+
+    // Execute historical data queries
+    updateLoadingMessage("generate-loading-message", "Executing queries");
+    queryResults = await executeQueries(queriesArray);
+  }
+  // Process query results
+  updateLoadingMessage("generate-loading-message", "Processing query results");
+  await processQueryResults(queryResults);
+
+  // Prepare forecast
+  updateLoadingMessage("generate-loading-message", "Preparing forecast");
+  completedPgForecast = await prepareForecast();
+
+  // Load page three
+  loadPageThree();
+}
+
+// Import forecast to GC
+export async function importForecast() {
+  // Prepare forecast
+  updateLoadingMessage("import-loading-message", "Preparing forecast");
+  let [fcImportBody, importGzip, contentLength] = await prepFcImportBody();
+
+  // temp logging
+  console.log("[OFG] Forecast import body:", fcImportBody);
+
+  // Declare variables
+  let importOperationId = null;
+  let generateOperationId = null;
+
   // Create a WebSocket connection
-  const notificationsUri = sessionStorage.getItem("notifications_uri");
-  const notificationsId = sessionStorage.getItem("notifications_id");
+  let notificationsUri;
+  let notificationsId;
+
+  try {
+    notificationsUri = sessionStorage.getItem("notifications_uri");
+    notificationsId = sessionStorage.getItem("notifications_id");
+  } catch (error) {
+    console.error("[OFG] Error getting notifications URI and ID: ", error);
+  }
+
   if (notificationsUri) {
     const ws = new WebSocket(notificationsUri);
 
@@ -328,7 +382,7 @@ export async function runGenerator(
           console.log(`[OFG] Forecast import status updated <${status}>`);
 
           // Hide loading spinner div
-          hideLoadingSpinner("results-loading", "results-container");
+          hideLoadingSpinner("results-container", "results-loading");
 
           const resultsContainer = document.getElementById("results-container");
 
@@ -419,92 +473,401 @@ export async function runGenerator(
     });
   }
 
-  // Main code starts here
-  async function main() {
-    if (testMode) {
-      // load test data
-      fetch("./test/testData.json")
-        .then((response) => response.json())
-        .then(async (testData) => {
-          queryResults = testData;
-          console.log("[OFG] Test data loaded");
+  // Generate URL for upload
+  updateLoadingMessage("import-loading-message", "Generating URL for upload");
+  let uploadAttributes = await generateUrl(
+    businessUnitId,
+    weekStart,
+    contentLength
+  );
 
-          await processQueryResults(queryResults);
+  // Upload forecast
+  updateLoadingMessage("import-loading-message", "Uploading forecast");
+  /* GCF function being used until CORS blocking removed */
+  // importFc(businessUnitId, weekStart, importGzip, uploadAttributes);
+  const uploadResponse = await invokeGCF(uploadAttributes, fcImportBody);
 
-          // added download for testing purposes
-          // downloadJson(historicalDataByCampaign, "historicalDataByCampaign_base");
+  // Check if upload was successful
+  if (uploadResponse === 200) {
+    const uploadKey = uploadAttributes.uploadKey;
+    console.log("[OFG] Forecast uploaded successfully! Calling import method.");
 
-          prepareForecast(); // Call the function to continue execution
-        })
-        .catch((error) => {
-          console.error(error);
-        });
+    // Import forecast
+    updateLoadingMessage("import-loading-message", "Importing forecast");
+    const importResponse = await importFc(businessUnitId, weekStart, uploadKey);
+
+    // Check if operation id is in response
+    if (importResponse) {
+      importOperationId = importResponse.operationId;
+      console.log(
+        `[OFG] Forecast import initiated. Operation ID: ${importOperationId}`
+      );
+
+      // Assign operationId to global importOperationId variable
+      importOperationId = importResponse.operationId;
     } else {
-      // TODO: Update for production
-      console.warn(
-        "[OFG] Running in live mode - this has not yet been completed!"
-      );
-      // Execute queryBuilder after queueCampaignMatcher complete
-      updateLoadingMessage("Building queries");
-      var queriesArray = await queryBuilder(
-        planningGroupContactsArray,
-        historicalWeeks
-      );
-
-      // Execute historical data queries
-      updateLoadingMessage("Executing queries");
-      queryResults = await executeQueries(queriesArray);
-
-      // Process query results
-      updateLoadingMessage("Processing query results");
-      await processQueryResults(queryResults);
-
-      // Prepare forecast
-      updateLoadingMessage("Preparing forecast");
-      let [fcImportBody, importGzip, contentLength] = await prepareForecast();
-
-      // Generate URL for upload
-      updateLoadingMessage("Generating URL for upload");
-      let uploadAttributes = await generateUrl(
-        businessUnitId,
-        weekStart,
-        contentLength
-      );
-
-      // Upload forecast
-      updateLoadingMessage("Uploading forecast");
-      /* GCF function being used until CORS blocking removed */
-      // importFc(businessUnitId, weekStart, importGzip, uploadAttributes);
-      const uploadResponse = await invokeGCF(uploadAttributes, fcImportBody);
-
-      // Check if upload was successful
-      if (uploadResponse === 200) {
-        const uploadKey = uploadAttributes.uploadKey;
-        console.log(
-          "[OFG] Forecast uploaded successfully! Calling import method."
-        );
-
-        // Import forecast
-        updateLoadingMessage("Importing forecast");
-        const importResponse = await importFc(
-          businessUnitId,
-          weekStart,
-          uploadKey
-        );
-
-        // Check if operation id is in response
-        if (importResponse) {
-          importOperationId = importResponse.operationId;
-          console.log(
-            `[OFG] Forecast import initiated. Operation ID: ${importOperationId}`
-          );
-
-          // Assign operationId to global importOperationId variable
-          importOperationId = importResponse.operationId;
-        } else {
-          console.error("[OFG] Forecast import failed.");
-        }
-      }
+      console.error("[OFG] Forecast import failed.");
     }
   }
+}
+
+// Function to validate planning group dropdown entries
+export function validatePlanningGroupDropdown() {
+  const planningGroupDropdown = document.getElementById(
+    "planning-group-listbox"
+  );
+
+  // Get list of planning groups in listbox
+  const planningGroups = planningGroupDropdown.querySelectorAll("gux-option");
+
+  // Convert planningGroups to an array and iterate over it
+  Array.from(planningGroups).forEach((option) => {
+    // If the option value is not in fcImportBody.planningGroups, remove it
+    if (!completedPgForecast.some((pg) => pg.pgId === option.value)) {
+      console.warn(
+        `[OFG] Planning group ${option.value} not found in forecast data. Removing...`
+      );
+      option.remove();
+    }
+  });
+}
+
+// Function to get forecast data for visualisation
+export async function getPlanningGroupDataForDay(
+  selectedPgId,
+  selectedWeekDay
+) {
+  // ... existing code ...
+
+  // Convert selectedWeekDay to a number
+  selectedWeekDay = Number(selectedWeekDay);
+
+  // Find the selected planning group
+  let selectedPlanningGroup = completedPgForecast.find(
+    (group) => group.pgId === selectedPgId
+  );
+
+  // Get the data for the selected day
+  let offeredPerIntervalForDay =
+    selectedPlanningGroup.fcData.contactsIntraday[selectedWeekDay];
+  let averageHandleTimeSecondsPerIntervalForDay =
+    selectedPlanningGroup.fcData.ahtIntraday[selectedWeekDay];
+
+  // Get the daily total for the selected day
+  let dailyTotalOffered =
+    selectedPlanningGroup.fcData.contactsDaily[selectedWeekDay];
+  let dailyTotalAHT = selectedPlanningGroup.fcData.ahtDaily[selectedWeekDay];
+
+  // temp logging
+  console.log("[OFG] dailyTotalOffered", dailyTotalOffered);
+  console.log("[OFG] offeredPerIntervalForDay", offeredPerIntervalForDay);
+  console.log("[OFG] dailyTotalAHT", dailyTotalAHT);
+  console.log(
+    "[OFG] averageHandleTimeSecondsPerIntervalForDay",
+    averageHandleTimeSecondsPerIntervalForDay
+  );
+
+  // Convert data arrays into an array of objects
+  let data = offeredPerIntervalForDay.map((offered, index) => ({
+    interval: index,
+    offered: offered,
+    averageHandleTime: averageHandleTimeSecondsPerIntervalForDay[index],
+  }));
+
+  const visualizationSpecLineAllPoints = {
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "data": { "values": data },
+    "transform": [
+      {
+        "calculate": "datum.interval / 4",
+        "as": "hour",
+      },
+    ],
+    "width": 360,
+    "height": 360,
+    "layer": [
+      {
+        "mark": {
+          "type": "bar",
+          "color": "rgb(31, 119, 180)",
+        },
+        "encoding": {
+          "x": {
+            "field": "hour",
+            "type": "quantitative",
+            "axis": {
+              "tickMinStep": 1, // 1 hour intervals
+              "title": "Time (hours)", // x-axis title
+            },
+            "scale": { "domain": [0, 24] }, // x-axis range from 0 to 24
+          },
+          "y": {
+            "field": "offered",
+            "type": "quantitative",
+            "axis": {
+              "title": "Offered", // y-axis title
+            },
+          },
+          "tooltip": { "field": "offered", "type": "quantitative" },
+        },
+      },
+      {
+        "mark": {
+          "type": "line",
+          "interpolate": "monotone",
+          "color": "rgb(255, 127, 14)",
+        },
+        "encoding": {
+          "x": {
+            "field": "hour",
+            "type": "quantitative",
+            "axis": {
+              "tickMinStep": 1, // 1 hour intervals
+              "title": "Time (hours)", // x-axis title
+            },
+            "scale": { "domain": [0, 24] }, // x-axis range from 0 to 24
+          },
+          "y": {
+            "field": "averageHandleTime",
+            "type": "quantitative",
+            "axis": {
+              "title": "Average Handle Time", // y-axis title
+            },
+          },
+          "tooltip": { "field": "averageHandleTime", "type": "quantitative" },
+        },
+      },
+    ],
+    "resolve": {
+      "scale": {
+        "y": "independent",
+      },
+    },
+  };
+
+  const chart11 = document.querySelector("#chart");
+
+  chart11.visualizationSpec = visualizationSpecLineAllPoints;
+
+  // Original data for reset
+  const originalData = JSON.parse(JSON.stringify(data));
+
+  // Get the controls
+  const smoothButton = document.getElementById("smooth-button");
+  const flattenButton = document.getElementById("flatten-button");
+  const resetButton = document.getElementById("reset-button");
+
+  // Smooth button event listener
+  smoothButton.addEventListener("click", () => {
+    const metric = document.getElementById("metric-select").value;
+    console.log(
+      `[OFG] Smoothing ${metric} data for planning group ${selectedPgId}`
+    );
+
+    console.log(data);
+    data = data.map((d, i, arr) => {
+      if (i === 0 || i === arr.length - 1) return d; // Skip the first and last element
+      return {
+        ...d,
+        offered: (arr[i - 1].offered + d.offered + arr[i + 1].offered) / 3,
+        averageHandleTime:
+          (arr[i - 1].averageHandleTime +
+            d.averageHandleTime +
+            arr[i + 1].averageHandleTime) /
+          3,
+      };
+    });
+    chart11.visualizationSpec.data.values = data;
+  });
+
+  // Flatten button event listener
+  flattenButton.addEventListener("click", () => {
+    const metric = document.getElementById("metric-select").value;
+    console.log(
+      `[OFG] Flattening ${metric} data for planning group ${selectedPgId}`
+    );
+
+    const nonZeroOffered = data.filter((d) => d.offered !== 0);
+    const nonZeroAHT = data.filter((d) => d.averageHandleTime !== 0);
+    const avgOffered =
+      nonZeroOffered.reduce((sum, d) => sum + d.offered, 0) /
+      nonZeroOffered.length;
+    const avgAHT =
+      nonZeroAHT.reduce((sum, d) => sum + d.averageHandleTime, 0) /
+      nonZeroAHT.length;
+    data = data.map((d) => ({
+      ...d,
+      offered: d.offered === 0 ? 0 : avgOffered,
+      averageHandleTime: d.averageHandleTime === 0 ? 0 : avgAHT,
+    }));
+    chart11.visualizationSpec.data.values = data;
+  });
+
+  // Reset button event listener
+  resetButton.addEventListener("click", () => {
+    metric = document.getElementById("metric-select").value;
+    console.log(
+      `[OFG] Resetting ${metric} data for planning group ${selectedPgId}`
+    );
+
+    data = JSON.parse(JSON.stringify(originalData));
+    chart11.visualizationSpec.data.values = data;
+  });
+
+  // Unhide the controls div
+  const controlsDiv = document.getElementById("controls");
+  controlsDiv.hidden = false;
+}
+
+// Function to get forecast data for visualisation
+export async function getPlanningGroupDataForDayFubar(
+  selectedPgId,
+  selectedWeekDay
+) {
+  console.log("[OFG] Getting planning group data for visualisation");
+
+  // Function to create a chart
+  function createChart(data) {
+    // Filter out invalid values
+    data = data.filter((d) => {
+      return (
+        d.offered !== null &&
+        d.offered !== undefined &&
+        isFinite(d.offered) &&
+        d.averageHandleTime !== null &&
+        d.averageHandleTime !== undefined &&
+        isFinite(d.averageHandleTime)
+      );
+    });
+
+    // Create a new spec with the updated data
+    const newSpec = {
+      ...visualizationSpecLineAllPoints,
+      data: { values: data },
+    };
+
+    // Remove the old chart
+    const chartElement = document.querySelector("#chart");
+    while (chartElement.firstChild) {
+      chartElement.removeChild(chartElement.firstChild);
+    }
+
+    // Create a new chart
+    vegaEmbed("#chart", newSpec);
+  }
+
+  // Convert selectedWeekDay to a number
+  selectedWeekDay = Number(selectedWeekDay);
+
+  // Find the selected planning group
+  let selectedPlanningGroup = completedPgForecast.find(
+    (group) => group.pgId === selectedPgId
+  );
+
+  // Get the data for the selected day
+  let offeredPerIntervalForDay =
+    selectedPlanningGroup.fcData.contactsIntraday[selectedWeekDay];
+  let averageHandleTimeSecondsPerIntervalForDay =
+    selectedPlanningGroup.fcData.ahtIntraday[selectedWeekDay];
+
+  // Get the daily total for the selected day
+  let dailyTotalOffered =
+    selectedPlanningGroup.fcData.contactsDaily[selectedWeekDay];
+  let dailyTotalAHT = selectedPlanningGroup.fcData.ahtDaily[selectedWeekDay];
+
+  // temp logging
+  console.log("[OFG] dailyTotalOffered", dailyTotalOffered);
+  console.log("[OFG] offeredPerIntervalForDay", offeredPerIntervalForDay);
+  console.log("[OFG] dailyTotalAHT", dailyTotalAHT);
+  console.log(
+    "[OFG] averageHandleTimeSecondsPerIntervalForDay",
+    averageHandleTimeSecondsPerIntervalForDay
+  );
+
+  // Convert data arrays into an array of objects
+  let data = offeredPerIntervalForDay.map((offered, index) => ({
+    interval: index,
+    offered: offered,
+    averageHandleTime: averageHandleTimeSecondsPerIntervalForDay[index],
+  }));
+
+  const chart11 = document.querySelector("#chart");
+
+  chart11.visualizationSpec = visualizationSpecLineAllPoints;
+
+  // Create the chart
+  createChart(data);
+
+  // Original data for reset
+  const originalData = JSON.parse(JSON.stringify(data));
+
+  // Get the controls
+  const smoothButton = document.getElementById("smooth-button");
+  const flattenButton = document.getElementById("flatten-button");
+  const resetButton = document.getElementById("reset-button");
+
+  // Smooth button event listener
+  smoothButton.addEventListener("click", () => {
+    const metric = document.getElementById("metric-select").value;
+    console.log(
+      `[OFG] Smoothing ${metric} data for planning group ${selectedPgId}`
+    );
+
+    console.log(data);
+    let newData = data.map((d, i, arr) => {
+      if (i === 0 || i === arr.length - 1) return d; // Skip the first and last element
+      return {
+        ...d,
+        offered: (arr[i - 1].offered + d.offered + arr[i + 1].offered) / 3,
+        averageHandleTime:
+          (arr[i - 1].averageHandleTime +
+            d.averageHandleTime +
+            arr[i + 1].averageHandleTime) /
+          3,
+      };
+    });
+    console.log(newData);
+
+    // Update the chart data and re-render
+    chart11.visualizationSpec.data.values = newData;
+    createChart(chart11.visualizationSpec.data.values);
+  });
+
+  // Flatten button event listener
+  flattenButton.addEventListener("click", () => {
+    const metric = document.getElementById("metric-select").value;
+    console.log(
+      `[OFG] Flattening ${metric} data for planning group ${selectedPgId}`
+    );
+
+    const nonZeroOffered = data.filter((d) => d.offered !== 0);
+    const nonZeroAHT = data.filter((d) => d.averageHandleTime !== 0);
+    const avgOffered =
+      nonZeroOffered.reduce((sum, d) => sum + d.offered, 0) /
+      nonZeroOffered.length;
+    const avgAHT =
+      nonZeroAHT.reduce((sum, d) => sum + d.averageHandleTime, 0) /
+      nonZeroAHT.length;
+    data = data.map((d) => ({
+      ...d,
+      offered: d.offered === 0 ? 0 : avgOffered,
+      averageHandleTime: d.averageHandleTime === 0 ? 0 : avgAHT,
+    }));
+    chart11.visualizationSpec.data.values = data;
+  });
+
+  // Reset button event listener
+  resetButton.addEventListener("click", () => {
+    metric = document.getElementById("metric-select").value;
+    console.log(
+      `[OFG] Resetting ${metric} data for planning group ${selectedPgId}`
+    );
+
+    data = JSON.parse(JSON.stringify(originalData));
+    chart11.visualizationSpec.data.values = data;
+  });
+
+  // Unhide the controls div
+  const controlsDiv = document.getElementById("controls");
+  controlsDiv.hidden = false;
 }

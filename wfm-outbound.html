@@ -32,6 +32,9 @@
     <!-- External -->
     <script src="https://moment.github.io/luxon/global/luxon.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.0.4/pako.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
 
     <style>
       main {
@@ -40,6 +43,10 @@
 
       fieldset > div > div {
         margin-bottom: 20px;
+      }
+
+      gux-button {
+        width: 100px;
       }
 
       footer {
@@ -145,6 +152,7 @@
       </section>
       <!-- Main -->
       <main id="main">
+        <!-- Page 1 - Set BU, Forecast week start and historical weeks range -->
         <div id="page-one" class="active-page">
           <fieldset>
             <legend>Parameters</legend>
@@ -157,6 +165,27 @@
                 <label slot="label">Business Unit</label>
               </gux-form-field-dropdown>
               <div id="bu-settings-div">
+                <div style="width: 152px">
+                  <gux-form-field-text-like label-position="above">
+                    <label slot="label">Time zone</label>
+                    <input
+                      id="bu-timezone"
+                      slot="input"
+                      type="text"
+                      value=""
+                      disabled
+                    />
+                  </gux-form-field-text-like>
+                </div>
+
+                <div>
+                  <label slot="label" class="slotted">Week start</label>
+                  <gux-datepicker
+                    id="week-start"
+                    format="dd/mm/yyyy"
+                  ></gux-datepicker>
+                </div>
+
                 <div>
                   <gux-form-field-number label-position="above">
                     <label slot="label">Historical weeks</label>
@@ -170,26 +199,6 @@
                       max="8"
                     />
                   </gux-form-field-number>
-                </div>
-
-                <div style="width: 152px">
-                  <gux-form-field-text-like label-position="above">
-                    <label slot="label">Time zone</label>
-                    <input
-                      id="bu-timezone"
-                      slot="input"
-                      type="text"
-                      value=""
-                      disabled
-                    />
-                  </gux-form-field-text-like>
-                </div>
-                <div>
-                  <label slot="label" class="slotted">Week start</label>
-                  <gux-datepicker
-                    id="week-start"
-                    format="dd/mm/yyyy"
-                  ></gux-datepicker>
                 </div>
               </div>
 
@@ -212,6 +221,7 @@
           </fieldset>
         </div>
 
+        <!-- Page 2 - Set description, contacts per PG and other options -->
         <div id="page-two" class="inactive-page">
           <fieldset id="page-two-fieldset">
             <legend>Inputs</legend>
@@ -222,6 +232,17 @@
               ></gux-page-loading-spinner>
 
               <div id="planning-groups-container" style="display: none">
+                <div id="fc-description-input">
+                  <gux-form-field-text-like>
+                    <input
+                      id="fc-description"
+                      slot="input"
+                      type="text"
+                      placeholder="Enter a description"
+                    />
+                    <label slot="label">Forecast description</label>
+                  </gux-form-field-text-like>
+                </div>
                 <gux-table-beta id="planning-groups-table" compact>
                   <table slot="data">
                     <thead>
@@ -271,18 +292,6 @@
                     <label slot="label">Automatic Best Method Selection</label>
                   </gux-form-field-radio>
                 </div>
-
-                <div id="fc-description-input">
-                  <gux-form-field-text-like>
-                    <input
-                      id="fc-description"
-                      slot="input"
-                      type="text"
-                      placeholder="Enter a description"
-                    />
-                    <label slot="label">Forecast description</label>
-                  </gux-form-field-text-like>
-                </div>
               </div>
             </div>
             <div id="page-two-buttons" class="row" style="padding-top: 20px">
@@ -293,33 +302,80 @@
                 class="align-left"
                 >Back</gux-button
               >
-              <gux-button
-                id="p2-next-button"
-                name="next-button"
-                accent="secondary"
-                >Next</gux-button
+              <gux-button id="generate-button" accent="primary"
+                >Generate</gux-button
               >
             </div>
           </fieldset>
         </div>
 
+        <!-- Page 3 - Visualise forecast outputs prior to import -->
         <div id="page-three" class="inactive-page">
           <fieldset>
             <legend>Outputs</legend>
-            <div id="forecast-outputs-container">
+            <div id="generate-loading-div">
+              <gux-loading-message>
+                <div slot="primary-message" id="generate-loading-message">
+                  Generating forecast
+                </div>
+
+                <gux-radial-progress
+                  slot="progress"
+                  screenreader-text="loading"
+                ></gux-radial-progress>
+                <div slot="additional-guidance">Thank you for waiting.</div>
+              </gux-loading-message>
+            </div>
+            <div id="forecast-outputs-container" style="display: none">
               <gux-form-field-dropdown class="width">
-                <gux-dropdown id="planning-group-dropdown">
+                <gux-dropdown id="planning-group-dropdown" disabled>
                   <gux-listbox id="planning-group-listbox"> </gux-listbox>
                 </gux-dropdown>
                 <label slot="label">Planning Group</label>
               </gux-form-field-dropdown>
               <gux-form-field-dropdown class="width">
-                <gux-dropdown id="week-day-dropdown">
-                  <gux-listbox id="week-day-listbox"> </gux-listbox>
+                <gux-dropdown
+                  id="week-day-dropdown"
+                  placeholder="Select a Planning Group"
+                  disabled
+                >
+                  <gux-listbox id="week-day-listbox">
+                    <gux-option value="1">Monday</gux-option>
+                    <gux-option value="2">Tuesday</gux-option>
+                    <gux-option value="3">Wednesday</gux-option>
+                    <gux-option value="4">Thursday</gux-option>
+                    <gux-option value="5">Friday</gux-option>
+                    <gux-option value="6">Saturday</gux-option>
+                    <gux-option value="7">Sunday</gux-option>
+                  </gux-listbox>
                 </gux-dropdown>
                 <label slot="label">Day of Week</label>
               </gux-form-field-dropdown>
-              <gux-visualization-beta id="chart-11"> </gux-visualization-beta>
+              <gux-visualization-beta id="chart"> </gux-visualization-beta>
+              <div id="controls" hidden>
+                <gux-form-field-dropdown>
+                  <gux-dropdown
+                    id="metric-select"
+                    placeholder="Select a Metric"
+                  >
+                    <gux-listbox>
+                      <gux-option value="offered">Offered</gux-option>
+                      <gux-option value="averageHandleTime"
+                        >Average Handle Time</gux-option
+                      >
+                    </gux-listbox>
+                  </gux-dropdown>
+                  <label slot="label">Metric</label>
+                </gux-form-field-dropdown>
+
+                <gux-button id="smooth-button" accent="tertiary"
+                  >Smooth</gux-button
+                >
+                <gux-button id="flatten-button" accent="tertiary"
+                  >Flatten</gux-button
+                >
+                <gux-button id="reset-button" accent="danger">Reset</gux-button>
+              </div>
             </div>
             <div id="page-three-buttons" class="row" style="padding-top: 20px">
               <gux-button
@@ -330,20 +386,24 @@
                 >Back</gux-button
               >
 
-              <gux-button id="run-button" accent="primary" class="align-right"
-                >Run!</gux-button
+              <gux-button
+                id="import-button"
+                accent="primary"
+                class="align-right"
+                >Import</gux-button
               >
             </div>
           </fieldset>
         </div>
 
+        <!-- Page 4 - Display import response -->
         <div id="page-four" class="inactive-page">
           <fieldset>
             <legend>Results</legend>
-            <div id="results-loading">
+            <div id="import-loading-div">
               <gux-loading-message>
-                <div slot="primary-message" id="loading-message">
-                  Generating forecast
+                <div slot="primary-message" id="import-loading-message">
+                  Generating import URL
                 </div>
 
                 <gux-radial-progress
@@ -399,6 +459,10 @@
     <!-- Project modules -->
     <script
       type="module"
+      src="/outboundForecastGenerator/src/eventHandler.js"
+    ></script>
+    <script
+      type="module"
       src="/outboundForecastGenerator/src/apiHandler.js"
     ></script>
     <script
@@ -424,6 +488,7 @@
 
     <!-- Script to login with Cloud -->
     <script type="module">
+      import { initializeEventListeners } from "./src/eventHandler.js";
       import { setupClients } from "./src/apiHandler.js";
       import { startSession } from "./src/sessionHandler.js";
       import { loadPageOne } from "./src/pageHandler.js";
@@ -542,193 +607,10 @@
         }
         await startSession();
         loadPageOne();
+
+        // Set up event listeners
+        initializeEventListeners();
       });
-    </script>
-
-    <!-- Event listeners -->
-    <script type="module">
-      import {
-        switchPages,
-        getRadioValue,
-        getBusinessUnit,
-        loadPageTwo,
-        loadPageThree,
-        loadPageFour,
-      } from "./src/pageHandler.js";
-      import { runGenerator } from "./src/main.js";
-
-      let selectedBusinessUnit;
-
-      document.addEventListener("DOMContentLoaded", function () {
-        // Event listener for business unit dropdown
-        const businessUnitDropdown = document.getElementById(
-          "business-unit-dropdown"
-        );
-        if (businessUnitDropdown) {
-          businessUnitDropdown.addEventListener("change", async () => {
-            // Disable week start element
-            const weekStartInput = document.getElementById("week-start");
-            weekStartInput.disabled = true;
-
-            // Get selected business unit
-            const selectedBuId = businessUnitDropdown.value;
-            console.log(
-              `[OFG] Business Unit dropdown changed to ${selectedBuId}`
-            );
-            selectedBusinessUnit = await getBusinessUnit();
-          });
-        } else {
-          console.error("[OFG] Business Unit dropdown not found");
-        }
-
-        // Get a reference to the next buttons
-        const nextButtons = document.getElementsByName("next-button");
-
-        // Add event listener to each next button
-        nextButtons.forEach((nextButton) => {
-          nextButton.addEventListener("click", function () {
-            // Get the current active page
-            const currentPage = document.querySelector(".active-page");
-
-            // Determine the next page based on the current page
-            let nextPageId;
-            switch (currentPage.id) {
-              case "page-one":
-                console.log("[OFG] Loading page two");
-                nextPageId = "page-two";
-                loadPageTwo();
-                break;
-              case "page-two":
-                console.log("[OFG] Loading page three");
-                nextPageId = "page-three";
-                loadPageThree();
-                break;
-              // Add more cases as needed
-            }
-
-            // Switch to the next page
-            if (nextPageId) {
-              switchPages(currentPage.id, nextPageId);
-            }
-          });
-        });
-
-        // Get a reference to the back buttons
-        const backButtons = document.getElementsByName("back-button");
-
-        // Add event listener to each back button
-        backButtons.forEach((backButton) => {
-          backButton.addEventListener("click", function () {
-            // Get the current active page
-            const currentPage = document.querySelector(".active-page");
-
-            // Determine the previous page based on the current page
-            let previousPageId;
-            switch (currentPage.id) {
-              case "page-two":
-                console.log("[OFG] Loading page one");
-                previousPageId = "page-one";
-                break;
-              case "page-three":
-                console.log("[OFG] Loading page two");
-                previousPageId = "page-two";
-                break;
-              // Add more cases as needed
-            }
-
-            // Switch to the previous page
-            if (previousPageId) {
-              switchPages(currentPage.id, previousPageId);
-            }
-          });
-        });
-      });
-
-      // Event listener for Run button
-      const runButton = document.getElementById("run-button");
-      if (runButton) {
-        runButton.addEventListener("click", async () => {
-          console.log("[OFG] Run button clicked");
-          const test = window.isTesting;
-          const buName = selectedBusinessUnit.name;
-          const buId = selectedBusinessUnit.id;
-          const buStartDayOfWeek = selectedBusinessUnit.settings.startDayOfWeek;
-          const buTimeZone = selectedBusinessUnit.settings.timeZone;
-          const weekStart = document.getElementById("week-start").value;
-          const historicalWeeks =
-            document.getElementById("historical-weeks").value;
-
-          let planningGroupContactsArray = [];
-          const tableBody = document.querySelector(
-            "#planning-groups-table tbody"
-          );
-          const rows = tableBody.querySelectorAll("tr");
-
-          // loop through table rows
-          for (let i = 0; i < rows.length; i++) {
-            const row = rows[i];
-
-            // get textContent of each cell
-            const cells = row.querySelectorAll("td");
-
-            // Get PG name and ID
-            const pgNameCell = row.querySelector("td:first-child");
-            const pgName = pgNameCell.textContent;
-            const pgId = pgNameCell.dataset.pgId;
-            const cpNameCell = row.querySelector("td:nth-child(2)");
-
-            let planningGroupContacts = {
-              "pgName": pgName,
-              "pgId": pgId,
-            };
-
-            // check value of cpNameCell.dataset.matchedCampaign
-            if (cpNameCell.dataset.matchedCampaign === "true") {
-              const cpName = cpNameCell.textContent;
-              const cpId = cpNameCell.dataset.campaignId;
-
-              // Get number of contacts
-              const numContactsInput = document.getElementById(
-                `nContacts_${pgId}`
-              );
-              const numContacts = numContactsInput.value;
-
-              planningGroupContacts["cpName"] = cpName;
-              planningGroupContacts["cpId"] = cpId;
-              planningGroupContacts["numContacts"] = numContacts;
-            }
-            planningGroupContactsArray.push(planningGroupContacts);
-          }
-
-          const ignoreZeroes = document.getElementById("ignoreZeroes").checked;
-
-          const inboundForecastModeRadio = document.getElementsByName(
-            "inbound-forecast-radio"
-          );
-          const inboundForecastMode = getRadioValue(inboundForecastModeRadio);
-          const forecastDescription =
-            document.getElementById("fc-description").value;
-
-          await loadPageFour();
-
-          // Run forecast generator
-          await runGenerator(
-            test,
-            buName,
-            buId,
-            buStartDayOfWeek,
-            buTimeZone,
-            weekStart,
-            historicalWeeks,
-            planningGroupContactsArray,
-            ignoreZeroes,
-            inboundForecastMode,
-            forecastDescription
-          );
-        });
-      } else {
-        console.error("[OFG] Run button not found");
-      }
     </script>
   </body>
 </html>
