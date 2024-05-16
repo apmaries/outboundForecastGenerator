@@ -2,8 +2,10 @@
 var PlatformClient;
 var ClientApp;
 
-PlatformClient = window.PlatformClient;
-ClientApp = window.ClientApp;
+export function setupClients() {
+  PlatformClient = window.PlatformClient;
+  ClientApp = window.ClientApp;
+}
 
 /*
 // Set client logging
@@ -111,8 +113,8 @@ export async function handleApiCalls(apiFunctionStr, ...args) {
   // Split the apiFunctionStr string and get the API instance and function
   const [apiInstanceName, functionName] = apiFunctionStr.split(".");
 
-  // If platformClient[apiInstanceName] is not defined, throw an error
-  if (!platformClient[apiInstanceName]) {
+  // If PlatformClient[apiInstanceName] is not defined, throw an error
+  if (!PlatformClient[apiInstanceName]) {
     // Check if the apiInstanceName is in PascalCase
     if (apiInstanceName[0] !== apiInstanceName[0].toUpperCase()) {
       throw new Error(
@@ -123,7 +125,7 @@ export async function handleApiCalls(apiFunctionStr, ...args) {
   }
 
   const apiInstance =
-    apiInstances[apiInstanceName] || new platformClient[apiInstanceName]();
+    apiInstances[apiInstanceName] || new PlatformClient[apiInstanceName]();
   apiInstances[apiInstanceName] = apiInstance;
 
   const apiFunction = apiInstance[functionName].bind(apiInstance);
@@ -278,7 +280,7 @@ export async function handleApiCalls(apiFunctionStr, ...args) {
 
 export async function subscribeToNotifications(buId, channelId) {
   console.info("[OFG] Subscribing to forecast notifications");
-  let apiInstance = new platformClient.NotificationsApi();
+  let apiInstance = new PlatformClient.NotificationsApi();
 
   let body = [
     {
