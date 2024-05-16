@@ -351,7 +351,27 @@
                 </gux-dropdown>
                 <label slot="label">Day of Week</label>
               </gux-form-field-dropdown>
-              <gux-visualization-beta id="chart"> </gux-visualization-beta>
+              <div id="chart"></div>
+              <div id="totals-table" hidden>
+                <gux-table-beta>
+                  <table slot="data">
+                    <thead>
+                      <tr>
+                        <th data-column-name="forecast-offered">
+                          Forecast Offered
+                        </th>
+                        <th data-column-name="forecast-aht">Forecast AHT</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td id="forecast-offered">0</td>
+                        <td id="forecast-aht">0</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </gux-table-beta>
+              </div>
               <div id="controls" hidden>
                 <gux-form-field-dropdown>
                   <gux-dropdown
@@ -363,6 +383,7 @@
                       <gux-option value="averageHandleTime"
                         >Average Handle Time</gux-option
                       >
+                      <gux-option value="both">Both</gux-option>
                     </gux-listbox>
                   </gux-dropdown>
                   <label slot="label">Metric</label>
@@ -370,6 +391,9 @@
 
                 <gux-button id="smooth-button" accent="tertiary"
                   >Smooth</gux-button
+                >
+                <gux-button id="normalise-button" accent="tertiary"
+                  >Normalise</gux-button
                 >
                 <gux-button id="flatten-button" accent="tertiary"
                   >Flatten</gux-button

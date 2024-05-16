@@ -537,8 +537,6 @@ export async function getPlanningGroupDataForDay(
   selectedPgId,
   selectedWeekDay
 ) {
-  // ... existing code ...
-
   // Convert selectedWeekDay to a number
   selectedWeekDay = Number(selectedWeekDay);
 
@@ -547,16 +545,25 @@ export async function getPlanningGroupDataForDay(
     (group) => group.pgId === selectedPgId
   );
 
+  // Get the daily total for the selected day
+  let dailyTotalOffered = parseFloat(
+    selectedPlanningGroup.fcData.contactsDaily[selectedWeekDay]
+  );
+  let dailyTotalAHT = parseFloat(
+    selectedPlanningGroup.fcData.ahtDaily[selectedWeekDay]
+  );
+
+  // Update totals-table with daily total values
+  document.getElementById("forecast-offered").textContent =
+    dailyTotalOffered.toFixed(1);
+  document.getElementById("forecast-aht").textContent =
+    dailyTotalAHT.toFixed(1);
+
   // Get the data for the selected day
   let offeredPerIntervalForDay =
     selectedPlanningGroup.fcData.contactsIntraday[selectedWeekDay];
   let averageHandleTimeSecondsPerIntervalForDay =
     selectedPlanningGroup.fcData.ahtIntraday[selectedWeekDay];
-
-  // Get the daily total for the selected day
-  let dailyTotalOffered =
-    selectedPlanningGroup.fcData.contactsDaily[selectedWeekDay];
-  let dailyTotalAHT = selectedPlanningGroup.fcData.ahtDaily[selectedWeekDay];
 
   // temp logging
   console.log("[OFG] dailyTotalOffered", dailyTotalOffered);
@@ -567,152 +574,410 @@ export async function getPlanningGroupDataForDay(
     averageHandleTimeSecondsPerIntervalForDay
   );
 
-  // Convert data arrays into an array of objects
-  let data = offeredPerIntervalForDay.map((offered, index) => ({
-    interval: index,
-    offered: offered,
-    averageHandleTime: averageHandleTimeSecondsPerIntervalForDay[index],
-  }));
+  // Generate 96 15-minute intervals for a single calendar day
+  let intervals = Array.from({ length: 96 }, (_, i) => {
+    let hours = Math.floor(i / 4);
+    let minutes = (i % 4) * 15;
+    return `${hours.toString().padStart(2, "0")}:${minutes
+      .toString()
+      .padStart(2, "0")}`;
+  });
 
-  const visualizationSpecLineAllPoints = {
-    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-    "data": { "values": data },
-    "transform": [
-      {
-        "calculate": "datum.interval / 4",
-        "as": "hour",
-      },
-    ],
-    "width": 360,
+  let spec = {
+    "$schema": "https://vega.github.io/schema/vega/v5.json",
+    "width": 500, // Increase the chart width
     "height": 360,
-    "layer": [
+    "padding": 5,
+
+    "data": [
       {
-        "mark": {
-          "type": "bar",
-          "color": "rgb(31, 119, 180)",
-        },
-        "encoding": {
-          "x": {
-            "field": "hour",
-            "type": "quantitative",
-            "axis": {
-              "tickMinStep": 1, // 1 hour intervals
-              "title": "Time (hours)", // x-axis title
-            },
-            "scale": { "domain": [0, 24] }, // x-axis range from 0 to 24
+        "name": "table",
+        "values": intervals.map((x, i) => ({
+          x,
+          "y1": offeredPerIntervalForDay[i],
+          "y2": averageHandleTimeSecondsPerIntervalForDay[i],
+        })),
+      },
+    ],
+
+    "scales": [
+      {
+        "name": "x",
+        "type": "band",
+        "range": [0, { "signal": "width-4" }], // Set the range to the width of the chart
+        "domain": { "data": "table", "field": "x" },
+        "padding": 0.1, // Add padding to the band scale
+      },
+      {
+        "name": "y",
+        "type": "linear",
+        "range": "height",
+        "nice": true,
+        "zero": false,
+        "domain": { "data": "table", "field": "y1" },
+        "domainMin": 0,
+      },
+      {
+        "name": "y2",
+        "type": "linear",
+        "range": "height",
+        "nice": true,
+        "zero": false,
+        "domain": { "data": "table", "field": "y2" },
+        "domainMin": 0,
+      },
+    ],
+
+    "axes": [
+      {
+        "orient": "bottom",
+        "scale": "x",
+        "values": Array.from(
+          { length: 24 },
+          (_, i) => `${i.toString().padStart(2, "0")}:00`
+        ), // Only display the hours
+        "labelAngle": -90, // Make labels vertical
+        "labelPadding": 10, // Add padding
+        "title": "Time (hours)", // x-axis title
+      },
+      { "orient": "left", "scale": "y", "title": "Offered" }, // y-axis title
+      { "orient": "right", "scale": "y2", "title": "Average Handle Time" }, // y-axis title
+    ],
+
+    "marks": [
+      {
+        "type": "rect",
+        "from": { "data": "table" },
+        "encode": {
+          "enter": {
+            "x": { "scale": "x", "field": "x" },
+            "width": { "value": 10 },
+            "y": { "scale": "y", "field": "y1" },
+            "y2": { "scale": "y", "value": 0 },
+            "fill": { "value": "steelblue" },
           },
-          "y": {
-            "field": "offered",
-            "type": "quantitative",
-            "axis": {
-              "title": "Offered", // y-axis title
-            },
-          },
-          "tooltip": { "field": "offered", "type": "quantitative" },
         },
       },
       {
-        "mark": {
-          "type": "line",
-          "interpolate": "monotone",
-          "color": "rgb(255, 127, 14)",
-        },
-        "encoding": {
-          "x": {
-            "field": "hour",
-            "type": "quantitative",
-            "axis": {
-              "tickMinStep": 1, // 1 hour intervals
-              "title": "Time (hours)", // x-axis title
-            },
-            "scale": { "domain": [0, 24] }, // x-axis range from 0 to 24
+        "type": "line",
+        "from": { "data": "table" },
+        "encode": {
+          "enter": {
+            "x": { "scale": "x", "field": "x" },
+            "y": { "scale": "y2", "field": "y2" },
+            "stroke": { "value": "orange" },
           },
-          "y": {
-            "field": "averageHandleTime",
-            "type": "quantitative",
-            "axis": {
-              "title": "Average Handle Time", // y-axis title
-            },
-          },
-          "tooltip": { "field": "averageHandleTime", "type": "quantitative" },
         },
       },
     ],
-    "resolve": {
-      "scale": {
-        "y": "independent",
-      },
-    },
   };
 
-  const chart11 = document.querySelector("#chart");
-
-  chart11.visualizationSpec = visualizationSpecLineAllPoints;
+  let view = new vega.View(vega.parse(spec), {
+    renderer: "canvas", // renderer (canvas or svg)
+    container: "#chart", // parent DOM container
+    hover: true, // enable hover processing
+  });
 
   // Original data for reset
-  const originalData = JSON.parse(JSON.stringify(data));
+  const originalOfferedData = JSON.parse(
+    JSON.stringify(offeredPerIntervalForDay)
+  );
+  const originalAHTData = JSON.parse(
+    JSON.stringify(averageHandleTimeSecondsPerIntervalForDay)
+  );
 
   // Get the controls
   const smoothButton = document.getElementById("smooth-button");
+  const normaliseButton = document.getElementById("normalise-button");
   const flattenButton = document.getElementById("flatten-button");
   const resetButton = document.getElementById("reset-button");
 
   // Smooth button event listener
   smoothButton.addEventListener("click", () => {
-    const metric = document.getElementById("metric-select").value;
+    // Get the selected data type
+    let dataType = document.getElementById("metric-select").value;
     console.log(
-      `[OFG] Smoothing ${metric} data for planning group ${selectedPgId}`
+      `[OFG] Smoothing ${dataType} data for planning group ${selectedPgId}`
     );
 
-    console.log(data);
-    data = data.map((d, i, arr) => {
-      if (i === 0 || i === arr.length - 1) return d; // Skip the first and last element
-      return {
-        ...d,
-        offered: (arr[i - 1].offered + d.offered + arr[i + 1].offered) / 3,
-        averageHandleTime:
-          (arr[i - 1].averageHandleTime +
-            d.averageHandleTime +
-            arr[i + 1].averageHandleTime) /
-          3,
-      };
-    });
-    chart11.visualizationSpec.data.values = data;
+    function smoothData(data, originalSum) {
+      let smoothed = data.map((num, i, arr) => {
+        if (i === 0 || i === arr.length - 1) return num; // Skip the first and last element
+        return Math.max(0, (arr[i - 1] + num + arr[i + 1]) / 3); // Ensure no values are less than zero
+      });
+
+      let smoothedSum = smoothed.reduce((a, b) => a + b, 0);
+      let diff = originalSum - smoothedSum;
+
+      return smoothed.map((num) => num + diff / smoothed.length);
+    }
+
+    if (dataType === "offered" || dataType === "both") {
+      offeredPerIntervalForDay = smoothData(
+        offeredPerIntervalForDay,
+        dailyTotalOffered
+      );
+
+      // Update the daily total forecast-offered
+      document.getElementById("forecast-offered").textContent =
+        offeredPerIntervalForDay.reduce((a, b) => a + b, 0).toFixed(1);
+
+      console.debug("[OFG] Smoothed offered data:", offeredPerIntervalForDay);
+    }
+    if (dataType === "averageHandleTime" || dataType === "both") {
+      let sumAHT = averageHandleTimeSecondsPerIntervalForDay.reduce(
+        (a, b) => a + b,
+        0
+      );
+      averageHandleTimeSecondsPerIntervalForDay = smoothData(
+        averageHandleTimeSecondsPerIntervalForDay,
+        sumAHT
+      );
+
+      // Calculate the sum product of offered and AHT per interval
+      let sumProduct = offeredPerIntervalForDay.reduce(
+        (sum, offered, i) =>
+          sum + offered * averageHandleTimeSecondsPerIntervalForDay[i],
+        0
+      );
+
+      // Calculate the total offered
+      let totalOffered = offeredPerIntervalForDay.reduce((a, b) => a + b, 0);
+
+      // Calculate the weighted daily total
+      let weightedDailyTotal = sumProduct / totalOffered;
+
+      // Update the daily total forecast-aht
+      document.getElementById("forecast-aht").textContent =
+        weightedDailyTotal.toFixed(1);
+
+      console.debug(
+        "[OFG] Smoothed AHT data:",
+        averageHandleTimeSecondsPerIntervalForDay
+      );
+    }
+
+    // Update chart datasets
+    view
+      .change(
+        "table",
+        vega
+          .changeset()
+          .remove(() => true)
+          .insert(
+            intervals.map((x, i) => ({
+              x,
+              "y1": offeredPerIntervalForDay[i],
+              "y2": averageHandleTimeSecondsPerIntervalForDay[i],
+            }))
+          )
+      )
+      .run();
+  });
+
+  // Normalise button event listener
+  normaliseButton.addEventListener("click", () => {
+    let dataType = document.getElementById("metric-select").value;
+    console.log(
+      `[OFG] Normalising outliers from ${dataType} data for planning group ${selectedPgId}`
+    );
+
+    function normaliseData(data) {
+      // Filter out zeros and sort the data
+      let sortedData = [...data]
+        .filter((num) => num !== 0)
+        .sort((a, b) => a - b);
+
+      // Calculate the first and third quartiles (Q1 and Q3)
+      let q1 = sortedData[Math.floor(sortedData.length / 4)];
+      let q3 = sortedData[Math.floor((sortedData.length * 3) / 4)];
+
+      // Calculate the interquartile range (IQR)
+      let iqr = q3 - q1;
+
+      // Define the lower and upper bounds for non-outlier values
+      // Adjust the multiplier for the IQR to make the trimming more aggressive
+      let lowerBound = q1 - 1 * iqr;
+      let upperBound = q3 + 1 * iqr;
+
+      // Trim outliers
+      let trimmed = data.map((num) => {
+        if (num === 0) return num; // Ignore zeros
+        if (num < lowerBound) return lowerBound;
+        if (num > upperBound) return upperBound;
+        return num;
+      });
+
+      // Calculate the sum of the trimmed data
+      let trimmedSum = trimmed.reduce((a, b) => a + b, 0);
+
+      // Calculate the difference between the original sum and the trimmed sum
+      let diff = data.reduce((a, b) => a + b, 0) - trimmedSum;
+
+      // Count the number of non-zero elements
+      let nonZeroCount = trimmed.filter((num) => num !== 0).length;
+
+      // Adjust the trimmed data to match the original sum
+      return trimmed.map((num) =>
+        num === 0 ? num : num + diff / nonZeroCount
+      );
+    }
+
+    if (dataType === "offered" || dataType === "both") {
+      offeredPerIntervalForDay = normaliseData(offeredPerIntervalForDay);
+
+      // Update the daily total forecast-offered
+      document.getElementById("forecast-offered").textContent =
+        offeredPerIntervalForDay.reduce((a, b) => a + b, 0).toFixed(1);
+
+      console.debug("[OFG] Normalised offered data:", offeredPerIntervalForDay);
+    }
+
+    if (dataType === "averageHandleTime" || dataType === "both") {
+      averageHandleTimeSecondsPerIntervalForDay = normaliseData(
+        averageHandleTimeSecondsPerIntervalForDay
+      );
+
+      // Update the daily total forecast-aht
+      document.getElementById("forecast-aht").textContent =
+        dailyTotalAHT.toFixed(1);
+      console.debug(
+        "[OFG] Trimmed AHT data:",
+        averageHandleTimeSecondsPerIntervalForDay
+      );
+    }
+
+    // Update chart datasets
+    view
+      .change(
+        "table",
+        vega
+          .changeset()
+          .remove(() => true)
+          .insert(
+            intervals.map((x, i) => ({
+              x,
+              "y1": offeredPerIntervalForDay[i],
+              "y2": averageHandleTimeSecondsPerIntervalForDay[i],
+            }))
+          )
+      )
+      .run();
   });
 
   // Flatten button event listener
   flattenButton.addEventListener("click", () => {
-    const metric = document.getElementById("metric-select").value;
+    let dataType = document.getElementById("metric-select").value;
     console.log(
-      `[OFG] Flattening ${metric} data for planning group ${selectedPgId}`
+      `[OFG] Flattening ${dataType} data for planning group ${selectedPgId}`
     );
 
-    const nonZeroOffered = data.filter((d) => d.offered !== 0);
-    const nonZeroAHT = data.filter((d) => d.averageHandleTime !== 0);
-    const avgOffered =
-      nonZeroOffered.reduce((sum, d) => sum + d.offered, 0) /
-      nonZeroOffered.length;
-    const avgAHT =
-      nonZeroAHT.reduce((sum, d) => sum + d.averageHandleTime, 0) /
-      nonZeroAHT.length;
-    data = data.map((d) => ({
-      ...d,
-      offered: d.offered === 0 ? 0 : avgOffered,
-      averageHandleTime: d.averageHandleTime === 0 ? 0 : avgAHT,
-    }));
-    chart11.visualizationSpec.data.values = data;
+    function flattenValues(values, total, dataType) {
+      if (dataType === "offered") {
+        let nonZeroValues = values.filter((value) => value !== 0);
+        let average =
+          nonZeroValues.length > 0 ? total / nonZeroValues.length : 0;
+        return values.map((value) => (value !== 0 ? average : 0));
+      } else {
+        return values.map((value) => (value !== 0 ? total : 0));
+      }
+    }
+
+    if (dataType === "offered" || dataType === "both") {
+      offeredPerIntervalForDay = flattenValues(
+        offeredPerIntervalForDay,
+        dailyTotalOffered,
+        dataType
+      );
+
+      // Update the daily total forecast-offered
+      document.getElementById("forecast-offered").textContent =
+        offeredPerIntervalForDay.reduce((a, b) => a + b, 0).toFixed(1);
+
+      console.debug("[OFG] Smoothed offered data:", offeredPerIntervalForDay);
+    }
+    if (dataType === "averageHandleTime" || dataType === "both") {
+      averageHandleTimeSecondsPerIntervalForDay = flattenValues(
+        averageHandleTimeSecondsPerIntervalForDay,
+        dailyTotalAHT,
+        dataType
+      );
+
+      // Update the daily total forecast-aht
+      document.getElementById("forecast-aht").textContent =
+        dailyTotalAHT.toFixed(1);
+
+      console.debug(
+        "[OFG] Smoothed AHT data:",
+        averageHandleTimeSecondsPerIntervalForDay
+      );
+    }
+
+    // Update chart datasets
+    view
+      .change(
+        "table",
+        vega
+          .changeset()
+          .remove(() => true)
+          .insert(
+            intervals.map((x, i) => ({
+              x,
+              "y1": offeredPerIntervalForDay[i],
+              "y2": averageHandleTimeSecondsPerIntervalForDay[i],
+            }))
+          )
+      )
+      .run();
   });
 
   // Reset button event listener
   resetButton.addEventListener("click", () => {
-    metric = document.getElementById("metric-select").value;
+    let dataType = document.getElementById("metric-select").value;
     console.log(
-      `[OFG] Resetting ${metric} data for planning group ${selectedPgId}`
+      `[OFG] Resetting ${dataType} data for planning group ${selectedPgId}`
     );
 
-    data = JSON.parse(JSON.stringify(originalData));
-    chart11.visualizationSpec.data.values = data;
+    if (dataType === "offered" || dataType === "both") {
+      offeredPerIntervalForDay = JSON.parse(
+        JSON.stringify(originalOfferedData)
+      );
+
+      // Update the daily total forecast-offered
+      document.getElementById("forecast-offered").textContent =
+        dailyTotalOffered.toFixed(1);
+    }
+    if (dataType === "averageHandleTime" || dataType === "both") {
+      averageHandleTimeSecondsPerIntervalForDay = JSON.parse(
+        JSON.stringify(originalAHTData)
+      );
+
+      // Update the daily total forecast-aht
+      document.getElementById("forecast-aht").textContent =
+        dailyTotalAHT.toFixed(1);
+    }
+
+    // Update chart datasets
+    view
+      .change(
+        "table",
+        vega
+          .changeset()
+          .remove(() => true)
+          .insert(
+            intervals.map((x, i) => ({
+              x,
+              "y1": offeredPerIntervalForDay[i],
+              "y2": averageHandleTimeSecondsPerIntervalForDay[i],
+            }))
+          )
+      )
+      .run();
   });
+
+  // Unihde the totals table div
+  const totalsTableDiv = document.getElementById("totals-table");
+  totalsTableDiv.hidden = false;
 
   // Unhide the controls div
   const controlsDiv = document.getElementById("controls");
@@ -742,7 +1007,7 @@ export async function getPlanningGroupDataForDayFubar(
 
     // Create a new spec with the updated data
     const newSpec = {
-      ...visualizationSpecLineAllPoints,
+      ...spec,
       data: { values: data },
     };
 
@@ -793,7 +1058,7 @@ export async function getPlanningGroupDataForDayFubar(
 
   const chart11 = document.querySelector("#chart");
 
-  chart11.visualizationSpec = visualizationSpecLineAllPoints;
+  chart11.visualizationSpec = spec;
 
   // Create the chart
   createChart(data);

@@ -205,6 +205,9 @@ export async function loadPageOne() {
     }
   }
 
+  // Remove existing planning group gux-option elements from page three
+  planningGroupsListbox.innerHTML = "";
+
   // Populate Business Unit dropdown
   await populateDropdown(businessUnitListbox, businessUnits);
 
@@ -214,6 +217,9 @@ export async function loadPageOne() {
 
 // Function to load page two
 export async function loadPageTwo() {
+  // Remove existing planning group gux-option elements from page three
+  planningGroupsListbox.innerHTML = "";
+
   const selectedBuId = businessUnitListbox.value;
   // Function to get planning groups from BU id
   async function getPlanningGroups() {
@@ -476,6 +482,9 @@ export async function loadPageTwo() {
 export async function loadPageThree() {
   // Hide page 2 and show page 3
   console.log("[OFG] Loading page 3 initiated");
+
+  // Remove existing planning group gux-option elements from page three
+  planningGroupsListbox.innerHTML = "";
 
   // Populate Planning Groups dropdown
   populateDropdown(planningGroupsListbox, planningGroupsSummary);
