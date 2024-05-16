@@ -2,10 +2,8 @@
 var PlatformClient;
 var ClientApp;
 
-export function setupClients() {
-  PlatformClient = window.PlatformClient;
-  ClientApp = window.ClientApp;
-}
+PlatformClient = window.PlatformClient;
+ClientApp = window.ClientApp;
 
 /*
 // Set client logging
