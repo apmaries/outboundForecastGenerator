@@ -1,11 +1,6 @@
-// Set up the platform client
-var PlatformClient;
-var ClientApp;
-
-export function setupClients() {
-  PlatformClient = window.PlatformClient;
-  ClientApp = window.ClientApp;
-}
+// Define the platform clients
+var PlatformClient = window.PlatformClient;
+var ClientApp = window.ClientApp;
 
 /*
 // Set client logging
@@ -113,7 +108,7 @@ export async function handleApiCalls(apiFunctionStr, ...args) {
   // Split the apiFunctionStr string and get the API instance and function
   const [apiInstanceName, functionName] = apiFunctionStr.split(".");
 
-  // If PlatformClient[apiInstanceName] is not defined, throw an error
+  // If platformClient[apiInstanceName] is not defined, throw an error
   if (!PlatformClient[apiInstanceName]) {
     // Check if the apiInstanceName is in PascalCase
     if (apiInstanceName[0] !== apiInstanceName[0].toUpperCase()) {

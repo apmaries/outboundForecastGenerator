@@ -588,7 +588,7 @@
         } else {
           console.log("[OFG] Production mode");
 
-          var platformClient = window.require("platformClient");
+          window.platformClient = window.require("platformClient");
 
           //USW2
           //var clientId = "6f99c63b-3dfb-43cf-9792-a9b5c295d0ca";
@@ -609,9 +609,6 @@
             pcEnvironment: environment,
           });
           window.ClientApp = myClientApp;
-
-          // Setup clients
-          setupClients();
 
           // temp logging
           console.debug("[OFG] Platform Client", window.PlatformClient);
