@@ -786,44 +786,46 @@ export async function getPlanningGroupDataForDay(
     );
 
     function normaliseData(data) {
-      // Filter out zeros and sort the data
-      let sortedData = [...data]
-        .filter((num) => num !== 0)
-        .sort((a, b) => a - b);
+      // Identify the first and last non-zero indices
+      let nonZeroIndices = data
+        .map((value, index) => (value !== 0 ? index : -1))
+        .filter((index) => index !== -1);
+      let start_index = nonZeroIndices[0];
+      let end_index = nonZeroIndices[nonZeroIndices.length - 1];
 
-      // Calculate the first and third quartiles (Q1 and Q3)
-      let q1 = sortedData[Math.floor(sortedData.length / 4)];
-      let q3 = sortedData[Math.floor((sortedData.length * 3) / 4)];
+      // Extract the subrange
+      let subrange = data.slice(start_index, end_index + 1);
 
-      // Calculate the interquartile range (IQR)
-      let iqr = q3 - q1;
+      // Calculate thresholds for peaks and troughs based on percentiles
+      let sortedSubrange = [...subrange].sort((a, b) => a - b);
+      let lowerPercentile =
+        sortedSubrange[Math.floor(sortedSubrange.length * 0.1)];
+      let upperPercentile =
+        sortedSubrange[Math.floor(sortedSubrange.length * 0.9)];
 
-      // Define the lower and upper bounds for non-outlier values
-      // Adjust the multiplier for the IQR to make the trimming more aggressive
-      let lowerBound = q1 - 1 * iqr;
-      let upperBound = q3 + 1 * iqr;
-
-      // Trim outliers
-      let trimmed = data.map((num) => {
-        if (num === 0) return num; // Ignore zeros
-        if (num < lowerBound) return lowerBound;
-        if (num > upperBound) return upperBound;
+      // Trim peaks and uplift troughs
+      let adjustedSubrange = subrange.map((num) => {
+        if (num < lowerPercentile) return lowerPercentile;
+        if (num > upperPercentile) return upperPercentile;
         return num;
       });
 
-      // Calculate the sum of the trimmed data
-      let trimmedSum = trimmed.reduce((a, b) => a + b, 0);
-
-      // Calculate the difference between the original sum and the trimmed sum
-      let diff = data.reduce((a, b) => a + b, 0) - trimmedSum;
-
-      // Count the number of non-zero elements
-      let nonZeroCount = trimmed.filter((num) => num !== 0).length;
-
-      // Adjust the trimmed data to match the original sum
-      return trimmed.map((num) =>
-        num === 0 ? num : num + diff / nonZeroCount
+      // Maintain the original sum
+      let originalSum = subrange.reduce((a, b) => a + b, 0);
+      let adjustedSum = adjustedSubrange.reduce((a, b) => a + b, 0);
+      let diff = originalSum - adjustedSum;
+      let nonZeroCount = adjustedSubrange.filter((num) => num !== 0).length;
+      adjustedSubrange = adjustedSubrange.map((num) =>
+        num !== 0 ? num + diff / nonZeroCount : num
       );
+
+      // Replace the subrange in the original data
+      let adjustedData = [...data];
+      for (let i = start_index; i <= end_index; i++) {
+        adjustedData[i] = adjustedSubrange[i - start_index];
+      }
+
+      return adjustedData;
     }
 
     if (dataType === "offered" || dataType === "both") {
@@ -843,9 +845,12 @@ export async function getPlanningGroupDataForDay(
 
       // Update the daily total forecast-aht
       document.getElementById("forecast-aht").textContent =
-        dailyTotalAHT.toFixed(1);
+        averageHandleTimeSecondsPerIntervalForDay
+          .reduce((a, b) => a + b, 0)
+          .toFixed(1);
+
       console.debug(
-        "[OFG] Trimmed AHT data:",
+        "[OFG] Normalised AHT data:",
         averageHandleTimeSecondsPerIntervalForDay
       );
     }
