@@ -552,7 +552,7 @@ export async function getPlanningGroupDataForDay(
   // Function to update the completed planning group forecast with modified data
   function updateCompletedPgForecast(modifiedData, dataType) {
     // Find the selected planning group
-    let selectedPlanningGroup = completedPgForecast.find(
+    let selectedPlanningGroup = globalCompletedPgForecast.find(
       (group) => group.pgId === selectedPgId
     );
 
