@@ -49,6 +49,12 @@
         width: 100px;
       }
 
+      gux-tooltip {
+        font-size: 12px;
+        text-decoration: none;
+        padding: 5px;
+      }
+
       footer {
         position: fixed;
         bottom: 0;
@@ -137,6 +143,41 @@
         background-color: #f8d7da;
         color: #721c24;
         border: 1px solid #f5c6cb;
+      }
+
+      @keyframes bulge {
+        0% {
+          transform: scale(1);
+          font-weight: normal;
+        }
+        50% {
+          transform: scale(1.1);
+          font-weight: bold;
+        }
+        100% {
+          transform: scale(1);
+          font-weight: normal;
+        }
+      }
+
+      .bulge {
+        animation: bulge 0.5s;
+      }
+
+      @keyframes flash {
+        0% {
+          color: black;
+        }
+        50% {
+          color: red;
+        }
+        100% {
+          color: black;
+        }
+      }
+
+      .flash {
+        animation: flash 0.5s linear;
       }
     </style>
   </head>
@@ -390,15 +431,27 @@
                 </gux-form-field-dropdown>
 
                 <gux-button id="smooth-button" accent="tertiary"
-                  >Smooth</gux-button
+                  >Smooth
+                  <gux-tooltip>
+                    Smooth with 3 point moving average
+                  </gux-tooltip></gux-button
                 >
                 <gux-button id="normalise-button" accent="tertiary"
-                  >Normalise</gux-button
+                  >Normalise
+                  <gux-tooltip>
+                    Normalise peaks and troughs
+                  </gux-tooltip></gux-button
                 >
                 <gux-button id="flatten-button" accent="tertiary"
-                  >Flatten</gux-button
+                  >Flatten<gux-tooltip>
+                    Flatten to single value
+                  </gux-tooltip></gux-button
                 >
-                <gux-button id="reset-button" accent="danger">Reset</gux-button>
+                <gux-button id="reset-button" accent="danger"
+                  >Reset<gux-tooltip>
+                    Reset back to original values
+                  </gux-tooltip></gux-button
+                >
               </div>
             </div>
             <div id="page-three-buttons" class="row" style="padding-top: 20px">
