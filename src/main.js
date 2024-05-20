@@ -692,6 +692,9 @@ export async function getPlanningGroupDataForDay(
   const flattenButton = document.getElementById("flatten-button");
   const resetButton = document.getElementById("reset-button");
 
+  //TODO: Push modified values back to the main data array on click of Import button
+  //TODO: Fix problems - clicking on the multiple buttons sometimes causes the data to be incorrectly spread across whole day
+
   // Smooth button event listener
   smoothButton.addEventListener("click", () => {
     // Get the selected data type
