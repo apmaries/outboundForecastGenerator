@@ -28,6 +28,7 @@ let globalCompletedPgForecast;
 let globalBusinessUnitId;
 let globalWeekStart;
 let globalForecastDescription;
+let globalBusinessUnitStartDayOfWeek;
 
 // Generate forecast data
 export async function generateForecast(
@@ -68,6 +69,7 @@ export async function generateForecast(
   globalBusinessUnitId = businessUnitId;
   globalWeekStart = weekStart;
   globalForecastDescription = forecastDescription;
+  globalBusinessUnitStartDayOfWeek = businessUnitStartDayOfWeek;
 
   // Functions start here
 
@@ -408,7 +410,7 @@ export async function getPlanningGroupDataForDay(
   // Create chart
   let spec = {
     "$schema": "https://vega.github.io/schema/vega/v5.json",
-    "width": 400,
+    "width": 300,
     "height": 360,
     "padding": 5,
 
@@ -920,7 +922,7 @@ export async function importForecast() {
   updateLoadingMessage("import-loading-message", "Preparing forecast");
   let [fcImportBody, importGzip, contentLength] = await prepFcImportBody(
     globalCompletedPgForecast,
-    globalWeekStart,
+    globalBusinessUnitStartDayOfWeek,
     globalForecastDescription
   );
 
