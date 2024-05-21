@@ -1,3 +1,7 @@
+console.log("[OFG] API handler loaded");
+console.log("[OFG] PlatformClient = ", window.PlatformClient);
+console.log("[OFG] ClientApp = ", window.ClientApp);
+
 // Define the platform clients
 var PlatformClient = window.PlatformClient;
 var ClientApp = window.ClientApp;
@@ -95,17 +99,6 @@ export async function handleApiCalls(apiFunctionStr, ...args) {
   console.info(`[OFG] Making API call to ${apiFunctionStr}...`);
   // Split the apiFunctionStr string and get the API instance and function
   const [apiInstanceName, functionName] = apiFunctionStr.split(".");
-
-  // Wait for PlatformClient to be defined
-  let attempts = 0;
-  while (!window.PlatformClient) {
-    if (attempts > 50) {
-      // Timeout after 50 attempts
-      throw new Error("Timeout waiting for PlatformClient to be defined");
-    }
-    attempts++;
-    await new Promise((resolve) => setTimeout(resolve, 100)); // Wait 100ms before checking again
-  }
 
   // If platformClient[apiInstanceName] is not defined, throw an error
   if (!PlatformClient[apiInstanceName]) {
