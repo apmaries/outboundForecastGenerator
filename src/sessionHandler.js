@@ -5,7 +5,7 @@ const indexPage = "./not-authorized.html";
 const isTesting = window.isTesting;
 
 // Function to check if user is authorised
-function internalUserCheck(emailAddress) {
+async function internalUserCheck(emailAddress) {
   const domain = emailAddress.split("@")[1];
   if (domain.toLowerCase() === "genesys.com") {
     console.log("[OFG] Authorised user");
