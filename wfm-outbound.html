@@ -609,7 +609,9 @@
         console.log("[OFG] Production mode");
 
         // Define PlatformClient here
-        let platformClientModule = window.require("platformClient");
+        let platformClientModule = window.require(
+          "purecloud-platform-client-v2"
+        );
 
         // Configure Platform Client
         window.PlatformClient = platformClientModule.ApiClient.instance;
@@ -654,7 +656,7 @@
             );
             sessionStorage.setItem("oauth_client", clientId);
             sessionStorage.setItem("org_env", environment);
-            console.log("[OFG] Logged in with Cloud");
+            console.log("[OFG] Logged in to Genesys Cloud");
           } catch (e) {
             console.error("[OFG] Error logging in", e);
           }
