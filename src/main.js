@@ -955,7 +955,7 @@ export async function importForecast() {
       })();
 
       // Call main function
-      main();
+      runImport();
     });
 
     // Listen for messages
@@ -1064,44 +1064,49 @@ export async function importForecast() {
     });
   }
 
-  // Generate URL for upload
-  updateLoadingMessage("import-loading-message", "Generating URL for upload");
-  let uploadAttributes = await generateUrl(
-    globalBusinessUnitId,
-    globalWeekStart,
-    contentLength
-  );
-
-  // Upload forecast
-  updateLoadingMessage("import-loading-message", "Uploading forecast");
-  /* GCF function being used until CORS blocking removed */
-  // importFc(globalBusinessUnitId, globalWeekStart, importGzip, uploadAttributes);
-  const uploadResponse = await invokeGCF(uploadAttributes, fcImportBody);
-
-  // Check if upload was successful
-  if (uploadResponse === 200) {
-    const uploadKey = uploadAttributes.uploadKey;
-    console.log("[OFG] Forecast uploaded successfully! Calling import method.");
-
-    // Import forecast
-    updateLoadingMessage("import-loading-message", "Importing forecast");
-    const importResponse = await importFc(
+  // Main function
+  async function runImport() {
+    // Generate URL for upload
+    updateLoadingMessage("import-loading-message", "Generating URL for upload");
+    let uploadAttributes = await generateUrl(
       globalBusinessUnitId,
       globalWeekStart,
-      uploadKey
+      contentLength
     );
 
-    // Check if operation id is in response
-    if (importResponse) {
-      importOperationId = importResponse.operationId;
+    // Upload forecast
+    updateLoadingMessage("import-loading-message", "Uploading forecast");
+    /* GCF function being used until CORS blocking removed */
+    // importFc(globalBusinessUnitId, globalWeekStart, importGzip, uploadAttributes);
+    const uploadResponse = await invokeGCF(uploadAttributes, fcImportBody);
+
+    // Check if upload was successful
+    if (uploadResponse === 200) {
+      const uploadKey = uploadAttributes.uploadKey;
       console.log(
-        `[OFG] Forecast import initiated. Operation ID: ${importOperationId}`
+        "[OFG] Forecast uploaded successfully! Calling import method."
       );
 
-      // Assign operationId to global importOperationId variable
-      importOperationId = importResponse.operationId;
-    } else {
-      console.error("[OFG] Forecast import failed.");
+      // Import forecast
+      updateLoadingMessage("import-loading-message", "Importing forecast");
+      const importResponse = await importFc(
+        globalBusinessUnitId,
+        globalWeekStart,
+        uploadKey
+      );
+
+      // Check if operation id is in response
+      if (importResponse) {
+        importOperationId = importResponse.operationId;
+        console.log(
+          `[OFG] Forecast import initiated. Operation ID: ${importOperationId}`
+        );
+
+        // Assign operationId to global importOperationId variable
+        importOperationId = importResponse.operationId;
+      } else {
+        console.error("[OFG] Forecast import failed.");
+      }
     }
   }
 }
