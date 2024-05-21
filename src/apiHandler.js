@@ -96,11 +96,6 @@ export async function handleApiCalls(apiFunctionStr, ...args) {
   // Split the apiFunctionStr string and get the API instance and function
   const [apiInstanceName, functionName] = apiFunctionStr.split(".");
 
-  // If PlatformClient is not defined, throw an error
-  if (!PlatformClient) {
-    throw new Error("PlatformClient is not defined");
-  }
-
   // Wait for PlatformClient to be defined
   let attempts = 0;
   while (!window.PlatformClient) {
@@ -110,6 +105,17 @@ export async function handleApiCalls(apiFunctionStr, ...args) {
     }
     attempts++;
     await new Promise((resolve) => setTimeout(resolve, 100)); // Wait 100ms before checking again
+  }
+
+  // If platformClient[apiInstanceName] is not defined, throw an error
+  if (!PlatformClient[apiInstanceName]) {
+    // Check if the apiInstanceName is in PascalCase
+    if (apiInstanceName[0] !== apiInstanceName[0].toUpperCase()) {
+      throw new Error(
+        `API instance ${apiInstanceName} not found. API instance name should be in PascalCase`
+      );
+    }
+    throw new Error(`API instance ${apiInstanceName} not found`);
   }
 
   const apiInstance =
