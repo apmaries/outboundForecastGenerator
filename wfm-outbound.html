@@ -651,7 +651,7 @@
           var environment = "mypurecloud.com.au";
 
           try {
-            await PlatformClient.loginImplicitGrant(
+            await PlatformClient.ApiClient.instance.loginImplicitGrant(
               clientId,
               "https://apmaries.github.io/outboundForecastGenerator/wfm-outbound.html"
             );
