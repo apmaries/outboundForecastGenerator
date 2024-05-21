@@ -13,18 +13,6 @@ client.config.logger.log_to_console = true;
 client.config.logger.setLogger(); // To apply above changes
 */
 
-/*
-// Get the environment & access token from session storage
-var accessToken = sessionStorage.getItem("oauth_token");
-var environment = sessionStorage.getItem("org_env");
-
-// Set the client configuration
-client.setEnvironment(environment);
-client.setAccessToken(accessToken);
-client.setPersistSettings(true, "ofg");
-// TODO: Why does the client need to be set up again? Can't we use the one from index.html?
-*/
-
 // Define the API instances in an object
 const apiInstances = {}; // Is added to dynamically as calls are made
 
