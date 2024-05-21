@@ -411,7 +411,7 @@ export async function getPlanningGroupDataForDay(
   // Create chart
   let spec = {
     "$schema": "https://vega.github.io/schema/vega/v5.json",
-    "width": 300,
+    "width": 400,
     "height": 360,
     "padding": 5,
 
@@ -978,9 +978,10 @@ export async function importForecast() {
           console.log(`[OFG] Forecast import status updated <${status}>`);
 
           // Hide loading spinner div
-          hideLoadingSpinner("results-container", "results-loading");
+          hideLoadingSpinner("import-results-container", "import-loading-div");
 
-          const resultsContainer = document.getElementById("results-container");
+          const resultsContainer =
+            document.getElementById("import-loading-div");
 
           // Create a button to restart the process
           const restartButton = document.createElement("gux-button");
