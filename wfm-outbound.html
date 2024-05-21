@@ -609,9 +609,7 @@
         console.log("[OFG] Production mode");
 
         // Define PlatformClient here
-        let platformClientModule = window.require(
-          "purecloud-platform-client-v2"
-        );
+        let platformClientModule = window.require("platformClient");
 
         // Configure Platform Client
         window.PlatformClient = platformClientModule.ApiClient.instance;
