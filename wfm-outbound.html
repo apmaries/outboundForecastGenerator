@@ -607,12 +607,12 @@
         console.log("[OFG] Production mode");
 
         // Define PlatformClient here
-        window.PlatformClient = window.require("platformClient");
+        let platformClientModule = window.require("platformClient");
 
         // Configure Platform Client
-        window.PlatformClient = platformClient.ApiClient.instance;
-        PlatformClient.setEnvironment(environment);
-        PlatformClient.setPersistSettings(true, "ofg");
+        window.PlatformClient = platformClientModule.ApiClient.instance;
+        window.PlatformClient.setEnvironment(environment);
+        window.PlatformClient.setPersistSettings(true, "ofg");
 
         // Configure Client App
         let ClientApp = window.purecloud.apps.ClientApp;
