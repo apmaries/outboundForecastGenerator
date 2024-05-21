@@ -643,10 +643,6 @@
           var clientId = "f8083a5d-f18a-4b45-93bb-994a88243c23";
           var environment = "mypurecloud.com.au";
 
-          // temp logging
-          console.debug("[OFG] Platform Client", window.PlatformClient);
-          console.debug("[OFG] Client App", ClientApp);
-
           try {
             await PlatformClient.loginImplicitGrant(
               clientId,
