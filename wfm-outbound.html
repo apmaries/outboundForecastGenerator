@@ -618,10 +618,9 @@
 
         // Configure Client App
         let ClientAppModule = window.purecloud.apps.ClientApp;
-        let myClientApp = new ClientAppModule({
+        window.ClientApp = new ClientAppModule({
           pcEnvironment: environment,
         });
-        window.ClientApp = myClientApp;
       }
     </script>
 
@@ -646,7 +645,7 @@
 
           // temp logging
           console.debug("[OFG] Platform Client", window.PlatformClient);
-          console.debug("[OFG] Client App", myClientApp);
+          console.debug("[OFG] Client App", ClientApp);
 
           try {
             await PlatformClient.loginImplicitGrant(
