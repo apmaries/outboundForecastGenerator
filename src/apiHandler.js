@@ -96,6 +96,11 @@ export async function handleApiCalls(apiFunctionStr, ...args) {
   // Split the apiFunctionStr string and get the API instance and function
   const [apiInstanceName, functionName] = apiFunctionStr.split(".");
 
+  // If PlatformClient is not defined, throw an error
+  if (!PlatformClient) {
+    throw new Error("PlatformClient is not defined");
+  }
+
   // If platformClient[apiInstanceName] is not defined, throw an error
   if (!PlatformClient[apiInstanceName]) {
     // Check if the apiInstanceName is in PascalCase
