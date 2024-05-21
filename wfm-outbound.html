@@ -533,6 +533,96 @@
     <!-- Load the Client App SDK-->
     <script src="https://sdk-cdn.mypurecloud.com/client-apps/2.6.6/purecloud-client-app-sdk.js"></script>
 
+    <!-- Define the Clients -->
+    <script>
+      // Check if in testing mode
+      if (window.isTesting) {
+        console.log("[OFG] Testing mode");
+        var environment = "mypurecloud.com.au";
+
+        // Fetch static JSON data
+        let businessUnitsPromise = fetch(
+          "/outboundForecastGenerator/test/source/businessUnits.json"
+        )
+          .then((response) => response.json())
+          .then((data) => data.entities)
+          .catch((error) =>
+            console.error("[OFG] Error fetching business units data", error)
+          );
+
+        let businessUnitSettingsPromise = fetch(
+          "/outboundForecastGenerator/test/source/bu.json"
+        )
+          .then((response) => response.json())
+          .catch((error) =>
+            console.error(
+              "[OFG] Error fetching business unit settings data",
+              error
+            )
+          );
+
+        let planningGroupsPromise = fetch(
+          "/outboundForecastGenerator/test/source/planningGroups.json"
+        )
+          .then((response) => response.json())
+          .then((data) => data.entities)
+          .catch((error) =>
+            console.error("[OFG] Error fetching planning groups data", error)
+          );
+
+        let campaignsPromise = fetch(
+          "/outboundForecastGenerator/test/source/campaigns.json"
+        )
+          .then((response) => response.json())
+          .then((data) => data.entities)
+          .catch((error) =>
+            console.error("[OFG] Error fetching campaigns data", error)
+          );
+
+        // Create mock objects for testing
+        window.PlatformClient = {
+          MockOutboundApi: {
+            getOutboundCampaigns: function () {
+              // Return promise from fetch
+              return campaignsPromise;
+            },
+          },
+          MockWfmApi: {
+            getBusinessUnits: function () {
+              // Return promise from fetch
+              return businessUnitsPromise;
+            },
+            getBusinessUnitData: function () {
+              // Return promise from fetch
+              return businessUnitSettingsPromise;
+            },
+            getPlanningGroups: function () {
+              // Return promise from fetch
+              return planningGroupsPromise;
+            },
+          },
+          // ...
+        };
+      } else {
+        console.log("[OFG] Production mode");
+
+        // Define PlatformClient here
+        window.PlatformClient = window.require("platformClient");
+
+        // Configure Platform Client
+        window.PlatformClient = platformClient.ApiClient.instance;
+        PlatformClient.setEnvironment(environment);
+        PlatformClient.setPersistSettings(true, "ofg");
+
+        // Configure Client App
+        let ClientApp = window.purecloud.apps.ClientApp;
+        let myClientApp = new ClientApp({
+          pcEnvironment: environment,
+        });
+        window.ClientApp = myClientApp;
+      }
+    </script>
+
     <!-- Script to login with Cloud -->
     <script type="module">
       import { initializeEventListeners } from "./src/eventHandler.js";
@@ -541,78 +631,7 @@
       import { loadPageOne } from "./src/pageHandler.js";
 
       document.addEventListener("DOMContentLoaded", async function () {
-        if (window.isTesting) {
-          console.log("[OFG] Testing mode");
-          var environment = "mypurecloud.com.au";
-
-          // Fetch static JSON data
-          let businessUnitsPromise = fetch(
-            "/outboundForecastGenerator/test/source/businessUnits.json"
-          )
-            .then((response) => response.json())
-            .then((data) => data.entities)
-            .catch((error) =>
-              console.error("[OFG] Error fetching business units data", error)
-            );
-
-          let businessUnitSettingsPromise = fetch(
-            "/outboundForecastGenerator/test/source/bu.json"
-          )
-            .then((response) => response.json())
-            .catch((error) =>
-              console.error(
-                "[OFG] Error fetching business unit settings data",
-                error
-              )
-            );
-
-          let planningGroupsPromise = fetch(
-            "/outboundForecastGenerator/test/source/planningGroups.json"
-          )
-            .then((response) => response.json())
-            .then((data) => data.entities)
-            .catch((error) =>
-              console.error("[OFG] Error fetching planning groups data", error)
-            );
-
-          let campaignsPromise = fetch(
-            "/outboundForecastGenerator/test/source/campaigns.json"
-          )
-            .then((response) => response.json())
-            .then((data) => data.entities)
-            .catch((error) =>
-              console.error("[OFG] Error fetching campaigns data", error)
-            );
-
-          // Create mock objects for testing
-          window.PlatformClient = {
-            MockOutboundApi: {
-              getOutboundCampaigns: function () {
-                // Return promise from fetch
-                return campaignsPromise;
-              },
-            },
-            MockWfmApi: {
-              getBusinessUnits: function () {
-                // Return promise from fetch
-                return businessUnitsPromise;
-              },
-              getBusinessUnitData: function () {
-                // Return promise from fetch
-                return businessUnitSettingsPromise;
-              },
-              getPlanningGroups: function () {
-                // Return promise from fetch
-                return planningGroupsPromise;
-              },
-            },
-            // ...
-          };
-        } else {
-          console.log("[OFG] Production mode");
-
-          window.platformClient = window.require("platformClient");
-
+        if (!window.isTesting) {
           //USW2
           //var clientId = "6f99c63b-3dfb-43cf-9792-a9b5c295d0ca";
           //var environment = "usw2.pure.cloud";
@@ -620,18 +639,6 @@
           //SCO
           var clientId = "f8083a5d-f18a-4b45-93bb-994a88243c23";
           var environment = "mypurecloud.com.au";
-
-          // Configure Platform Client
-          window.PlatformClient = platformClient.ApiClient.instance;
-          PlatformClient.setEnvironment(environment);
-          PlatformClient.setPersistSettings(true, "ofg");
-
-          // Configure Client App
-          let ClientApp = window.purecloud.apps.ClientApp;
-          let myClientApp = new ClientApp({
-            pcEnvironment: environment,
-          });
-          window.ClientApp = myClientApp;
 
           // temp logging
           console.debug("[OFG] Platform Client", window.PlatformClient);
