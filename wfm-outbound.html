@@ -535,10 +535,12 @@
 
     <!-- Define the Clients -->
     <script>
+      // TODO: Need to be able to get the environment from the parent window
+      var environment = "mypurecloud.com.au";
+
       // Check if in testing mode
       if (window.isTesting) {
         console.log("[OFG] Testing mode");
-        var environment = "mypurecloud.com.au";
 
         // Fetch static JSON data
         let businessUnitsPromise = fetch(
@@ -615,8 +617,8 @@
         window.PlatformClient.setPersistSettings(true, "ofg");
 
         // Configure Client App
-        let ClientApp = window.purecloud.apps.ClientApp;
-        let myClientApp = new ClientApp({
+        let ClientAppModule = platformClientModule.apps.ClientApp;
+        let myClientApp = new ClientAppModule({
           pcEnvironment: environment,
         });
         window.ClientApp = myClientApp;
@@ -632,6 +634,8 @@
 
       document.addEventListener("DOMContentLoaded", async function () {
         if (!window.isTesting) {
+          // TODO: Need to be able to get the environment from the parent window
+
           //USW2
           //var clientId = "6f99c63b-3dfb-43cf-9792-a9b5c295d0ca";
           //var environment = "usw2.pure.cloud";
