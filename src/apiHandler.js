@@ -2,6 +2,10 @@ console.log("[OFG] API handler loaded");
 console.log("[OFG] PlatformClient = ", window.PlatformClient);
 console.log("[OFG] ClientApp = ", window.ClientApp);
 console.log("[OFG] PlatformClient keys = ", Object.keys(window.PlatformClient));
+console.log(
+  "[OFG] PlatformClient.ApiClient.instance keys = ",
+  Object.keys(window.PlatformClient.ApiClient.instance)
+);
 
 // Define the platform clients
 var PlatformClient = window.PlatformClient;
