@@ -8,14 +8,14 @@ var PlatformClient = window.PlatformClient;
 var ClientApp = window.ClientApp;
 
 // Set client logging
-PlatformClient.config.logger.log_level =
-  PlatformClient.config.logger.logLevelEnum.level.LTrace;
-PlatformClient.config.logger.log_format =
-  PlatformClient.config.logger.logFormatEnum.formats.JSON;
-PlatformClient.config.logger.log_request_body = true;
-PlatformClient.config.logger.log_response_body = true;
-PlatformClient.config.logger.log_to_console = true;
-PlatformClient.config.logger.setLogger(); // To apply above changes
+PlatformClient.ApiClient.instance.config.logger.log_level =
+  PlatformClient.ApiClient.instance.config.logger.logLevelEnum.level.LTrace;
+PlatformClient.ApiClient.instance.config.logger.log_format =
+  PlatformClient.ApiClient.instance.config.logger.logFormatEnum.formats.JSON;
+PlatformClient.ApiClient.instance.config.logger.log_request_body = true;
+PlatformClient.ApiClient.instance.config.logger.log_response_body = true;
+PlatformClient.ApiClient.instance.config.logger.log_to_console = true;
+PlatformClient.ApiClient.instance.config.logger.setLogger(); // To apply above changes
 
 // Define the API instances in an object
 const apiInstances = {}; // Is added to dynamically as calls are made
