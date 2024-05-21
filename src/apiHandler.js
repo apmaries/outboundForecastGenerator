@@ -9,7 +9,7 @@ var ClientApp = window.ClientApp;
 
 // Set client logging
 PlatformClient.config.logger.log_level =
-  client.config.logger.logLevelEnum.level.LTrace;
+  PlatformClient.config.logger.logLevelEnum.level.LTrace;
 PlatformClient.config.logger.log_format =
   PlatformClient.config.logger.logFormatEnum.formats.JSON;
 PlatformClient.config.logger.log_request_body = true;
