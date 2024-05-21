@@ -1,16 +1,8 @@
-console.log("[OFG] API handler loaded");
-console.log("[OFG] PlatformClient = ", window.PlatformClient);
-console.log("[OFG] ClientApp = ", window.ClientApp);
-console.log("[OFG] PlatformClient keys = ", Object.keys(window.PlatformClient));
-console.log(
-  "[OFG] PlatformClient.ApiClient.instance keys = ",
-  Object.keys(window.PlatformClient.ApiClient.instance)
-);
-
 // Define the platform clients
 var PlatformClient = window.PlatformClient;
 var ClientApp = window.ClientApp;
 
+/*
 // Set client logging
 PlatformClient.ApiClient.instance.config.logger.log_level =
   PlatformClient.ApiClient.instance.config.logger.logLevelEnum.level.LTrace;
@@ -20,6 +12,7 @@ PlatformClient.ApiClient.instance.config.logger.log_request_body = true;
 PlatformClient.ApiClient.instance.config.logger.log_response_body = true;
 PlatformClient.ApiClient.instance.config.logger.log_to_console = true;
 PlatformClient.ApiClient.instance.config.logger.setLogger(); // To apply above changes
+*/
 
 // Define the API instances in an object
 const apiInstances = {}; // Is added to dynamically as calls are made
