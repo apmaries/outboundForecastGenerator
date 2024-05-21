@@ -1,21 +1,21 @@
 console.log("[OFG] API handler loaded");
 console.log("[OFG] PlatformClient = ", window.PlatformClient);
 console.log("[OFG] ClientApp = ", window.ClientApp);
+console.log("[OFG] PlatformClient keys = ", Object.keys(window.PlatformClient));
 
 // Define the platform clients
 var PlatformClient = window.PlatformClient;
 var ClientApp = window.ClientApp;
 
-/*
 // Set client logging
-client.config.logger.log_level = client.config.logger.logLevelEnum.level.LTrace;
-client.config.logger.log_format =
-  client.config.logger.logFormatEnum.formats.JSON;
-client.config.logger.log_request_body = true;
-client.config.logger.log_response_body = true;
-client.config.logger.log_to_console = true;
-client.config.logger.setLogger(); // To apply above changes
-*/
+PlatformClient.config.logger.log_level =
+  client.config.logger.logLevelEnum.level.LTrace;
+PlatformClient.config.logger.log_format =
+  PlatformClient.config.logger.logFormatEnum.formats.JSON;
+PlatformClient.config.logger.log_request_body = true;
+PlatformClient.config.logger.log_response_body = true;
+PlatformClient.config.logger.log_to_console = true;
+PlatformClient.config.logger.setLogger(); // To apply above changes
 
 // Define the API instances in an object
 const apiInstances = {}; // Is added to dynamically as calls are made
