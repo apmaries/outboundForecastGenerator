@@ -616,9 +616,12 @@
         );
 
         // Configure Platform Client
-        window.PlatformClient = platformClientModule.ApiClient.instance;
-        window.PlatformClient.setEnvironment(environment);
-        window.PlatformClient.setPersistSettings(true, "ofg");
+        window.PlatformClient = platformClientModule;
+        window.PlatformClient.ApiClient.instance.setEnvironment(environment);
+        window.PlatformClient.ApiClient.instance.setPersistSettings(
+          true,
+          "ofg"
+        );
 
         // Configure Client App
         let ClientAppModule = window.purecloud.apps.ClientApp;
