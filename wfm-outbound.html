@@ -40,6 +40,7 @@
       html,
       body {
         height: 100%;
+
         margin: 0;
         display: flex;
         flex-direction: column;
@@ -51,6 +52,11 @@
 
       main {
         display: none;
+      }
+
+      fieldset {
+        width: 470px;
+        box-sizing: border-box;
       }
 
       fieldset > div > div {
@@ -206,7 +212,7 @@
       <main id="main">
         <!-- Page 1 - Set BU, Forecast week start and historical weeks range -->
         <div id="page-one" class="active-page">
-          <fieldset id="page-one-fieldset" class="width">
+          <fieldset id="page-one-fieldset">
             <legend>Parameters</legend>
 
             <div id="parameters">
@@ -275,7 +281,7 @@
 
         <!-- Page 2 - Set description, contacts per PG and other options -->
         <div id="page-two" class="inactive-page">
-          <fieldset id="page-two-fieldset" class="width">
+          <fieldset id="page-two-fieldset">
             <legend>Inputs</legend>
             <div id="planning-groups">
               <gux-page-loading-spinner
@@ -363,7 +369,7 @@
 
         <!-- Page 3 - Visualise forecast outputs prior to import -->
         <div id="page-three" class="inactive-page">
-          <fieldset id="page-three-fieldset" class="width">
+          <fieldset id="page-three-fieldset">
             <legend>Outputs</legend>
             <div id="generate-loading-div">
               <gux-loading-message>
@@ -486,7 +492,7 @@
 
         <!-- Page 4 - Display import response -->
         <div id="page-four" class="inactive-page">
-          <fieldset id="page-four-fieldset" class="width">
+          <fieldset id="page-four-fieldset">
             <legend>Results</legend>
             <div id="import-loading-div">
               <gux-loading-message>
