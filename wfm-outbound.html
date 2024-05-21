@@ -618,6 +618,9 @@
         // Configure Platform Client
         window.PlatformClient = platformClientModule;
         window.PlatformClient.ApiClient.instance.setEnvironment(environment);
+        window.PlatformClient.ApiClient.instance.setReturnExtendedResponses(
+          true
+        );
         window.PlatformClient.ApiClient.instance.setPersistSettings(
           true,
           "ofg"
