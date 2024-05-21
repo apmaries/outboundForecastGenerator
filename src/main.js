@@ -5,6 +5,7 @@ import {
   switchPages,
   loadPageOne,
   loadPageThree,
+  loadPageFour,
 } from "./pageHandler.js";
 import { subscribeToNotifications } from "./apiHandler.js";
 import { queryBuilder, executeQueries } from "./queryHandler.js";
@@ -918,6 +919,8 @@ export async function getPlanningGroupDataForDay(
 
 // Import forecast to GC
 export async function importForecast() {
+  loadPageFour();
+
   // Prepare forecast
   updateLoadingMessage("import-loading-message", "Preparing forecast");
   let [fcImportBody, importGzip, contentLength] = await prepFcImportBody(
