@@ -32,6 +32,7 @@ export function initializeEventListeners() {
   }
 
   // Event listener for next buttons
+  // TODO: Tidy this up as there's now only one next button
   const nextButtons = document.getElementsByName("next-button");
   nextButtons.forEach((nextButton) => {
     nextButton.addEventListener("click", function () {
@@ -56,6 +57,7 @@ export function initializeEventListeners() {
   });
 
   // Event listener for back buttons
+  // TODO: Tidy this up as there's now only one back button
   const backButtons = document.getElementsByName("back-button");
   backButtons.forEach((backButton) => {
     backButton.addEventListener("click", function () {
