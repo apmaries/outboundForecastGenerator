@@ -208,6 +208,9 @@ export async function loadPageOne() {
   // Remove existing planning group gux-option elements from page three
   planningGroupsListbox.innerHTML = "";
 
+  // Hide inbound-forecast-mode div
+  document.getElementById("inbound-forecast-mode").style.display = "none";
+
   // Populate Business Unit dropdown
   await populateDropdown(businessUnitListbox, businessUnits);
 
