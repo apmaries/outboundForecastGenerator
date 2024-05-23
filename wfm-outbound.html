@@ -41,8 +41,6 @@
       body {
         height: 100%;
         margin: 0;
-        display: flex;
-        flex-direction: column;
       }
 
       body > div {
@@ -51,6 +49,7 @@
 
       main {
         display: none;
+        flex: 1;
       }
 
       fieldset {
@@ -76,11 +75,11 @@
         flex-shrink: 0; /* This will prevent the footer from shrinking */
         width: 100%;
         text-align: right;
-        padding-right: 10px;
       }
 
       footer img {
-        margin-right: 45px;
+        margin-bottom: 20px;
+        margin-right: 5px;
       }
 
       #loading-section {
@@ -90,6 +89,9 @@
       .widget-container {
         max-width: 95%; /* Set the maximum width as needed */
         margin: 0 auto; /* Center the widget within the parent container */
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
       }
 
       .form-container {
@@ -506,7 +508,7 @@
                 <div slot="additional-guidance">Thank you for waiting.</div>
               </gux-loading-message>
             </div>
-            <div id="results-container" style="display: none"></div>
+            <div id="import-results-container" style="display: none"></div>
           </fieldset>
         </div>
         <div id="test-mode" class="align-left" hidden></div>
