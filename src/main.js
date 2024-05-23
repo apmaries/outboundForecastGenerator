@@ -646,6 +646,10 @@ export async function getPlanningGroupDataForDay(
       );
     }
 
+    if (!dataType) {
+      alert("Please select a metric to smooth");
+    }
+
     // Update chart datasets
     view
       .change(
@@ -742,6 +746,10 @@ export async function getPlanningGroupDataForDay(
       );
     }
 
+    if (!dataType) {
+      alert("Please select a metric to normalise");
+    }
+
     // Update chart datasets
     view
       .change(
@@ -826,6 +834,10 @@ export async function getPlanningGroupDataForDay(
       );
     }
 
+    if (!dataType) {
+      alert("Please select a metric to flatten");
+    }
+
     view
       .change(
         "table",
@@ -888,6 +900,10 @@ export async function getPlanningGroupDataForDay(
       setTimeout(() => {
         element.classList.remove("flash");
       }, 1000);
+    }
+
+    if (!dataType) {
+      alert("Please select a metric to reset");
     }
 
     // Update chart datasets
