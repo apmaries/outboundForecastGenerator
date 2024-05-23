@@ -217,10 +217,12 @@ export async function loadPageOne() {
 
 // Function to load page two
 export async function loadPageTwo() {
+  // Variables
+  const selectedBuId = businessUnitListbox.value;
+
   // Remove existing planning group gux-option elements from page three
   planningGroupsListbox.innerHTML = "";
 
-  const selectedBuId = businessUnitListbox.value;
   // Function to get planning groups from BU id
   async function getPlanningGroups() {
     console.log(`[OFG] Get Planning Groups initiated`);
@@ -368,6 +370,9 @@ export async function loadPageTwo() {
 
     console.log(`[OFG] Matching queues & campaigns`);
 
+    // Flag to track if inbound forecast mode div has been unhidden
+    let isUnhidden = false;
+
     for (let i = 0; i < planningGroups.length; i++) {
       // loop through planning groups to link to campaigns and populate table
       const group = planningGroups[i];
@@ -414,6 +419,13 @@ export async function loadPageTwo() {
           }[${groupId}] No matching campaign found for ${groupName}`
         );
         campaignNameCell.textContent = "";
+
+        // Unhide inbound-forecast-mode div if it hasn't been unhidden yet
+        if (!isUnhidden) {
+          document.getElementById("inbound-forecast-mode").style.display =
+            "block";
+          isUnhidden = true;
+        }
       }
       row.appendChild(campaignNameCell);
 
