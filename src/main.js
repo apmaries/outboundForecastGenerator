@@ -43,6 +43,7 @@ export async function generateForecast(
   historicalWeeks,
   planningGroupContactsArray,
   ignoreZeroes,
+  resolveContactsAhtMode,
   inboundForecastMode,
   forecastDescription
 ) {
@@ -60,6 +61,7 @@ export async function generateForecast(
     planningGroupCount: planningGroupContactsArray.length,
     planningGroupDetails: planningGroupContactsArray,
     ignoreZeroes,
+    resolveContactsAhtMode,
     inboundForecastMode,
     forecastDescription,
   };
@@ -266,7 +268,11 @@ export async function generateForecast(
         name: "applyContacts",
         args: [planningGroupContactsArray, testMode],
       },
-      { func: resolveContactsAht, name: "resolveContactsAht" },
+      {
+        func: resolveContactsAht,
+        name: "resolveContactsAht",
+        args: [resolveContactsAhtMode],
+      },
     ];
 
     let fcPrepPromises = historicalDataByCampaign.map(async (campaign) => {
@@ -480,7 +486,7 @@ export async function getPlanningGroupDataForDay(
         "encode": {
           "enter": {
             "x": { "scale": "x", "field": "x" },
-            "width": { "value": 10 },
+            "width": { "value": 5 },
             "y": { "scale": "y", "field": "y1" },
             "y2": { "scale": "y", "value": 0 },
             "fill": { "value": "steelblue" },
@@ -488,12 +494,13 @@ export async function getPlanningGroupDataForDay(
         },
       },
       {
-        "type": "line",
+        "type": "line", // Change from line to rule
         "from": { "data": "table" },
         "encode": {
           "enter": {
-            "x": { "scale": "x", "field": "x" },
+            "x": { "scale": "x", "field": "x", "offset": 2.5 }, // Add offset to center line
             "y": { "scale": "y2", "field": "y2" },
+            "y2": { "scale": "y2", "value": 0 }, // Set y2 to 0
             "stroke": { "value": "orange" },
           },
         },
@@ -506,6 +513,23 @@ export async function getPlanningGroupDataForDay(
     container: "#chart", // parent DOM container
     hover: true, // enable hover processing
   });
+
+  // Update chart datasets
+  view
+    .change(
+      "table",
+      vega
+        .changeset()
+        .remove(() => true)
+        .insert(
+          intervals.map((x, i) => ({
+            x,
+            "y1": offeredPerIntervalForDay[i],
+            "y2": averageHandleTimeSecondsPerIntervalForDay[i],
+          }))
+        )
+    )
+    .run();
 
   // Original data for reset
   const originalOfferedData = JSON.parse(

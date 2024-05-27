@@ -2,6 +2,7 @@ import {
   switchPages,
   getRadioValue,
   getBusinessUnit,
+  loadPageOne,
   loadPageTwo,
   loadPageThree,
   loadPageFour,
@@ -31,32 +32,15 @@ export function initializeEventListeners() {
     console.error("[OFG] Business Unit dropdown not found");
   }
 
-  // Event listener for next buttons
-  // TODO: Tidy this up as there's now only one next button
-  const nextButtons = document.getElementsByName("next-button");
-  nextButtons.forEach((nextButton) => {
-    nextButton.addEventListener("click", function () {
-      const currentPage = document.querySelector(".active-page");
-      let nextPageId;
-      switch (currentPage.id) {
-        case "page-one":
-          console.log("[OFG] Loading page two");
-          nextPageId = "page-two";
-          loadPageTwo();
-          break;
-        case "page-two":
-          console.log("[OFG] Loading page three");
-          nextPageId = "page-three";
-          loadPageThree();
-          break;
-      }
-      if (nextPageId) {
-        switchPages(currentPage.id, nextPageId);
-      }
-    });
+  // Event listener for p1 next button
+  const nextButton = document.getElementById("p1-next-button");
+  nextButton.addEventListener("click", function () {
+    console.log("[OFG] Loading page two");
+    loadPageTwo();
+    switchPages("page-one", "page-two");
   });
 
-  // Event listener for back buttons
+  // Event listener for p2 back button
   // TODO: Tidy this up as there's now only one back button
   const backButtons = document.getElementsByName("back-button");
   backButtons.forEach((backButton) => {
@@ -67,6 +51,7 @@ export function initializeEventListeners() {
         case "page-two":
           console.log("[OFG] Loading page one");
           previousPageId = "page-one";
+          loadPageOne();
           break;
         case "page-three":
           console.log("[OFG] Loading page two");

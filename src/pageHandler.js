@@ -224,7 +224,9 @@ export async function loadPageTwo() {
   const selectedBuId = businessUnitListbox.value;
 
   // Remove existing planning group gux-option elements from page three
-  planningGroupsListbox.innerHTML = "";
+  while (planningGroupsListbox.firstChild) {
+    planningGroupsListbox.removeChild(planningGroupsListbox.firstChild);
+  }
 
   // Function to get planning groups from BU id
   async function getPlanningGroups() {
@@ -499,7 +501,9 @@ export async function loadPageThree() {
   console.log("[OFG] Loading page 3 initiated");
 
   // Remove existing planning group gux-option elements from page three
-  planningGroupsListbox.innerHTML = "";
+  while (planningGroupsListbox.firstChild) {
+    planningGroupsListbox.removeChild(planningGroupsListbox.firstChild);
+  }
 
   // Populate Planning Groups dropdown
   populateDropdown(planningGroupsListbox, planningGroupsSummary);

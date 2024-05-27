@@ -563,25 +563,23 @@ export async function applyContacts(campaignData, pgArray, testMode) {
   return campaignData;
 }
 
-export async function resolveContactsAht(campaignData) {
-  let fixZeroAhtChecked = document.getElementById("resolveContactsAht").checked;
-  if (fixZeroAhtChecked) {
+export async function resolveContactsAht(campaignData, resolveContactsAht) {
+  if (resolveContactsAht) {
+    // Extract the campaignId from the campaignData object
+    const campaignPgId = campaignData.pgId;
+
+    console.log(`[OFG] [${campaignPgId}] Resolving AHT values for contacts.`);
+
     // Ensure every interval in contactsIntraday has a respective value in ahtIntraday if user elects
     campaignData.fcData.contactsIntraday.forEach((day, i) => {
       day.forEach((interval, j) => {
-        if (interval !== 0) {
-          console.log(
-            `[OFG] [${campaignPgId}] Interval d${i} i${j} has ${interval} contacts and ${campaignData.fcData.ahtIntraday[i][j]} AHT.`
-          );
-        }
-
         if (
           interval !== 0 &&
           (campaignData.fcData.ahtIntraday[i][j] === 0 ||
             campaignData.fcData.ahtIntraday[i][j] === undefined)
         ) {
           console.warn(
-            `[OFG] [${campaignPgId}] Interval ${i} ${j} has contacts but no AHT value. Populating daily AHT value.`
+            `[OFG] [${campaignPgId}] Day ${i}, interval ${j} has contacts but no AHT value. Populating daily AHT value of ${campaignData.fcData.ahtDaily[i]}.`
           );
           campaignData.fcData.ahtIntraday[i][j] =
             campaignData.fcData.ahtDaily[i];
@@ -592,10 +590,16 @@ export async function resolveContactsAht(campaignData) {
     // Set any interval with 0 contacts to 0 AHT
     campaignData.fcData.contactsIntraday.forEach((day, i) => {
       day.forEach((interval, j) => {
-        if (interval === 0) {
+        if (interval === 0 && campaignData.fcData.ahtIntraday[i][j] !== 0) {
+          console.warn(
+            `[OFG] [${campaignPgId}] Day ${i}, interval ${j} has 0 contacts but AHT of ${campaignData.fcData.ahtIntraday[i][j]}. Setting AHT to 0.`
+          );
           campaignData.fcData.ahtIntraday[i][j] = 0;
         }
       });
     });
   }
+
+  // Return the modified campaignData object
+  return campaignData;
 }
