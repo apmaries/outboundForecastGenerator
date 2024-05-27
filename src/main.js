@@ -1009,16 +1009,19 @@ export async function importForecast() {
           restartButton.textContent = "Restart";
 
           // Create a button to open forecast
+          /* 
+          TODO: Find a way to allow user to navigate main GC browser window to new forecast
           const openForecastButton = document.createElement("gux-button");
           openForecastButton.id = "open-forecast-button";
           openForecastButton.setAttribute("accent", "primary");
           openForecastButton.setAttribute("disabled", "true");
           openForecastButton.className = "align-right";
           openForecastButton.textContent = "Open Forecast";
+          */
 
           // Add event listener to restart button
           restartButton.addEventListener("click", (event) => {
-            switchPages("page-three", "page-one");
+            switchPages("page-four", "page-one");
             loadPageOne();
           });
 
