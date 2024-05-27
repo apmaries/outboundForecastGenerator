@@ -127,7 +127,10 @@ export function initializeEventListeners() {
         return;
       }
 
-      const ignoreZeroes = document.getElementById("ignoreZeroes").checked;
+      const ignoreZeroesToggle =
+        document.getElementById("ignoreZeroes").checked;
+      const resolveContactsAhtToggle =
+        document.getElementById("resolveContactsAht").checked;
       const inboundForecastModeRadio = document.getElementsByName(
         "inbound-forecast-radio"
       );
@@ -144,7 +147,8 @@ export function initializeEventListeners() {
         weekStart,
         historicalWeeks,
         planningGroupContactsArray,
-        ignoreZeroes,
+        ignoreZeroesToggle,
+        resolveContactsAhtToggle,
         inboundForecastMode,
         forecastDescription
       );
