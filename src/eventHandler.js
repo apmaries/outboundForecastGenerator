@@ -82,6 +82,7 @@ export function initializeEventListeners() {
   // Event listener for generate button
   const generateButton = document.getElementById("generate-button");
   if (generateButton) {
+    let totalContacts = 0;
     generateButton.addEventListener("click", async () => {
       const test = window.isTesting;
       const buName = selectedBusinessUnit.name;
@@ -116,8 +117,14 @@ export function initializeEventListeners() {
           planningGroupContacts["cpName"] = cpName;
           planningGroupContacts["cpId"] = cpId;
           planningGroupContacts["numContacts"] = numContacts;
+          totalContacts += parseInt(numContacts);
         }
         planningGroupContactsArray.push(planningGroupContacts);
+      }
+
+      if (totalContacts === 0) {
+        alert("Please enter the number of contacts for at least one campaign");
+        return;
       }
 
       const ignoreZeroes = document.getElementById("ignoreZeroes").checked;
