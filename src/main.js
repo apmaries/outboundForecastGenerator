@@ -412,7 +412,7 @@ export async function getPlanningGroupDataForDay(
   // Create chart
   let spec = {
     "$schema": "https://vega.github.io/schema/vega/v5.json",
-    "width": 400,
+    "width": 350,
     "height": 360,
     "padding": 5,
 
