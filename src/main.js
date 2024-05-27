@@ -14,6 +14,7 @@ import {
   groupByIndexNumber,
   generateAverages,
   applyContacts,
+  resolveContactsAht,
 } from "./numberHandler.js";
 import {
   prepFcImportBody,
@@ -265,6 +266,7 @@ export async function generateForecast(
         name: "applyContacts",
         args: [planningGroupContactsArray, testMode],
       },
+      { func: resolveContactsAht, name: "resolveContactsAht" },
     ];
 
     let fcPrepPromises = historicalDataByCampaign.map(async (campaign) => {
