@@ -997,8 +997,9 @@ export async function importForecast() {
           // Hide loading spinner div
           hideLoadingSpinner("import-results-container", "import-loading-div");
 
-          const resultsContainer =
-            document.getElementById("import-loading-div");
+          const resultsContainer = document.getElementById(
+            "import-results-container"
+          );
 
           // Create a button to restart the process
           const restartButton = document.createElement("gux-button");
