@@ -408,7 +408,7 @@ export async function generateAverages(campaignData, ignoreZeroes = true) {
 
   /* OLD AVERAGE HANDLE TIME END */
 
-  /* NEW AVERAGE HANDLE TIME START */
+  /* NEW DAILY AVERAGE HANDLE TIME START */
   // Create average daily AHT
   let totalHandleTimeWeekly = Array(7).fill(0);
   let nHandledWeekly = Array(7).fill(0);
@@ -433,7 +433,7 @@ export async function generateAverages(campaignData, ignoreZeroes = true) {
     }
   });
 
-  /* NEW AVERAGE INTRADAY AHT START */
+  /* NEW INTRADAY AVERAGE AHT START */
   // Create average intraday AHT
   let totalHandleTimeIntraday = Array(7)
     .fill()
@@ -561,4 +561,41 @@ export async function applyContacts(campaignData, pgArray, testMode) {
 
   // Return the modified campaignData object
   return campaignData;
+}
+
+export async function resolveContactsAht(campaignData) {
+  let fixZeroAhtChecked = document.getElementById("resolveContactsAht").checked;
+  if (fixZeroAhtChecked) {
+    // Ensure every interval in contactsIntraday has a respective value in ahtIntraday if user elects
+    campaignData.fcData.contactsIntraday.forEach((day, i) => {
+      day.forEach((interval, j) => {
+        if (interval !== 0) {
+          console.log(
+            `[OFG] [${campaignPgId}] Interval d${i} i${j} has ${interval} contacts and ${campaignData.fcData.ahtIntraday[i][j]} AHT.`
+          );
+        }
+
+        if (
+          interval !== 0 &&
+          (campaignData.fcData.ahtIntraday[i][j] === 0 ||
+            campaignData.fcData.ahtIntraday[i][j] === undefined)
+        ) {
+          console.warn(
+            `[OFG] [${campaignPgId}] Interval ${i} ${j} has contacts but no AHT value. Populating daily AHT value.`
+          );
+          campaignData.fcData.ahtIntraday[i][j] =
+            campaignData.fcData.ahtDaily[i];
+        }
+      });
+    });
+
+    // Set any interval with 0 contacts to 0 AHT
+    campaignData.fcData.contactsIntraday.forEach((day, i) => {
+      day.forEach((interval, j) => {
+        if (interval === 0) {
+          campaignData.fcData.ahtIntraday[i][j] = 0;
+        }
+      });
+    });
+  }
 }
