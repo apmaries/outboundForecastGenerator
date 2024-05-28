@@ -983,7 +983,7 @@ export async function importForecast() {
 
   let importNotifications = new NotificationHandler(
     topics,
-    buId,
+    globalBusinessUnitId,
     runImport,
     handleNotification
   );
