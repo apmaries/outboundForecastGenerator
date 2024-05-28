@@ -262,36 +262,6 @@ export async function handleApiCalls(apiFunctionStr, ...args) {
   );
 }
 
-export async function subscribeToNotifications(buId, channelId) {
-  console.info("[OFG] Subscribing to forecast notifications");
-  let apiInstance = new PlatformClient.NotificationsApi();
-
-  let body = [
-    {
-      "id": `v2.workforcemanagement.businessunits.${buId}.shorttermforecasts.generate`,
-    },
-    {
-      "id": `v2.workforcemanagement.businessunits.${buId}.shorttermforecasts.import`,
-    },
-  ]; // Object | Body
-  let opts = {
-    "ignoreErrors": false, // Boolean | Optionally prevent throwing of errors for failed permissions checks.
-  };
-
-  // Add a list of subscriptions to the existing list of subscriptions
-  apiInstance
-    .postNotificationsChannelSubscriptions(channelId, body, opts)
-    .then((data) => {
-      console.debug(
-        `[OFG] Subscribed to forecast notifications in BU ${buId}: `,
-        data
-      );
-    })
-    .catch((err) => {
-      console.error("[OFG] Error subscribing to forecast notifications: ", err);
-    });
-}
-
 export async function toastUser() {
   //console.log("[OFG] Toasting user");
 

@@ -8,7 +8,7 @@ import {
   loadPageFour,
 } from "./pageHandler.js";
 import {
-  generateForecast,
+  generateOutboundForecast,
   importForecast,
   getPlanningGroupDataForDay,
 } from "./main.js";
@@ -123,7 +123,7 @@ export function initializeEventListeners() {
       const forecastDescription =
         document.getElementById("fc-description").value;
 
-      generateForecast(
+      generateOutboundForecast(
         test,
         buName,
         buId,
