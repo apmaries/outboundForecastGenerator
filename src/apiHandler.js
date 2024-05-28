@@ -148,7 +148,7 @@ export async function handleApiCalls(apiFunctionStr, ...args) {
         if (Object.keys(updatedRequestBody).length > 0) {
           apiFunctionArgs.push(updatedRequestBody);
         }
-        console.info(`[OFG] ${apiFunctionStr} args: `, apiFunctionArgs);
+        console.debug(`[OFG] ${apiFunctionStr} args: `, apiFunctionArgs);
         const response = await apiFunction(...apiFunctionArgs);
 
         // If the response is blank and the API function is 'deleteTokensMe', return a success message
@@ -200,9 +200,7 @@ export async function handleApiCalls(apiFunctionStr, ...args) {
             }
           } else {
             // Return the response body if it is not paginated
-            console.debug(
-              `[OFG] ${apiInstanceName}.${functionName} is not paginated.`
-            );
+
             // Return the entities if in responseBody
             if (responseBody.entities) {
               return responseBody.entities;
