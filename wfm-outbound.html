@@ -556,6 +556,9 @@
 
     <!-- Global variables -->
     <script>
+      // Define global variables
+      window.ofg = window.ofg || {};
+
       // Check testing mode by protocol. If https then production, else testing
       window.ofg.isTesting = window.location.protocol !== "https:";
 
