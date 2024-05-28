@@ -315,7 +315,7 @@ export async function loadPageTwo() {
           globalPageOpts
         );
 
-        console.log(`[OFG] Found ${campaigns.length} campaigns`);
+        console.log(`[OFG] ${campaigns.length} Campaigns loaded`, campaigns);
       } catch (error) {
         console.error("[OFG] Error loading campaigns", error);
       }
