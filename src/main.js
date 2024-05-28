@@ -245,14 +245,14 @@ export async function generateOutboundForecast(
     }
   }
 
-  async function runFunctionOnCampaign(campaign, func, funcName, ...args) {
+  async function runFunctionOnGroup(group, func, funcName, ...args) {
     try {
-      campaign = await func(campaign, ...args);
-      // downloadJson(campaign, `${funcName}_${campaign.campaignId}`);
+      group = await func(group, ...args);
+      // downloadJson(group, `${funcName}_${group.campaignId}`);
     } catch (error) {
       console.error(`[OFG] Error occurred while running ${funcName}:`, error);
     }
-    return campaign;
+    return group;
   }
 
   async function prepareForecast() {
@@ -276,23 +276,20 @@ export async function generateOutboundForecast(
       },
     ];
 
-    let fcPrepPromises = historicalDataByCampaign.map(async (campaign) => {
+    let fcPrepPromises = historicalDataByCampaign.map(async (group) => {
       console.log(
-        `[OFG] [${campaign.campaignId}] Preparing campaign for forecast`
+        `[OFG] [${group.campaignId}] Preparing campaign for forecast`
       );
 
       for (let { func, name, args = [] } of functionsToRun) {
-        campaign = await runFunctionOnCampaign(campaign, func, name, ...args);
+        group = await runFunctionOnGroup(group, func, name, ...args);
       }
 
-      return campaign;
+      return group;
     });
 
     return Promise.all(fcPrepPromises).then(async (completedPgForecast) => {
-      console.log(
-        "[OFG] All campaigns have been processed.",
-        completedPgForecast
-      );
+      console.log("[OFG] All groups have been processed.", completedPgForecast);
       return completedPgForecast;
     });
   }
