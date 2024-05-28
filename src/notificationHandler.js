@@ -2,6 +2,9 @@
 // Define the platform client
 var PlatformClient = window.ofg.PlatformClient;
 
+// TODO: Add testing mode bypass
+var testMode = window.ofg.isTesting;
+
 // Define the notification uri & channel id
 let notificationsUri = sessionStorage.getItem("notifications_uri");
 let notificationsId = sessionStorage.getItem("notifications_id");
@@ -44,7 +47,7 @@ export class NotificationHandler {
     this.uri = notificationsUri;
     this.id = notificationsId;
 
-    if (!this.uri || !this.id) {
+    if ((!this.uri || !this.id) && !testMode) {
       throw new Error("Missing required session storage items");
     }
 
@@ -80,7 +83,7 @@ export class NotificationHandler {
 
   subscribeToNotifications() {
     console.info("[OFG] Subscribing to forecast notifications");
-    let apiInstance = new PlatformClient.NotificationsApi();
+    let apiInstance = new window.ofg.PlatformClient.NotificationsApi();
 
     let body = this.topics.map((topic) => ({
       "id": `v2.workforcemanagement.businessunits.${this.buId}.${topic}`,
