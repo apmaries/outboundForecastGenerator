@@ -1038,7 +1038,7 @@ export async function importForecast() {
 
   // Handle notification messages
   async function handleNotification(notification) {
-    console.log("[OFG] Message from server: ", notification);
+    console.debug("[OFG] Message from server: ", notification);
     if (
       notification.eventBody &&
       notification.eventBody.operationId === importOperationId
@@ -1084,9 +1084,12 @@ export async function importForecast() {
         const forecastId = notification.eventBody.result.id;
 
         // Add event listener to open forecast button
+        /*
+        TODO: Find a way to allow user to navigate main GC browser window to new forecast
         openForecastButton.addEventListener("click", (event) => {
           window.top.location.href = `/directory/#/admin/wfm/forecasts/${globalBusinessUnitId}/update/${globalWeekStart}${forecastId}`;
         });
+        */
 
         // Enable open forecast button
         openForecastButton.removeAttribute("disabled");
