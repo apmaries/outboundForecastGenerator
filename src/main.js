@@ -22,6 +22,7 @@ import {
   invokeGCF,
   importFc,
 } from "./importHandler.js";
+import { NotificationHandler } from "../src/notificationHandler.js";
 // invokeGCF calls a Google Cloud Function to make PUT request
 // importFc makes a PUT request to the upload URL - need CORS fixed before being able to switch to this
 
@@ -977,8 +978,160 @@ export async function importForecast() {
 
   // Declare variables
   let importOperationId = null;
-  let generateOperationId = null;
 
+  let topics = ["shorttermforecasts.import"];
+
+  let importNotifications = new NotificationHandler(
+    topics,
+    buId,
+    runImport,
+    handleNotification
+  );
+  importNotifications.connect();
+  importNotifications.subscribeToNotifications();
+
+  // Main import function
+  async function runImport() {
+    // Generate URL for upload
+    updateLoadingMessage("import-loading-message", "Generating URL for upload");
+    let uploadAttributes = await generateUrl(
+      globalBusinessUnitId,
+      globalWeekStart,
+      contentLength
+    );
+
+    // Upload forecast
+    updateLoadingMessage("import-loading-message", "Uploading forecast");
+    /* GCF function being used until CORS blocking removed */
+    // importFc(globalBusinessUnitId, globalWeekStart, importGzip, uploadAttributes);
+    const uploadResponse = await invokeGCF(uploadAttributes, fcImportBody);
+
+    // Check if upload was successful
+    if (uploadResponse === 200) {
+      const uploadKey = uploadAttributes.uploadKey;
+      console.log(
+        "[OFG] Forecast uploaded successfully! Calling import method."
+      );
+
+      // Import forecast
+      updateLoadingMessage("import-loading-message", "Importing forecast");
+      const importResponse = await importFc(
+        globalBusinessUnitId,
+        globalWeekStart,
+        uploadKey
+      );
+
+      // Check if operation id is in response
+      if (importResponse) {
+        importOperationId = importResponse.operationId;
+        console.log(
+          `[OFG] Forecast import initiated. Operation ID: ${importOperationId}`
+        );
+
+        // Assign operationId to global importOperationId variable
+        importOperationId = importResponse.operationId;
+      } else {
+        console.error("[OFG] Forecast import failed.");
+      }
+    }
+  }
+
+  // Handle notification messages
+  async function handleNotification(notification) {
+    console.log("[OFG] Message from server: ", notification);
+    if (
+      notification.eventBody &&
+      notification.eventBody.operationId === importOperationId
+    ) {
+      const status = notification.eventBody.status;
+      console.log(`[OFG] Forecast import status updated <${status}>`);
+
+      // Hide loading spinner div
+      hideLoadingSpinner("import-results-container", "import-loading-div");
+
+      const resultsContainer = document.getElementById(
+        "import-results-container"
+      );
+
+      // Create a button to restart the process
+      const restartButton = document.createElement("gux-button");
+      restartButton.id = "restart-button";
+      restartButton.setAttribute("accent", "secondary");
+      restartButton.className = "align-left";
+      restartButton.textContent = "Restart";
+
+      // Create a button to open forecast
+      /* 
+      TODO: Find a way to allow user to navigate main GC browser window to new forecast
+      const openForecastButton = document.createElement("gux-button");
+      openForecastButton.id = "open-forecast-button";
+      openForecastButton.setAttribute("accent", "primary");
+      openForecastButton.setAttribute("disabled", "true");
+      openForecastButton.className = "align-right";
+      openForecastButton.textContent = "Open Forecast";
+      */
+
+      // Add event listener to restart button
+      restartButton.addEventListener("click", (event) => {
+        switchPages("page-four", "page-one");
+        loadPageOne();
+      });
+
+      let message;
+      if (status === "Complete") {
+        console.log("[OFG] Forecast import completed successfully!");
+
+        const forecastId = notification.eventBody.result.id;
+
+        // Add event listener to open forecast button
+        openForecastButton.addEventListener("click", (event) => {
+          window.top.location.href = `/directory/#/admin/wfm/forecasts/${globalBusinessUnitId}/update/${globalWeekStart}${forecastId}`;
+        });
+
+        // Enable open forecast button
+        openForecastButton.removeAttribute("disabled");
+
+        // Insert div to id="results-container" with success message
+        message = document.createElement("div");
+        message.className = "alert-success";
+        message.innerHTML = "Forecast imported successfully!";
+        resultsContainer.appendChild(message);
+      } else if (status === "Error" || status === "Canceled") {
+        console.error("[OFG] Forecast import failed.", notification);
+        const userMessage = notification.metadata.errorInfo.userMessage;
+
+        // Insert div to id="results-container" with error message
+
+        message = document.createElement("div");
+        message.className = "alert-danger";
+        message.innerHTML = "Forecast import failed!";
+        resultsContainer.appendChild(message);
+
+        const errorReason = document.createElement("div");
+
+        errorReason.innerHTML = userMessage;
+        resultsContainer.appendChild(errorReason);
+      }
+      // Create a new div
+      const buttonsContainer = document.createElement("div");
+
+      // Set the id, class, and style attributes
+      buttonsContainer.id = "page-three-buttons";
+      buttonsContainer.className = "row";
+      buttonsContainer.style.paddingTop = "20px";
+
+      // Append buttons to the results container
+      buttonsContainer.appendChild(restartButton);
+      buttonsContainer.appendChild(openForecastButton);
+
+      // Append the buttonsContainer
+      resultsContainer.appendChild(buttonsContainer);
+    } else {
+      console.log("[OFG] Message from server: ", notification);
+    }
+  }
+
+  /*
   // Create a WebSocket connection
   let notificationsUri;
   let notificationsId;
@@ -1035,15 +1188,13 @@ export async function importForecast() {
           restartButton.textContent = "Restart";
 
           // Create a button to open forecast
-          /* 
-          TODO: Find a way to allow user to navigate main GC browser window to new forecast
           const openForecastButton = document.createElement("gux-button");
           openForecastButton.id = "open-forecast-button";
           openForecastButton.setAttribute("accent", "primary");
           openForecastButton.setAttribute("disabled", "true");
           openForecastButton.className = "align-right";
           openForecastButton.textContent = "Open Forecast";
-          */
+          
 
           // Add event listener to restart button
           restartButton.addEventListener("click", (event) => {
@@ -1116,50 +1267,5 @@ export async function importForecast() {
       console.log("[OFG] WebSocket error: ", event);
     });
   }
-
-  // Main function
-  async function runImport() {
-    // Generate URL for upload
-    updateLoadingMessage("import-loading-message", "Generating URL for upload");
-    let uploadAttributes = await generateUrl(
-      globalBusinessUnitId,
-      globalWeekStart,
-      contentLength
-    );
-
-    // Upload forecast
-    updateLoadingMessage("import-loading-message", "Uploading forecast");
-    /* GCF function being used until CORS blocking removed */
-    // importFc(globalBusinessUnitId, globalWeekStart, importGzip, uploadAttributes);
-    const uploadResponse = await invokeGCF(uploadAttributes, fcImportBody);
-
-    // Check if upload was successful
-    if (uploadResponse === 200) {
-      const uploadKey = uploadAttributes.uploadKey;
-      console.log(
-        "[OFG] Forecast uploaded successfully! Calling import method."
-      );
-
-      // Import forecast
-      updateLoadingMessage("import-loading-message", "Importing forecast");
-      const importResponse = await importFc(
-        globalBusinessUnitId,
-        globalWeekStart,
-        uploadKey
-      );
-
-      // Check if operation id is in response
-      if (importResponse) {
-        importOperationId = importResponse.operationId;
-        console.log(
-          `[OFG] Forecast import initiated. Operation ID: ${importOperationId}`
-        );
-
-        // Assign operationId to global importOperationId variable
-        importOperationId = importResponse.operationId;
-      } else {
-        console.error("[OFG] Forecast import failed.");
-      }
-    }
-  }
+  */
 }
