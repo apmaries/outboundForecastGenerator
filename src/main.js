@@ -7,7 +7,6 @@ import {
   loadPageThree,
   loadPageFour,
 } from "./pageHandler.js";
-// import { subscribeToNotifications } from "./notificationHandler.js";
 import { queryBuilder, executeQueries } from "./queryHandler.js";
 import {
   prepFcMetrics,
@@ -16,6 +15,7 @@ import {
   applyContacts,
   resolveContactsAht,
 } from "./numberHandler.js";
+import { generateInboundForecast } from "./inboundHandler.js";
 import {
   prepFcImportBody,
   generateUrl,
@@ -33,7 +33,7 @@ let globalWeekStart;
 let globalForecastDescription;
 let globalBusinessUnitStartDayOfWeek;
 
-// Generate forecast data
+// Generate outbound forecast data
 export async function generateOutboundForecast(
   testMode,
   businessUnitName,
