@@ -377,6 +377,7 @@ export async function loadPageTwo() {
 
     // Flag to track if inbound forecast mode div has been unhidden
     let isUnhidden = false;
+    window.ofg.isInboundForecastMode = false;
 
     for (let i = 0; i < planningGroups.length; i++) {
       // loop through planning groups to link to campaigns and populate table
@@ -425,11 +426,12 @@ export async function loadPageTwo() {
         );
         campaignNameCell.textContent = "";
 
-        // Unhide inbound-forecast-mode div if it hasn't been unhidden yet
+        // Enable inbound mode and unhide inbound-forecast-mode div
         if (!isUnhidden) {
           document.getElementById("inbound-forecast-mode").style.display =
             "block";
           isUnhidden = true;
+          window.ofg.isInboundForecastMode = true;
         }
       }
       row.appendChild(campaignNameCell);
