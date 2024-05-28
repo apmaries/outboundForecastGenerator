@@ -266,7 +266,7 @@ export async function loadPageTwo() {
     // loop through planning groups to build array of planning group objects
     for (let i = 0; i < planningGroups.length; i++) {
       const group = planningGroups[i];
-      console.log(
+      console.debug(
         `[OFG] Processing planning group ${i + 1}: ${group.name} (${group.id})`
       );
 
@@ -325,7 +325,7 @@ export async function loadPageTwo() {
     for (let i = 0; i < campaigns.length; i++) {
       try {
         const campaign = campaigns[i];
-        console.log(
+        console.debug(
           `[OFG] Processing campaign ${i + 1}: ${campaign.name} (${
             campaign.id
           })`
@@ -385,7 +385,7 @@ export async function loadPageTwo() {
       const groupId = group.pgId;
       const groupName = group.pgName;
 
-      console.log(
+      console.debug(
         `[OFG] PG${
           i + 1
         }[${groupId}] Matching ${groupName} to campaigns with queue id ${groupQueueId}`
