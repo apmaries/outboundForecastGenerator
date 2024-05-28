@@ -135,7 +135,8 @@ export async function getBusinessUnit() {
   let businessUnitData;
   if (window.ofg.isTesting) {
     // Testing mode - Get Business Unit data from mock PlatformClient
-    businessUnitData = await PlatformClient.MockWfmApi.getBusinessUnitData();
+    businessUnitData =
+      await window.ofg.PlatformClient.MockWfmApi.getBusinessUnitData();
     console.log(
       "[OFG] Business Unit data loaded from test data",
       businessUnitData
@@ -238,7 +239,8 @@ export async function loadPageTwo() {
     try {
       if (window.ofg.isTesting) {
         // Testing mode - Get Planning Groups from mock PlatformClient
-        planningGroups = await PlatformClient.MockWfmApi.getPlanningGroups();
+        planningGroups =
+          await window.ofg.PlatformClient.MockWfmApi.getPlanningGroups();
         console.log(
           "[OFG] Planning Groups loaded from test data",
           planningGroups
@@ -306,7 +308,8 @@ export async function loadPageTwo() {
 
     if (window.ofg.isTesting) {
       // Testing mode - Get Campaigns from mock PlatformClient
-      campaigns = await PlatformClient.MockOutboundApi.getOutboundCampaigns();
+      campaigns =
+        await window.ofg.PlatformClient.MockOutboundApi.getOutboundCampaigns();
       console.log("[OFG] Campaigns loaded from test data", campaigns);
     } else {
       // Production mode
