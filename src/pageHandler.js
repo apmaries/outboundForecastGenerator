@@ -188,7 +188,8 @@ export async function getBusinessUnit() {
 export async function loadPageOne() {
   if (window.ofg.isTesting) {
     // Testing mode - Get Business Units from mock PlatformClient
-    businessUnits = await PlatformClient.MockWfmApi.getBusinessUnits();
+    businessUnits =
+      await window.ofg.PlatformClient.MockWfmApi.getBusinessUnits();
     console.log("[OFG] Business Units loaded from test data", businessUnits);
   } else {
     // Production mode
