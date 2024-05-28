@@ -116,10 +116,12 @@ export function initializeEventListeners() {
         document.getElementById("ignoreZeroes").checked;
       const resolveContactsAhtToggle =
         document.getElementById("resolveContactsAht").checked;
-      const inboundForecastModeRadio = document.getElementsByName(
+      const inboundForecastMethodRadio = document.getElementsByName(
         "inbound-forecast-radio"
       );
-      const inboundForecastMode = getRadioValue(inboundForecastModeRadio);
+
+      const inboundMode = window.ofg.isInboundForecastMethod;
+      const inboundForecastMethod = getRadioValue(inboundForecastMethodRadio);
       const forecastDescription =
         document.getElementById("fc-description").value;
 
@@ -134,7 +136,7 @@ export function initializeEventListeners() {
         planningGroupContactsArray,
         ignoreZeroesToggle,
         resolveContactsAhtToggle,
-        inboundForecastMode,
+        inboundForecastMethod,
         forecastDescription
       );
 
