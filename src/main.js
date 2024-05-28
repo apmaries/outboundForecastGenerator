@@ -1092,7 +1092,7 @@ export async function importForecast() {
         */
 
         // Enable open forecast button
-        openForecastButton.removeAttribute("disabled");
+        //openForecastButton.removeAttribute("disabled");
 
         // Insert div to id="results-container" with success message
         message = document.createElement("div");
@@ -1125,7 +1125,7 @@ export async function importForecast() {
 
       // Append buttons to the results container
       buttonsContainer.appendChild(restartButton);
-      buttonsContainer.appendChild(openForecastButton);
+      //buttonsContainer.appendChild(openForecastButton);
 
       // Append the buttonsContainer
       resultsContainer.appendChild(buttonsContainer);
