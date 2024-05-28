@@ -557,16 +557,16 @@
     <!-- Global variables -->
     <script>
       // Check testing mode by protocol. If https then production, else testing
-      window.isTesting = window.location.protocol !== "https:";
+      window.ofg.isTesting = window.location.protocol !== "https:";
 
       // Update the test-mode div with the current mode
       const testModeDiv = document.getElementById("test-mode");
       testModeDiv.textContent = `Running in ${
-        window.isTesting ? "test" : "production"
+        window.ofg.isTesting ? "test" : "production"
       } mode`;
 
       // Remove hidden attribute from testModeDiv if in testing mode
-      if (window.isTesting) {
+      if (window.ofg.isTesting) {
         testModeDiv.removeAttribute("hidden");
       }
     </script>
@@ -583,7 +583,7 @@
       var environment = "mypurecloud.com.au";
 
       // Check if in testing mode
-      if (window.isTesting) {
+      if (window.ofg.isTesting) {
         console.log("[OFG] Testing mode");
 
         // Fetch static JSON data
@@ -626,7 +626,7 @@
           );
 
         // Create mock objects for testing
-        window.PlatformClient = {
+        window.ofg.PlatformClient = {
           MockOutboundApi: {
             getOutboundCampaigns: function () {
               // Return promise from fetch
@@ -656,19 +656,21 @@
         let platformClientModule = window.require("platformClient");
 
         // Configure Platform Client
-        window.PlatformClient = platformClientModule;
-        window.PlatformClient.ApiClient.instance.setEnvironment(environment);
-        window.PlatformClient.ApiClient.instance.setReturnExtendedResponses(
+        window.ofg.PlatformClient = platformClientModule;
+        window.ofg.PlatformClient.ApiClient.instance.setEnvironment(
+          environment
+        );
+        window.ofg.PlatformClient.ApiClient.instance.setReturnExtendedResponses(
           true
         );
-        window.PlatformClient.ApiClient.instance.setPersistSettings(
+        window.ofg.PlatformClient.ApiClient.instance.setPersistSettings(
           true,
           "ofg"
         );
 
         // Configure Client App
         let ClientAppModule = window.purecloud.apps.ClientApp;
-        window.ClientApp = new ClientAppModule({
+        window.ofg.ClientApp = new ClientAppModule({
           pcEnvironment: environment,
         });
       }
@@ -682,7 +684,7 @@
       import { loadPageOne } from "./src/pageHandler.js";
 
       document.addEventListener("DOMContentLoaded", async function () {
-        if (!window.isTesting) {
+        if (!window.ofg.isTesting) {
           // TODO: Need to be able to get the environment from the parent window
 
           //USW2

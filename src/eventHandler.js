@@ -69,7 +69,7 @@ export function initializeEventListeners() {
   if (generateButton) {
     let totalContacts = 0;
     generateButton.addEventListener("click", async () => {
-      const test = window.isTesting;
+      const test = window.ofg.isTesting;
       const buName = selectedBusinessUnit.name;
       const buId = selectedBusinessUnit.id;
       const buStartDayOfWeek = selectedBusinessUnit.settings.startDayOfWeek;

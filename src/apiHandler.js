@@ -1,6 +1,6 @@
 // Define the platform clients
-var PlatformClient = window.PlatformClient;
-var ClientApp = window.ClientApp;
+var PlatformClient = window.ofg.PlatformClient;
+var ClientApp = window.ofg.ClientApp;
 
 /*
 // Set client logging

@@ -1,6 +1,6 @@
 // notificationHandler.js
 // Define the platform client
-var PlatformClient = window.PlatformClient;
+var PlatformClient = window.ofg.PlatformClient;
 
 // Define the notification uri & channel id
 let notificationsUri = sessionStorage.getItem("notifications_uri");

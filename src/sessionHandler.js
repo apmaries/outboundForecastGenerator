@@ -2,7 +2,7 @@ import { handleApiCalls, toastUser } from "./apiHandler.js";
 
 // Declare global variables
 const indexPage = "./not-authorized.html";
-const isTesting = window.isTesting;
+const isTesting = window.ofg.isTesting;
 
 // Function to check if user is authorised
 async function internalUserCheck(emailAddress) {
