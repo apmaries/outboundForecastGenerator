@@ -578,7 +578,7 @@ export async function resolveContactsAht(campaignData, resolveContactsAht) {
           (campaignData.fcData.ahtIntraday[i][j] === 0 ||
             campaignData.fcData.ahtIntraday[i][j] === undefined)
         ) {
-          console.warn(
+          console.debug(
             `[OFG] [${campaignPgId}] Day ${i}, interval ${j} has contacts but no AHT value. Populating daily AHT value of ${campaignData.fcData.ahtDaily[i]}.`
           );
           campaignData.fcData.ahtIntraday[i][j] =
@@ -591,7 +591,7 @@ export async function resolveContactsAht(campaignData, resolveContactsAht) {
     campaignData.fcData.contactsIntraday.forEach((day, i) => {
       day.forEach((interval, j) => {
         if (interval === 0 && campaignData.fcData.ahtIntraday[i][j] !== 0) {
-          console.warn(
+          console.debug(
             `[OFG] [${campaignPgId}] Day ${i}, interval ${j} has 0 contacts but AHT of ${campaignData.fcData.ahtIntraday[i][j]}. Setting AHT to 0.`
           );
           campaignData.fcData.ahtIntraday[i][j] = 0;
