@@ -487,7 +487,7 @@ export async function getPlanningGroupDataForDay(
             "width": { "value": 5 },
             "y": { "scale": "y", "field": "y1" },
             "y2": { "scale": "y", "value": 0 },
-            "fill": { "value": "steelblue" },
+            "fill": { "value": "rgb(31, 119, 180)" },
           },
         },
       },
@@ -499,7 +499,7 @@ export async function getPlanningGroupDataForDay(
             "x": { "scale": "x", "field": "x", "offset": 2.5 }, // Add offset to center line
             "y": { "scale": "y2", "field": "y2" },
             "y2": { "scale": "y2", "value": 0 }, // Set y2 to 0
-            "stroke": { "value": "orange" },
+            "stroke": { "value": "rgb(255, 127, 14)" },
           },
         },
       },
