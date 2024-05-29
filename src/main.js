@@ -34,7 +34,7 @@ let globalForecastDescription;
 let globalBusinessUnitStartDayOfWeek;
 
 // Generate outbound forecast data
-export async function generateOutboundForecast(
+export async function generateForecast(
   testMode,
   businessUnitName,
   businessUnitId,
@@ -982,7 +982,7 @@ export async function importForecast() {
     topics,
     globalBusinessUnitId,
     runImport,
-    handleNotification
+    handleImportNotification
   );
   importNotifications.connect();
   importNotifications.subscribeToNotifications();
@@ -1034,7 +1034,7 @@ export async function importForecast() {
   }
 
   // Handle notification messages
-  async function handleNotification(notification) {
+  async function handleImportNotification(notification) {
     console.debug("[OFG] Message from server: ", notification);
     if (
       notification.eventBody &&
