@@ -380,7 +380,6 @@ export async function loadPageTwo() {
     console.log(`[OFG] Matching queues & campaigns`);
 
     // Flag to track if inbound forecast mode div has been unhidden
-    let isUnhidden = false;
     window.ofg.isInboundForecastMode = false;
 
     for (let i = 0; i < planningGroups.length; i++) {
@@ -431,10 +430,10 @@ export async function loadPageTwo() {
         campaignNameCell.textContent = "";
 
         // Enable inbound mode and unhide inbound-forecast-div
-        if (!isUnhidden) {
+        if (!window.ofg.isInboundForecastMode) {
+          console.log("[OFG] Enabling inbound forecast mode");
           document.getElementById("inbound-forecast-div").style.display =
             "block";
-          isUnhidden = true;
           window.ofg.isInboundForecastMode = true;
         }
       }
@@ -472,6 +471,20 @@ export async function loadPageTwo() {
 
         // Unhide inbound-forecast-div
         document.getElementById("inbound-forecast-div").style.display = "block";
+
+        // Add event listener to input to enable/disable retain inbound forecast toggle
+        const generateInboundToggle = document.getElementById(
+          "generate-inbound-fc"
+        );
+        generateInboundToggle.addEventListener("change", function () {
+          const retainInboundToggle =
+            document.getElementById("retain-inbound-fc");
+          if (generateInboundToggle.checked) {
+            retainInboundToggle.disabled = false;
+          } else {
+            retainInboundToggle.disabled = true;
+          }
+        });
       } else {
         // Add data attribute to indicate that a matching campaign was found
         campaignNameCell.dataset.matchedCampaign = "true";
