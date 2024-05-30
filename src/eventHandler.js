@@ -40,8 +40,7 @@ export function initializeEventListeners() {
     switchPages("page-one", "page-two");
   });
 
-  // Event listener for p2 back button
-  // TODO: Tidy this up as there's now only one back button
+  // Event listener for back buttons
   const backButtons = document.getElementsByName("back-button");
   backButtons.forEach((backButton) => {
     backButton.addEventListener("click", function () {
@@ -76,6 +75,9 @@ export function initializeEventListeners() {
       const buTimeZone = selectedBusinessUnit.settings.timeZone;
       const weekStart = document.getElementById("week-start").value;
       const historicalWeeks = document.getElementById("historical-weeks").value;
+
+      const forecastDescription =
+        document.getElementById("fc-description").value;
 
       let planningGroupContactsArray = [];
       const tableBody = document.querySelector("#planning-groups-table tbody");
@@ -113,32 +115,29 @@ export function initializeEventListeners() {
       }
 
       const ignoreZeroesToggle =
-        document.getElementById("ignoreZeroes").checked;
-      const resolveContactsAhtToggle =
-        document.getElementById("resolveContactsAht").checked;
-      const inboundForecastMethodRadio = document.getElementsByName(
-        "inbound-forecast-radio"
-      );
-
-      const inboundMode = window.ofg.isInboundForecastMethod;
-      const inboundForecastMethod = getRadioValue(inboundForecastMethodRadio);
-      const forecastDescription =
-        document.getElementById("fc-description").value;
+        document.getElementById("ignore-zeroes").checked;
+      const resolveContactsAhtToggle = document.getElementById(
+        "resolve-contacts-aht"
+      ).checked;
+      const generateInboundToggle = document.getElementById(
+        "generate-inbound-fc"
+      ).checked;
+      const retainInboundToggele =
+        document.getElementById("retain-inbound-fc").checked;
 
       generateForecast(
-        test,
         buName,
         buId,
         buStartDayOfWeek,
         buTimeZone,
         weekStart,
         historicalWeeks,
+        forecastDescription,
         planningGroupContactsArray,
         ignoreZeroesToggle,
         resolveContactsAhtToggle,
-        inboundMode,
-        inboundForecastMethod,
-        forecastDescription
+        generateInboundToggle,
+        retainInboundToggele
       );
 
       // Enable the planningGroupDropdown
