@@ -45,7 +45,8 @@ export async function generateForecast(
   planningGroupContactsArray,
   ignoreZeroes,
   resolveContactsAhtMode,
-  inboundForecastMode,
+  inboundMode,
+  inboundForecastMethod,
   forecastDescription
 ) {
   console.info("[OFG] Forecast generation initiated");
@@ -63,7 +64,8 @@ export async function generateForecast(
     planningGroupDetails: planningGroupContactsArray,
     ignoreZeroes,
     resolveContactsAhtMode,
-    inboundForecastMode,
+    inboundMode,
+    inboundForecastMethod,
     forecastDescription,
   };
   console.log("[OFG] User selections:", userSelections);
@@ -337,6 +339,17 @@ export async function generateForecast(
   // Prepare forecast
   updateLoadingMessage("generate-loading-message", "Preparing forecast");
   globalCompletedPgForecast = await prepareForecast();
+
+  // Generate inbound forecast if required
+  if (inboundMode) {
+    await generateInboundForecast(
+      inboundForecastMethod,
+      globalBusinessUnitId,
+      globalWeekStart,
+      historicalWeeks,
+      globalForecastDescription
+    );
+  }
 
   // Load page three
   loadPageThree();
