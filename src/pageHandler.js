@@ -210,8 +210,8 @@ export async function loadPageOne() {
   // Remove existing planning group gux-option elements from page three
   planningGroupsListbox.innerHTML = "";
 
-  // Hide inbound-forecast-mode div
-  document.getElementById("inbound-forecast-mode").style.display = "none";
+  // Hide inbound-forecast-div
+  document.getElementById("inbound-forecast-div").style.display = "none";
 
   // Populate Business Unit dropdown
   await populateDropdown(businessUnitListbox, businessUnits);
@@ -430,9 +430,9 @@ export async function loadPageTwo() {
         );
         campaignNameCell.textContent = "";
 
-        // Enable inbound mode and unhide inbound-forecast-mode div
+        // Enable inbound mode and unhide inbound-forecast-div
         if (!isUnhidden) {
-          document.getElementById("inbound-forecast-mode").style.display =
+          document.getElementById("inbound-forecast-div").style.display =
             "block";
           isUnhidden = true;
           window.ofg.isInboundForecastMode = true;
@@ -470,9 +470,8 @@ export async function loadPageTwo() {
         row.style.color = "grey";
         // TODO: Would like to move row to the bottom of the table if no matching campaign found - pending fix to sortable table
 
-        // Unhide inbound-forecast-mode div
-        document.getElementById("inbound-forecast-mode").style.display =
-          "block";
+        // Unhide inbound-forecast-div
+        document.getElementById("inbound-forecast-div").style.display = "block";
       } else {
         // Add data attribute to indicate that a matching campaign was found
         campaignNameCell.dataset.matchedCampaign = "true";
