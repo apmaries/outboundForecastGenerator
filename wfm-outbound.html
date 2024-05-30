@@ -313,69 +313,89 @@
                 ></gux-table-beta>
               </div>
               <div>
-                <label for="ignoreZeroes"
-                  >Ignore zero values when generating averages?
-                  <gux-icon
-                    icon-name="help"
-                    screenreader-text="help-icon"
-                  ></gux-icon
-                  ><gux-tooltip
-                    >Ignore zero values when generating forecast to not skew
-                    down results</gux-tooltip
-                  ></label
-                >
-                <gux-toggle
-                  id="ignoreZeroes"
-                  checked-label="Yes"
-                  unchecked-label="No"
-                  checked
-                ></gux-toggle>
-
-                <label for="resolveContactsAht"
-                  >Resolve AHT forecast to Contacts?
-                  <gux-icon
-                    icon-name="help"
-                    screenreader-text="help-icon"
-                  ></gux-icon
-                  ><gux-tooltip
-                    >Make sure the forecast being generated always has AHT in
-                    the same intervals as offered. (e.g. no intervals with
-                    forecast offered but no handle time)</gux-tooltip
-                  ></label
-                >
-                <!-- Applies the daily AHT value to any interval with forecast offered but no AHT forecast -->
-                <gux-toggle
-                  id="resolveContactsAht"
-                  checked-label="Yes"
-                  unchecked-label="No"
-                  checked
-                ></gux-toggle>
-
-                <div id="inbound-forecast-mode" style="display: none">
-                  <!-- temporarily hidden until functionality added -->
-                  <label for="inbound-forecast-mode"
-                    >Inbound Forecast Mode</label
+                <fieldset>
+                  <legend>Outbound options</legend>
+                  <label for="ignore-zeroes"
+                    >Ignore zero values when generating averages?
+                    <gux-icon
+                      icon-name="help"
+                      screenreader-text="help-icon"
+                    ></gux-icon
+                    ><gux-tooltip
+                      >Exclude zero values during forecast generation to prevent
+                      distortion of results.</gux-tooltip
+                    ></label
                   >
-                  <gux-form-field-radio>
-                    <input
-                      slot="input"
-                      type="radio"
-                      name="inbound-forecast-radio"
-                      value="whi"
-                      checked="checked"
-                    />
-                    <label slot="label">Weighted Historical Index</label>
-                  </gux-form-field-radio>
+                  <gux-toggle
+                    id="ignore-zeroes"
+                    checked-label="Yes"
+                    unchecked-label="No"
+                    checked
+                  ></gux-toggle>
 
-                  <gux-form-field-radio>
-                    <input
-                      slot="input"
-                      type="radio"
-                      name="inbound-forecast-radio"
-                      value="abm"
-                    />
-                    <label slot="label">Automatic Best Method Selection</label>
-                  </gux-form-field-radio>
+                  <label for="resolve-contacts-aht"
+                    >Resolve AHT forecast to Contacts?
+                    <gux-icon
+                      icon-name="help"
+                      screenreader-text="help-icon"
+                    ></gux-icon
+                    ><gux-tooltip
+                      >Make sure the forecast being generated always has AHT in
+                      the same intervals as offered. (e.g. no intervals with
+                      forecast offered but no handle time)</gux-tooltip
+                    ></label
+                  >
+                  <!-- Applies the daily AHT value to any interval with forecast offered but no AHT forecast -->
+                  <gux-toggle
+                    id="resolve-contacts-aht"
+                    checked-label="Yes"
+                    unchecked-label="No"
+                    checked
+                  ></gux-toggle>
+                </fieldset>
+                <div id="inbound-forecast-div" style="display: none">
+                  <!-- Hidden until Planning Groups identified with no matching Campaign -->
+                  <fieldset>
+                    <legend>Inbound options</legend>
+
+                    <label for="generate-inbound-fc"
+                      >Generate forecast for inbound Planning Groups?
+                      <gux-icon
+                        icon-name="help"
+                        screenreader-text="help-icon"
+                      ></gux-icon
+                      ><gux-tooltip
+                        >Generates an ABM forecast for BU Planning Groups and
+                        merges results with Outbound data</gux-tooltip
+                      ></label
+                    >
+                    <gux-toggle
+                      id="generate-inbound-fc"
+                      checked-label="Yes"
+                      unchecked-label="No"
+                      checked
+                    ></gux-toggle>
+
+                    <label for="retain-inbound-fc"
+                      >Retain forecast for inbound Planning Groups?
+                      <gux-icon
+                        icon-name="help"
+                        screenreader-text="help-icon"
+                      ></gux-icon
+                      ><gux-tooltip
+                        >If yes, the automatically generated inbound forecast
+                        will be retained for reference.<br />If no, this inbound
+                        forecast is deleted after forecasts have been
+                        merged.</gux-tooltip
+                      ></label
+                    >
+                    <gux-toggle
+                      id="retain-inbound-fc"
+                      checked-label="Yes"
+                      unchecked-label="No"
+                      disabled
+                    ></gux-toggle>
+                  </fieldset>
                 </div>
               </div>
             </div>
