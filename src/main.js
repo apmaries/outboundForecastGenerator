@@ -33,40 +33,40 @@ let globalWeekStart;
 let globalForecastDescription;
 let globalBusinessUnitStartDayOfWeek;
 
+const testMode = window.ofg.isTesting;
+
 // Generate outbound forecast data
 export async function generateForecast(
-  testMode,
   businessUnitName,
   businessUnitId,
   businessUnitStartDayOfWeek,
   selectedBuTimeZone,
   weekStart,
   historicalWeeks,
+  forecastDescription,
   planningGroupContactsArray,
   ignoreZeroes,
   resolveContactsAhtMode,
-  inboundMode,
-  inboundForecastMethod,
-  forecastDescription
+  generateInbound,
+  retainInbound
 ) {
   console.info("[OFG] Forecast generation initiated");
 
   // Log user variables
   let userSelections = {
-    testMode,
     businessUnitName,
     businessUnitId,
     businessUnitStartDayOfWeek,
     selectedBuTimeZone,
     weekStart,
     historicalWeeks,
+    forecastDescription,
     planningGroupCount: planningGroupContactsArray.length,
     planningGroupDetails: planningGroupContactsArray,
     ignoreZeroes,
     resolveContactsAhtMode,
-    inboundMode,
-    inboundForecastMethod,
-    forecastDescription,
+    generateInbound,
+    retainInbound,
   };
   console.log("[OFG] User selections:", userSelections);
 
@@ -298,7 +298,7 @@ export async function generateForecast(
 
   // Functions end here
 
-  // Main code starts here
+  // Main generate forecastcode starts here
 
   if (testMode) {
     console.warn(
@@ -341,13 +341,12 @@ export async function generateForecast(
   globalCompletedPgForecast = await prepareForecast();
 
   // Generate inbound forecast if required
-  if (inboundMode) {
+  if (generateInbound) {
     await generateInboundForecast(
-      inboundForecastMethod,
       globalBusinessUnitId,
       globalWeekStart,
-      historicalWeeks,
-      globalForecastDescription
+      globalForecastDescription,
+      retainInbound
     );
   }
 
@@ -962,7 +961,7 @@ export async function getPlanningGroupDataForDay(
       .run();
   });
 
-  // Unihde the totals table div
+  // Unhide the totals table div
   const totalsTableDiv = document.getElementById("totals-table");
   totalsTableDiv.hidden = false;
 
