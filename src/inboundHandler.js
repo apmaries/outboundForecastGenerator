@@ -5,12 +5,13 @@ import { NotificationHandler } from "../src/notificationHandler.js";
 let generateOperationId = null;
 
 export async function generateInboundForecast(
-  method,
   buId,
   weekStart,
-  historicalWeeks,
-  description
+  description,
+  retainInboundFc
 ) {
+  console.log("[OFG] Generating inbound forecast");
+
   const topics = ["v2.workforcemanagement.businessunits.generate"];
 
   let inboundForecast;
@@ -19,18 +20,32 @@ export async function generateInboundForecast(
   const generateNotifications = new NotificationHandler(
     topics,
     buId,
-    generateInboundForecast,
+    generateAbmForecast,
     handleInboundForecastNotification
   );
+  generateNotifications.connect();
+  generateNotifications.subscribeToNotifications();
 
   // Generate the forecast
-  async function generateInboundForecast() {
-    // Check inbound forecast generation method
-    if (method === "whi") {
-      // Generate Weighted Historical Index forecast
-    } else if (method === "abm") {
-      // Generate Automatic Best Method Selection forecast
-    }
+  async function generateAbmForecast() {
+    const abmFcDescription = description + " (Inbound ABM)";
+
+    // Generate the forecast
+    generateResponse = await handleApiCalls(
+      "WorkforceManagementApi.postWorkforcemanagementBusinessunitWeekShorttermforecastsGenerate",
+      buId,
+      weekStart,
+      {
+        "description": abmFcDescription,
+        "weekCount": 1,
+        "canUseForScheduling": true,
+      }
+    );
+
+    console.log("[OFG] Inbound forecast generated: ", generateResponse);
+
+    // Set the operation ID
+    generateOperationId = generateResponse.operationId;
   }
 
   // Get the forecast data
