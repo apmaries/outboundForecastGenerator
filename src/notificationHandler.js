@@ -1,6 +1,4 @@
 // notificationHandler.js
-// Define the platform client
-var PlatformClient = window.ofg.PlatformClient;
 
 // TODO: Add testing mode bypass
 var testMode = window.ofg.isTesting;
