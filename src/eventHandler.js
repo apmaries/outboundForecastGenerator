@@ -136,6 +136,7 @@ export function initializeEventListeners() {
         planningGroupContactsArray,
         ignoreZeroesToggle,
         resolveContactsAhtToggle,
+        inboundMode,
         inboundForecastMethod,
         forecastDescription
       );
