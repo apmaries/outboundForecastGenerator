@@ -32,7 +32,21 @@ export async function generateInboundForecast(
     return inboundForecastData;
   }
 
+  // Main code starts here
+
   // Functions start here
+
+  // Functions end here
+
+  // Subscribe to generate notifications
+  const generateNotifications = new NotificationHandler(
+    topics,
+    buId,
+    generateAbmForecast,
+    handleInboundForecastNotification
+  );
+  generateNotifications.connect();
+  generateNotifications.subscribeToNotifications();
 
   // Generate the forecast
   async function generateAbmForecast() {
@@ -108,21 +122,8 @@ export async function generateInboundForecast(
     console.log("[OFG] Inbound forecast deleted: ", deleteResponse);
   }
 
-  // Functions end here
-
-  // Main code starts here
-  // Subscribe to generate notifications
-  const generateNotifications = new NotificationHandler(
-    topics,
-    buId,
-    generateAbmForecast,
-    handleInboundForecastNotification
-  );
-  generateNotifications.connect();
-  generateNotifications.subscribeToNotifications();
-
   // Get the forecast data
-  async function handleInboundForecastNotification() {
+  async function handleInboundForecastNotification(notification) {
     // Add inbound forecast data to mainPgForecastData
     // Return the forecast data
   }

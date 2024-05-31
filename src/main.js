@@ -342,6 +342,10 @@ export async function generateForecast(
 
   // Generate inbound forecast if required
   if (generateInbound) {
+    updateLoadingMessage(
+      "generate-loading-message",
+      "Generating inbound forecast"
+    );
     await generateInboundForecast(
       globalBusinessUnitId,
       globalWeekStart,
@@ -424,7 +428,7 @@ export async function viewAndModifyFc(selectedPgId, selectedWeekDay) {
       .padStart(2, "0")}`;
   });
 
-  // Create chart
+  // Create intraday chart
   let spec = {
     "$schema": "https://vega.github.io/schema/vega/v5.json",
     "width": 350,
