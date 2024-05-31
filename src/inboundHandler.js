@@ -14,7 +14,7 @@ export async function generateInboundForecast(
 ) {
   console.log("[OFG] Initiating inbound forecast generation");
 
-  const topics = ["v2.workforcemanagement.businessunits.generate"];
+  const topics = ["shorttermforecasts.generate"];
 
   let inboundForecast;
 
