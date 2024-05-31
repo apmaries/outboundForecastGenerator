@@ -7,11 +7,7 @@ import {
   loadPageThree,
   loadPageFour,
 } from "./pageHandler.js";
-import {
-  generateForecast,
-  importForecast,
-  getPlanningGroupDataForDay,
-} from "./main.js";
+import { generateForecast, importForecast, viewAndModifyFc } from "./main.js";
 
 let selectedBusinessUnit;
 
@@ -167,7 +163,7 @@ export function initializeEventListeners() {
       // Check if weekDayDropdown has a value
       if (weekDayDropdown.value) {
         // Get Planning Group forecast data for week day
-        const pgDataWeekDay = await getPlanningGroupDataForDay(
+        const pgDataWeekDay = await viewAndModifyFc(
           selectedPgId,
           weekDayDropdown.value
         );
@@ -182,7 +178,7 @@ export function initializeEventListeners() {
       // Check if planningGroupDropdown has a value
       if (planningGroupDropdown.value) {
         // Get Planning Group forecast data for week day
-        const pgDataWeekDay = await getPlanningGroupDataForDay(
+        const pgDataWeekDay = await viewAndModifyFc(
           planningGroupDropdown.value,
           selectedWeekDay
         );
