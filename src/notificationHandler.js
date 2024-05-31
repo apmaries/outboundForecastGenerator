@@ -96,7 +96,7 @@ export class NotificationHandler {
       .postNotificationsChannelSubscriptions(this.id, body, opts)
       .then((data) => {
         console.debug(
-          `[OFG] Subscribed to forecast notifications in BU ${this.buId}: `,
+          `[OFG] Subscribed to ${topic} notifications in BU ${this.buId}: `,
           data
         );
         if (this.onSubscribed) {
@@ -105,7 +105,7 @@ export class NotificationHandler {
       })
       .catch((err) => {
         console.error(
-          "[OFG] Error subscribing to forecast notifications: ",
+          `[OFG] Error subscribing to ${topic} notifications in BU ${this.buId}: `,
           err
         );
       });
