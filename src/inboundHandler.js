@@ -3,7 +3,7 @@ import { handleApiCalls, globalPageOpts } from "./apiHandler.js";
 import { NotificationHandler } from "../src/notificationHandler.js";
 
 // Declare global variables
-let generateOperationId = null;
+let generateOperationId;
 const testMode = window.ofg.isTesting;
 
 export async function generateInboundForecast(
@@ -31,12 +31,6 @@ export async function generateInboundForecast(
     );
     return inboundForecastData;
   }
-
-  // Main code starts here
-
-  // Functions start here
-
-  // Functions end here
 
   // Subscribe to generate notifications
   const generateNotifications = new NotificationHandler(
@@ -124,8 +118,14 @@ export async function generateInboundForecast(
 
   // Get the forecast data
   async function handleInboundForecastNotification(notification) {
-    // Add inbound forecast data to mainPgForecastData
-    // Return the forecast data
+    console.debug("[OFG] Message from server: ", notification);
+    if (
+      notification.eventBody &&
+      notification.eventBody.operationId === generateOperationId
+    ) {
+      const status = notification.eventBody.status;
+      console.log(`[OFG] Generate inbound forecast status updated <${status}>`);
+    }
   }
 
   // Return the inbound forecast data
