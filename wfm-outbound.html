@@ -657,7 +657,7 @@
           "/outboundForecastGenerator/test/source/inboundForecastData.json"
         )
           .then((response) => response.json())
-          .then((data) => data.entities)
+          .then((data) => data)
           .catch((error) =>
             console.error("[OFG] Error fetching inbound forecast data", error)
           );

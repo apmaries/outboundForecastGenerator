@@ -24,8 +24,11 @@ export async function generateInboundForecast(
       "[OFG] Testing mode enabled. Skipping notifications setup and getting test data"
     );
     inboundForecastData =
-      await window.ofg.PlatformClient.MockOutboundApi.getInboundForecastData();
-    console.log("[OFG] Forecast data loaded from test data", campaigns);
+      await window.ofg.PlatformClient.MockWfmApi.getInboundForecastData();
+    console.log(
+      "[OFG] Forecast data loaded from test data",
+      inboundForecastData
+    );
     return inboundForecastData;
   }
 
