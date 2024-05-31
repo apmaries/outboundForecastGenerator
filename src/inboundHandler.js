@@ -67,7 +67,7 @@ export async function generateInboundForecast(
     if (generateResponse.status === "Complete") {
       // Get the forecast id
       const forecastId = generateResponse.result.id;
-      inboundForecastData = getInboundForecastData(forecastId);
+      inboundForecastData = await getInboundForecastData(forecastId);
     }
     // Forecast creation in progress
     else if (generateResponse.status === "Processing") {
@@ -125,8 +125,25 @@ export async function generateInboundForecast(
     ) {
       const status = notification.eventBody.status;
       console.log(`[OFG] Generate inbound forecast status updated <${status}>`);
+
+      // Check if status = "Complete"
+      if (status === "Complete") {
+        console.log("[OFG] Inbound forecast generation complete");
+        let forecastId = notification.eventBody.result.id;
+
+        inboundForecastData = await getInboundForecastData(forecastId);
+      }
+      // Status is Cancelled or Error
+      else {
+        console.error(
+          "[OFG] Inbound forecast generation failed: ",
+          notification.eventBody
+        );
+      }
     }
   }
+
+  inboundForecastData = await generateAbmForecast();
 
   // Return the inbound forecast data
   return inboundForecastData;
