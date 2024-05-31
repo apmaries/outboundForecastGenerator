@@ -2,7 +2,9 @@
 import { handleApiCalls, globalPageOpts } from "./apiHandler.js";
 import { NotificationHandler } from "../src/notificationHandler.js";
 
+// Declare global variables
 let generateOperationId = null;
+const testMode = window.ofg.isTesting;
 
 export async function generateInboundForecast(
   buId,
@@ -10,11 +12,16 @@ export async function generateInboundForecast(
   description,
   retainInboundFc
 ) {
-  console.log("[OFG] Generating inbound forecast");
+  console.log("[OFG] Initiating inbound forecast generation");
 
   const topics = ["v2.workforcemanagement.businessunits.generate"];
 
   let inboundForecast;
+
+  if (testMode) {
+    console.log("[OFG] Testing mode enabled. Skipping notifications");
+    generateAbmForecast();
+  }
 
   // Subscribe to generate notifications
   const generateNotifications = new NotificationHandler(
@@ -28,10 +35,11 @@ export async function generateInboundForecast(
 
   // Generate the forecast
   async function generateAbmForecast() {
+    console.log("[OFG] Generating ABM forecast");
     const abmFcDescription = description + " (Inbound ABM)";
 
     // Generate the forecast
-    generateResponse = await handleApiCalls(
+    let generateResponse = await handleApiCalls(
       "WorkforceManagementApi.postWorkforcemanagementBusinessunitWeekShorttermforecastsGenerate",
       buId,
       weekStart,
@@ -51,6 +59,19 @@ export async function generateInboundForecast(
   // Get the forecast data
   async function handleInboundForecastNotification() {
     // Add inbound forecast data to mainPgForecastData
-    // Return the forecast data}
+    // Return the forecast data
+  }
+
+  // Delete the forecast
+  async function deleteInboundForecast() {
+    console.log("[OFG] Deleting inbound forecast");
+
+    let deleteResponse = await handleApiCalls(
+      "WorkforceManagementApi.deleteWorkforcemanagementBusinessunitWeekShorttermforecasts",
+      buId,
+      weekStart
+    );
+
+    console.log("[OFG] Inbound forecast deleted: ", deleteResponse);
   }
 }
