@@ -653,6 +653,15 @@
             console.error("[OFG] Error fetching campaigns data", error)
           );
 
+        let inboundFcDataPromise = fetch(
+          "/outboundForecastGenerator/test/source/inboundForecastData.json"
+        )
+          .then((response) => response.json())
+          .then((data) => data.entities)
+          .catch((error) =>
+            console.error("[OFG] Error fetching inbound forecast data", error)
+          );
+
         // Create mock objects for testing
         window.ofg.PlatformClient = {
           MockOutboundApi: {
@@ -673,6 +682,10 @@
             getPlanningGroups: function () {
               // Return promise from fetch
               return planningGroupsPromise;
+            },
+            getInboundForecastData: function () {
+              // Return promise from fetch
+              return inboundFcDataPromise;
             },
           },
           // ...
