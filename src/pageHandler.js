@@ -428,14 +428,6 @@ export async function loadPageTwo() {
           }[${groupId}] No matching campaign found for ${groupName}`
         );
         campaignNameCell.textContent = "";
-
-        // Enable inbound mode and unhide inbound-forecast-div
-        if (!window.ofg.isInboundForecastMode) {
-          console.log("[OFG] Enabling inbound forecast mode");
-          document.getElementById("inbound-forecast-div").style.display =
-            "block";
-          window.ofg.isInboundForecastMode = true;
-        }
       }
       row.appendChild(campaignNameCell);
 
@@ -462,6 +454,9 @@ export async function loadPageTwo() {
       label.textContent = groupName + " number of contacts";
 
       if (!matchingCampaign) {
+        // Set window flag to indicate that no matching campaign found
+        window.ofg.isInboundForecastMode = true;
+
         // Disable input if no matching campaign found and add data attribute to indicate this
         input.disabled = true;
         campaignNameCell.dataset.matchedCampaign = "false";
@@ -471,20 +466,6 @@ export async function loadPageTwo() {
 
         // Unhide inbound-forecast-div
         document.getElementById("inbound-forecast-div").style.display = "block";
-
-        // Add event listener to input to enable/disable retain inbound forecast toggle
-        const generateInboundToggle = document.getElementById(
-          "generate-inbound-fc"
-        );
-        generateInboundToggle.addEventListener("change", function () {
-          const retainInboundToggle =
-            document.getElementById("retain-inbound-fc");
-          if (generateInboundToggle.checked) {
-            retainInboundToggle.disabled = false;
-          } else {
-            retainInboundToggle.disabled = true;
-          }
-        });
       } else {
         // Add data attribute to indicate that a matching campaign was found
         campaignNameCell.dataset.matchedCampaign = "true";
@@ -501,6 +482,23 @@ export async function loadPageTwo() {
 
     loadingSpinner.style.display = "none";
     planningGroupsDiv.style.display = "block";
+
+    if (window.ofg.isInboundForecastMode) {
+      const inboundForecastToggle = document.getElementById(
+        "generate-inbound-fc"
+      );
+
+      inboundForecastToggle.addEventListener("click", function () {
+        const retainInboundToggle =
+          document.getElementById("retain-inbound-fc");
+        if (inboundForecastToggle.checked) {
+          retainInboundToggle.disabled = false;
+        } else {
+          retainInboundToggle.disabled = true;
+          retainInboundToggle.checked = false;
+        }
+      });
+    }
   }
 
   // Use Promise.all to run getPlanningGroups and getCampaigns concurrently
