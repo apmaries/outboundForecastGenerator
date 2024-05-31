@@ -346,11 +346,30 @@ export async function generateForecast(
       "generate-loading-message",
       "Generating inbound forecast"
     );
-    await generateInboundForecast(
+    inboundFcData = await generateInboundForecast(
       globalBusinessUnitId,
       globalWeekStart,
       globalForecastDescription,
       retainInbound
+    );
+
+    // Add inbound forecast data to globalCompletedPgForecast if pgId not already present
+    console.log(
+      "[OFG] Adding inbound forecast data to globalCompletedPgForecast"
+    );
+    inboundFcData.planningGroups.forEach((pg) => {
+      if (
+        !globalCompletedPgForecast.some(
+          (pgForecast) => pgForecast.pgId === pg.pgId
+        )
+      ) {
+        globalCompletedPgForecast.push(pg);
+      }
+    });
+
+    console.log(
+      "[OFG] Merged inbound and outbound forecast data",
+      globalCompletedPgForecast
     );
   }
 
