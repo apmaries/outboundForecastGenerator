@@ -38,16 +38,22 @@ export async function generateInboundForecast(
     console.log("[OFG] Generating ABM forecast");
     const abmFcDescription = description + " ([OFG] Inbound ABM)";
 
+    let body = {
+      "description": abmFcDescription,
+      "weekCount": 1,
+      "canUseForScheduling": true,
+    };
+    let opts = {
+      "forceAsync": true,
+    };
+
     // Generate the forecast
     let generateResponse = await handleApiCalls(
       "WorkforceManagementApi.postWorkforcemanagementBusinessunitWeekShorttermforecastsGenerate",
       buId,
       weekStart,
-      {
-        "description": abmFcDescription,
-        "weekCount": 1,
-        "canUseForScheduling": true,
-      }
+      body,
+      opts
     );
 
     console.log(
@@ -144,13 +150,16 @@ export async function generateInboundForecast(
     handleInboundForecastNotification
   );
 
-  // Connect and subscribe to notifications
+  // Connect and subscribe to notifications, then generate the forecast
   generateNotifications.connect().then(() => {
     generateNotifications.subscribeToNotifications();
     generateAbmForecast();
   });
 
-  inboundForecastData = await generateAbmForecast();
+  // Wait for the forecast data
+  while (!inboundForecastData) {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  }
 
   // Return the inbound forecast data
   return inboundForecastData;
