@@ -23,6 +23,12 @@ export function initializeEventListeners() {
       const selectedBuId = businessUnitDropdown.value;
       console.log(`[OFG] Business Unit dropdown changed to ${selectedBuId}`);
       selectedBusinessUnit = await getBusinessUnit();
+
+      // Update week-start-label with start day of week
+      const buStartDayOfWeek = selectedBusinessUnit.settings.startDayOfWeek;
+      const label = (document.getElementById(
+        "week-start-label"
+      ).textContent = `Week start (${buStartDayOfWeek})`);
     });
   } else {
     console.error("[OFG] Business Unit dropdown not found");
@@ -32,6 +38,28 @@ export function initializeEventListeners() {
   const nextButton = document.getElementById("p1-next-button");
   nextButton.addEventListener("click", function () {
     console.log("[OFG] Loading page two");
+
+    const buStartDayOfWeek = selectedBusinessUnit.settings.startDayOfWeek;
+    const weekStartInput = document.getElementById("week-start");
+    const weekStart = weekStartInput.value;
+    // Check weekStart (e.g. "2024-06-02") aligns to buStartDayOfWeek (e.g. "Monday")
+    const weekStartDay = new Date(weekStart).toLocaleDateString("en-US", {
+      weekday: "long",
+    });
+    if (weekStartDay !== buStartDayOfWeek) {
+      alert(
+        `Please select a week start date that aligns with the Business Unit's start day of week (${buStartDayOfWeek})`
+      );
+
+      // Highlight week start with adding a colour to label
+      document.getElementById("week-start-label").style.color = "red";
+
+      return;
+    } else {
+      // Remove colour from label
+      document.getElementById("week-start-label").style.color = "black";
+    }
+
     loadPageTwo();
     switchPages("page-one", "page-two");
   });
@@ -64,7 +92,6 @@ export function initializeEventListeners() {
   if (generateButton) {
     let totalContacts = 0;
     generateButton.addEventListener("click", async () => {
-      const test = window.ofg.isTesting;
       const buName = selectedBusinessUnit.name;
       const buId = selectedBusinessUnit.id;
       const buStartDayOfWeek = selectedBusinessUnit.settings.startDayOfWeek;
