@@ -532,8 +532,6 @@ export async function loadPageThree() {
     "forecast-outputs-container",
     "generate-loading-div"
   );
-
-  switchPages("page-two", "page-three");
 }
 
 // Function to load page four
