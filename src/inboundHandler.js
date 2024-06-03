@@ -15,6 +15,7 @@ export async function generateInboundForecast(
   console.log("[OFG] Initiating inbound forecast generation");
 
   // Declare variables
+  let resolveInboundForecast;
   const topics = ["shorttermforecasts.generate"];
   let inboundForecastData;
 
