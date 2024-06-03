@@ -32,22 +32,35 @@ export async function generateInboundForecast(
     return inboundForecastData.result;
   }
 
-  /* FUNCTIONS START HERE */
+  // Function to retrieve the inbound forecast data
+  async function getInboundForecastData(forecastId) {
+    console.log("[OFG] Getting inbound forecast data");
+
+    let forecastData = await handleApiCalls(
+      "WorkforceManagementApi.getWorkforcemanagementBusinessunitWeekShorttermforecastData",
+      buId,
+      weekStart,
+      forecastId
+    );
+
+    console.log("[OFG] Inbound forecast data retrieved: ", forecastData);
+
+    return forecastData.result;
+  }
 
   // Delete the forecast
-  async function deleteInboundForecast() {
+  async function deleteInboundForecast(forecastId) {
     console.log("[OFG] Deleting inbound forecast");
 
     let deleteResponse = await handleApiCalls(
-      "WorkforceManagementApi.deleteWorkforcemanagementBusinessunitWeekShorttermforecasts",
+      "WorkforceManagementApi.deleteWorkforcemanagementBusinessunitWeekShorttermforecast",
       buId,
-      weekStart
+      weekStart,
+      forecastId
     );
 
     console.log("[OFG] Inbound forecast deleted: ", deleteResponse);
   }
-
-  /* FUNCTIONS END HERE */
 
   // Subscribe to generate notifications
   const generateNotifications = new NotificationHandler(
@@ -142,20 +155,4 @@ export async function generateInboundForecast(
   }
 
   return inboundForecastData;
-}
-
-// Function to retrieve the inbound forecast data
-async function getInboundForecastData(forecastId) {
-  console.log("[OFG] Getting inbound forecast data");
-
-  let forecastData = await handleApiCalls(
-    "WorkforceManagementApi.getWorkforcemanagementBusinessunitWeekShorttermforecastData",
-    buId,
-    weekStart,
-    forecastId
-  );
-
-  console.log("[OFG] Inbound forecast data retrieved: ", forecastData);
-
-  return forecastData.result;
 }
