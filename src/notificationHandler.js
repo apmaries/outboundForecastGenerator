@@ -92,23 +92,26 @@ export class NotificationHandler {
     };
 
     // Add a list of subscriptions to the existing list of subscriptions
-    apiInstance
-      .postNotificationsChannelSubscriptions(this.id, body, opts)
-      .then((data) => {
-        console.debug(
-          `[OFG] Subscribed to ${topic} notifications in BU ${this.buId}: `,
-          data
-        );
-        if (this.onSubscribed) {
-          this.onSubscribed();
-        }
-      })
-      .catch((err) => {
-        console.error(
-          `[OFG] Error subscribing to ${topic} notifications in BU ${this.buId}: `,
-          err
-        );
-      });
+    body.forEach((topicObj) => {
+      let topic = topicObj.id.split(".").pop();
+      apiInstance
+        .postNotificationsChannelSubscriptions(this.id, [topicObj], opts)
+        .then((data) => {
+          console.debug(
+            `[OFG] Subscribed to ${topic} notifications in BU ${this.buId}: `,
+            data
+          );
+          if (this.onSubscribed) {
+            this.onSubscribed();
+          }
+        })
+        .catch((err) => {
+          console.error(
+            `[OFG] Error subscribing to ${topic} notifications in BU ${this.buId}: `,
+            err
+          );
+        });
+    });
   }
 
   handleMessage(event) {

@@ -32,20 +32,11 @@ export async function generateInboundForecast(
     return inboundForecastData.result;
   }
 
-  // Subscribe to generate notifications
-  const generateNotifications = new NotificationHandler(
-    topics,
-    buId,
-    generateAbmForecast,
-    handleInboundForecastNotification
-  );
-  generateNotifications.connect();
-  generateNotifications.subscribeToNotifications();
-
+  /* FUNCTIONS START HERE */
   // Generate the forecast
   async function generateAbmForecast() {
     console.log("[OFG] Generating ABM forecast");
-    const abmFcDescription = description + " (Inbound ABM)";
+    const abmFcDescription = description + " ([OFG] Inbound ABM)";
 
     // Generate the forecast
     let generateResponse = await handleApiCalls(
@@ -65,6 +56,7 @@ export async function generateInboundForecast(
 
     // Forecast created successfully
     if (generateResponse.status === "Complete") {
+      console.log("[OFG] Inbound forecast generated synchronously");
       // Get the forecast id
       const forecastId = generateResponse.result.id;
       inboundForecastData = await getInboundForecastData(forecastId);
@@ -142,6 +134,21 @@ export async function generateInboundForecast(
       }
     }
   }
+  /* FUNCTIONS END HERE */
+
+  // Subscribe to generate notifications
+  const generateNotifications = new NotificationHandler(
+    topics,
+    buId,
+    generateAbmForecast,
+    handleInboundForecastNotification
+  );
+
+  // Connect and subscribe to notifications
+  generateNotifications.connect().then(() => {
+    generateNotifications.subscribeToNotifications();
+    generateAbmForecast();
+  });
 
   inboundForecastData = await generateAbmForecast();
 
