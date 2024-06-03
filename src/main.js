@@ -51,6 +51,7 @@ export async function generateForecast(
   retainInbound
 ) {
   console.info("[OFG] Forecast generation initiated");
+  switchPages("page-two", "page-three");
 
   // Log user variables
   let userSelections = {
@@ -353,8 +354,6 @@ export async function generateForecast(
       retainInbound
     );
 
-    // Transform inbound forecast data to same schema as outbound
-
     // Add inbound forecast data to globalCompletedPgForecast if pgId not already present
     console.log(
       "[OFG] Adding inbound forecast data to globalCompletedPgForecast"
@@ -365,11 +364,12 @@ export async function generateForecast(
           (pgForecast) => pgForecast.pgId === pg.planningGroupId
         )
       ) {
-        // Calculate daily totals for offered by summing the intraday values in lots of 96
+        // Transform inbound forecast data to same schema as outbound
         let contactsDaily = [];
         let contactsIntraday = [];
         let weightedAhtDaily = [];
         let ahtIntraday = [];
+
         for (let i = 0; i < pg.offeredPerInterval.length; i += 96) {
           let chunkOffered = pg.offeredPerInterval.slice(i, i + 96);
           let chunkAht = pg.averageHandleTimeSecondsPerInterval.slice(
@@ -407,8 +407,6 @@ export async function generateForecast(
       globalCompletedPgForecast
     );
   }
-
-  // Load page three
   loadPageThree();
 }
 
