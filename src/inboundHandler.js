@@ -18,14 +18,6 @@ export async function generateInboundForecast(
   const topics = ["shorttermforecasts.generate"];
   let inboundForecastData;
 
-  // Subscribe to generate notifications
-  const generateNotifications = new NotificationHandler(
-    topics,
-    buId,
-    generateAbmForecast,
-    handleInboundForecastNotification
-  );
-
   // Return test data if in test mode
   if (testMode) {
     console.log(
@@ -39,6 +31,14 @@ export async function generateInboundForecast(
     );
     return inboundForecastData.result;
   }
+
+  // Subscribe to generate notifications
+  const generateNotifications = new NotificationHandler(
+    topics,
+    buId,
+    generateAbmForecast,
+    handleInboundForecastNotification
+  );
 
   // Function to retrieve the inbound forecast data
   async function getInboundForecastData(forecastId) {
@@ -54,20 +54,6 @@ export async function generateInboundForecast(
     console.log("[OFG] Inbound forecast data retrieved: ", forecastData);
 
     return forecastData.result;
-  }
-
-  // Delete the forecast
-  async function deleteInboundForecast(forecastId) {
-    console.log("[OFG] Deleting inbound forecast");
-
-    let deleteResponse = await handleApiCalls(
-      "WorkforceManagementApi.deleteWorkforcemanagementBusinessunitWeekShorttermforecast",
-      buId,
-      weekStart,
-      forecastId
-    );
-
-    console.log("[OFG] Inbound forecast deleted: ", deleteResponse);
   }
 
   // Connect and subscribe to notifications, then generate the forecast
