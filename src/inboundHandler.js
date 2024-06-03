@@ -90,7 +90,7 @@ export async function generateInboundForecast(
         // Get the forecast id
         const forecastId = generateResponse.result.id;
         inboundForecastData = await getInboundForecastData(forecastId);
-        resolve(inboundForecastData);
+        resolveInboundForecast(inboundForecastData);
       }
       // Forecast creation in progress
       else if (generateResponse.status === "Processing") {
@@ -129,6 +129,12 @@ export async function generateInboundForecast(
 
         console.debug("[OFG] Inbound forecast ID: ", forecastId);
         inboundForecastData = await getInboundForecastData(forecastId);
+        resolveInboundForecast(inboundForecastData);
+        console.log(
+          "[OFG] Inbound forecast generation complete",
+          inboundForecastData
+        );
+        return inboundForecastData;
       }
       // Status is Cancelled or Error
       else {
@@ -145,11 +151,10 @@ export async function generateInboundForecast(
   generateNotifications.subscribeToNotifications();
 
   // Generate the forecast and wait for it to complete
-  // inboundForecastData = await generateAbmForecast();
+  await new Promise((resolve, reject) => {
+    resolveInboundForecast = resolve;
+    generateAbmForecast();
+  });
 
-  console.log(
-    "[OFG] Inbound forecast generation complete",
-    inboundForecastData
-  );
   return inboundForecastData;
 }
