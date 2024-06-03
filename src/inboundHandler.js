@@ -51,7 +51,7 @@ export async function generateInboundForecast(
       forecastId
     );
 
-    console.log("[OFG] Inbound forecast data retrieved: ", forecastData);
+    console.log("[OFG] Inbound forecast data retrieved");
 
     return forecastData.result;
   }
@@ -140,5 +140,9 @@ export async function generateInboundForecast(
     }
   }
 
+  console.log(
+    "[OFG] Inbound forecast generation complete",
+    inboundForecastData
+  );
   return inboundForecastData;
 }
