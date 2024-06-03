@@ -18,6 +18,14 @@ export async function generateInboundForecast(
   const topics = ["shorttermforecasts.generate"];
   let inboundForecastData;
 
+  // Subscribe to generate notifications
+  const generateNotifications = new NotificationHandler(
+    topics,
+    buId,
+    generateAbmForecast,
+    handleInboundForecastNotification
+  );
+
   // Return test data if in test mode
   if (testMode) {
     console.log(
@@ -61,14 +69,6 @@ export async function generateInboundForecast(
 
     console.log("[OFG] Inbound forecast deleted: ", deleteResponse);
   }
-
-  // Subscribe to generate notifications
-  const generateNotifications = new NotificationHandler(
-    topics,
-    buId,
-    generateAbmForecast,
-    handleInboundForecastNotification
-  );
 
   // Connect and subscribe to notifications, then generate the forecast
   generateNotifications.connect();
