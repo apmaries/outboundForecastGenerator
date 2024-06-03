@@ -52,7 +52,16 @@ export async function generateInboundForecast(
       forecastId
     );
 
-    console.log("[OFG] Inbound forecast data retrieved");
+    console.log(
+      "[OFG] Inbound forecast data retrieved. Trimming to 7 days only"
+    );
+    // Trim results to 7 days only (8th day will be re-added later after modifications)
+    forecastData.result.planningGroups.forEach((pg) => {
+      console.debug(`[OFG] Trimming data for Planning Group ${pg.id}`);
+      pg.offeredPerInterval = pg.offeredPerInterval.slice(0, 672);
+      pg.averageHandleTimeSecondsPerInterval =
+        pg.averageHandleTimeSecondsPerInterval.slice(0, 672);
+    });
 
     return forecastData.result;
   }
