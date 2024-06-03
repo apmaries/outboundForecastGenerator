@@ -355,7 +355,7 @@ export async function generateAverages(campaignData, ignoreZeroes = true) {
 
   /* CONTACT RATE END */
 
-  /* OLD AVERAGE HANDLE TIME START */
+  /* OLD AVERAGE HANDLE TIME START 
   // Create average daily AHT
   campaignData.fcData.OLD_ahtDaily =
     campaignData.fcHistoricalPatternData.averHandleTimeDaily[0].map((_, i) => {
@@ -406,7 +406,7 @@ export async function generateAverages(campaignData, ignoreZeroes = true) {
       }
     );
 
-  /* OLD AVERAGE HANDLE TIME END */
+   OLD AVERAGE HANDLE TIME END */
 
   /* NEW DAILY AVERAGE HANDLE TIME START */
   // Create average daily AHT
