@@ -56,60 +56,60 @@ export async function generateInboundForecast(
     return forecastData.result;
   }
 
-  // Connect and subscribe to notifications, then generate the forecast
-  generateNotifications.connect();
-  generateNotifications.subscribeToNotifications();
-
   // Generate the forecast
-  async function generateAbmForecast() {
-    console.log("[OFG] Generating ABM forecast");
-    const abmFcDescription = description + " ([OFG] Inbound ABM)";
+  function generateAbmForecast() {
+    return new Promise(async (resolve, reject) => {
+      console.log("[OFG] Generating ABM forecast");
+      const abmFcDescription = description + " ([OFG] Inbound ABM)";
 
-    let body = {
-      "description": abmFcDescription,
-      "weekCount": 1,
-      "canUseForScheduling": true,
-    };
-    let opts = {
-      "forceAsync": true,
-    };
+      let body = {
+        "description": abmFcDescription,
+        "weekCount": 1,
+        "canUseForScheduling": true,
+      };
+      let opts = {
+        "forceAsync": true,
+      };
 
-    // Generate the forecast
-    let generateResponse = await handleApiCalls(
-      "WorkforceManagementApi.postWorkforcemanagementBusinessunitWeekShorttermforecastsGenerate",
-      buId,
-      weekStart,
-      body,
-      opts
-    );
+      // Generate the forecast
+      let generateResponse = await handleApiCalls(
+        "WorkforceManagementApi.postWorkforcemanagementBusinessunitWeekShorttermforecastsGenerate",
+        buId,
+        weekStart,
+        body,
+        opts
+      );
 
-    console.log(
-      `[OFG] Inbound forecast generate status = ${generateResponse.status}`
-    );
-
-    // Forecast created successfully
-    if (generateResponse.status === "Complete") {
-      console.log("[OFG] Inbound forecast generated synchronously");
-      // Get the forecast id
-      const forecastId = generateResponse.result.id;
-      inboundForecastData = await getInboundForecastData(forecastId);
-    }
-    // Forecast creation in progress
-    else if (generateResponse.status === "Processing") {
       console.log(
-        "[OFG] Inbound forecast generation in progress. Waiting for completion"
+        `[OFG] Inbound forecast generate status = ${generateResponse.status}`
       );
 
-      // Set the operation ID
-      generateOperationId = generateResponse.operationId;
-    }
-    // Forecast creation failed
-    else {
-      console.error(
-        "[OFG] Inbound forecast generation failed: ",
-        generateResponse
-      );
-    }
+      // Forecast created successfully
+      if (generateResponse.status === "Complete") {
+        console.log("[OFG] Inbound forecast generated synchronously");
+        // Get the forecast id
+        const forecastId = generateResponse.result.id;
+        inboundForecastData = await getInboundForecastData(forecastId);
+        resolve(inboundForecastData);
+      }
+      // Forecast creation in progress
+      else if (generateResponse.status === "Processing") {
+        console.log(
+          "[OFG] Inbound forecast generation in progress. Waiting for completion"
+        );
+
+        // Set the operation ID
+        generateOperationId = generateResponse.operationId;
+      }
+      // Forecast creation failed
+      else {
+        console.error(
+          "[OFG] Inbound forecast generation failed: ",
+          generateResponse
+        );
+        reject(generateResponse);
+      }
+    });
   }
 
   // Get the forecast data
@@ -139,6 +139,13 @@ export async function generateInboundForecast(
       }
     }
   }
+
+  // Connect and subscribe to notifications, then generate the forecast
+  generateNotifications.connect();
+  generateNotifications.subscribeToNotifications();
+
+  // Generate the forecast and wait for it to complete
+  inboundForecastData = await generateAbmForecast();
 
   console.log(
     "[OFG] Inbound forecast generation complete",
