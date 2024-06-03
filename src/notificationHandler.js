@@ -57,21 +57,31 @@ export class NotificationHandler {
   }
 
   connect() {
-    if (this.uri) {
-      this.ws = new WebSocket(this.uri);
+    return new Promise((resolve, reject) => {
+      if (this.uri) {
+        this.ws = new WebSocket(this.uri);
 
-      // Connection opened
-      this.ws.addEventListener("open", this.onOpen.bind(this));
+        // Connection opened
+        this.ws.addEventListener("open", (event) => {
+          console.log("[OFG] WebSocket connection opened");
+          resolve();
+        });
 
-      // Listen for messages
-      this.ws.addEventListener("message", this.handleMessage.bind(this));
+        // Listen for messages
+        this.ws.addEventListener("message", this.handleMessage.bind(this));
 
-      // Connection closed
-      this.ws.addEventListener("close", this.onClose.bind(this));
+        // Connection closed
+        this.ws.addEventListener("close", this.onClose.bind(this));
 
-      // Connection error
-      this.ws.addEventListener("error", this.onError.bind(this));
-    }
+        // Connection error
+        this.ws.addEventListener("error", (event) => {
+          console.log("[OFG] WebSocket error: ", event);
+          reject(event);
+        });
+      } else {
+        reject(new Error("URI is not defined"));
+      }
+    });
   }
 
   onOpen(event) {
