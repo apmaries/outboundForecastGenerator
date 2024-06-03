@@ -145,7 +145,7 @@ export async function generateInboundForecast(
   generateNotifications.subscribeToNotifications();
 
   // Generate the forecast and wait for it to complete
-  inboundForecastData = await generateAbmForecast();
+  // inboundForecastData = await generateAbmForecast();
 
   console.log(
     "[OFG] Inbound forecast generation complete",
