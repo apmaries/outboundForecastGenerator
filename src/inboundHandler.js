@@ -33,6 +33,34 @@ export async function generateInboundForecast(
   }
 
   /* FUNCTIONS START HERE */
+
+  // Delete the forecast
+  async function deleteInboundForecast() {
+    console.log("[OFG] Deleting inbound forecast");
+
+    let deleteResponse = await handleApiCalls(
+      "WorkforceManagementApi.deleteWorkforcemanagementBusinessunitWeekShorttermforecasts",
+      buId,
+      weekStart
+    );
+
+    console.log("[OFG] Inbound forecast deleted: ", deleteResponse);
+  }
+
+  /* FUNCTIONS END HERE */
+
+  // Subscribe to generate notifications
+  const generateNotifications = new NotificationHandler(
+    topics,
+    buId,
+    generateAbmForecast,
+    handleInboundForecastNotification
+  );
+
+  // Connect and subscribe to notifications, then generate the forecast
+  generateNotifications.connect();
+  generateNotifications.subscribeToNotifications();
+
   // Generate the forecast
   async function generateAbmForecast() {
     console.log("[OFG] Generating ABM forecast");
@@ -85,35 +113,6 @@ export async function generateInboundForecast(
     }
   }
 
-  // Function to retrieve the inbound forecast data
-  async function getInboundForecastData(forecastId) {
-    console.log("[OFG] Getting inbound forecast data");
-
-    let forecastData = await handleApiCalls(
-      "WorkforceManagementApi.getWorkforcemanagementBusinessunitWeekShorttermforecastData",
-      buId,
-      weekStart,
-      forecastId
-    );
-
-    console.log("[OFG] Inbound forecast data retrieved: ", forecastData);
-
-    return forecastData.result;
-  }
-
-  // Delete the forecast
-  async function deleteInboundForecast() {
-    console.log("[OFG] Deleting inbound forecast");
-
-    let deleteResponse = await handleApiCalls(
-      "WorkforceManagementApi.deleteWorkforcemanagementBusinessunitWeekShorttermforecasts",
-      buId,
-      weekStart
-    );
-
-    console.log("[OFG] Inbound forecast deleted: ", deleteResponse);
-  }
-
   // Get the forecast data
   async function handleInboundForecastNotification(notification) {
     console.debug("[OFG] Message from server: ", notification);
@@ -127,8 +126,9 @@ export async function generateInboundForecast(
       // Check if status = "Complete"
       if (status === "Complete") {
         console.log("[OFG] Inbound forecast generation complete");
-        let forecastId = notification.eventBody.result.id;
+        const forecastId = notification.eventBody.result.id;
 
+        console.debug("[OFG] Inbound forecast ID: ", forecastId);
         inboundForecastData = await getInboundForecastData(forecastId);
       }
       // Status is Cancelled or Error
@@ -140,27 +140,22 @@ export async function generateInboundForecast(
       }
     }
   }
-  /* FUNCTIONS END HERE */
 
-  // Subscribe to generate notifications
-  const generateNotifications = new NotificationHandler(
-    topics,
+  return inboundForecastData;
+}
+
+// Function to retrieve the inbound forecast data
+async function getInboundForecastData(forecastId) {
+  console.log("[OFG] Getting inbound forecast data");
+
+  let forecastData = await handleApiCalls(
+    "WorkforceManagementApi.getWorkforcemanagementBusinessunitWeekShorttermforecastData",
     buId,
-    generateAbmForecast,
-    handleInboundForecastNotification
+    weekStart,
+    forecastId
   );
 
-  // Connect and subscribe to notifications, then generate the forecast
-  generateNotifications.connect().then(() => {
-    generateNotifications.subscribeToNotifications();
-    generateAbmForecast();
-  });
+  console.log("[OFG] Inbound forecast data retrieved: ", forecastData);
 
-  // Wait for the forecast data
-  while (!inboundForecastData) {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-  }
-
-  // Return the inbound forecast data
-  return inboundForecastData;
+  return forecastData.result;
 }
