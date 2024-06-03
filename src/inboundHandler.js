@@ -29,7 +29,7 @@ export async function generateInboundForecast(
       "[OFG] Forecast data loaded from test data",
       inboundForecastData
     );
-    return inboundForecastData;
+    return inboundForecastData.result;
   }
 
   // Subscribe to generate notifications
@@ -100,7 +100,7 @@ export async function generateInboundForecast(
 
     console.log("[OFG] Inbound forecast data retrieved: ", forecastData);
 
-    return forecastData;
+    return forecastData.result;
   }
 
   // Delete the forecast
