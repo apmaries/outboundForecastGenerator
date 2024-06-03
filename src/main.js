@@ -346,12 +346,14 @@ export async function generateForecast(
       "generate-loading-message",
       "Generating inbound forecast"
     );
-    inboundFcData = await generateInboundForecast(
+    const inboundFcData = await generateInboundForecast(
       globalBusinessUnitId,
       globalWeekStart,
       globalForecastDescription,
       retainInbound
     );
+
+    // Transform inbound forecast data to same schema as outbound
 
     // Add inbound forecast data to globalCompletedPgForecast if pgId not already present
     console.log(
@@ -360,10 +362,43 @@ export async function generateForecast(
     inboundFcData.planningGroups.forEach((pg) => {
       if (
         !globalCompletedPgForecast.some(
-          (pgForecast) => pgForecast.pgId === pg.pgId
+          (pgForecast) => pgForecast.pgId === pg.planningGroupId
         )
       ) {
-        globalCompletedPgForecast.push(pg);
+        // Calculate daily totals for offered by summing the intraday values in lots of 96
+        let contactsDaily = [];
+        let contactsIntraday = [];
+        let weightedAhtDaily = [];
+        let ahtIntraday = [];
+        for (let i = 0; i < pg.offeredPerInterval.length; i += 96) {
+          let chunkOffered = pg.offeredPerInterval.slice(i, i + 96);
+          let chunkAht = pg.averageHandleTimeSecondsPerInterval.slice(
+            i,
+            i + 96
+          );
+          let chunkTht = chunkOffered.map((val, idx) => val * chunkAht[idx]);
+          let dayTht = chunkTht.reduce((a, b) => a + b, 0);
+          let dayOffered = chunkOffered.reduce((a, b) => a + b, 0);
+          let dayAht = dayTht / dayOffered;
+
+          contactsIntraday.push(chunkOffered);
+          contactsDaily.push(dayOffered);
+          weightedAhtDaily.push(dayAht);
+          ahtIntraday.push(chunkAht);
+        }
+
+        let transformedPg = {
+          campaignId: null,
+          pgId: pg.planningGroupId,
+          fcData: {
+            contactsDaily: contactsDaily,
+            contactsIntraday: contactsIntraday,
+            ahtDaily: weightedAhtDaily,
+            ahtIntraday: ahtIntraday,
+          },
+        };
+
+        globalCompletedPgForecast.push(transformedPg);
       }
     });
 
@@ -410,33 +445,30 @@ export async function viewAndModifyFc(selectedPgId, selectedWeekDay) {
   );
 
   // Get the daily total for the selected day
-  let dailyTotalOffered = parseFloat(
+  let offeredTotalForDay = parseFloat(
     selectedPlanningGroup.fcData.contactsDaily[selectedWeekDay]
   );
-  let dailyTotalAHT = parseFloat(
+  let ahtTotalForDay = parseFloat(
     selectedPlanningGroup.fcData.ahtDaily[selectedWeekDay]
   );
 
   // Update totals-table with daily total values
   document.getElementById("forecast-offered").textContent =
-    dailyTotalOffered.toFixed(1);
+    offeredTotalForDay.toFixed(1);
   document.getElementById("forecast-aht").textContent =
-    dailyTotalAHT.toFixed(1);
+    ahtTotalForDay.toFixed(1);
 
   // Get the data for the selected day
-  let offeredPerIntervalForDay =
+  let offeredIntervalsForDay =
     selectedPlanningGroup.fcData.contactsIntraday[selectedWeekDay];
-  let averageHandleTimeSecondsPerIntervalForDay =
+  let ahtIntervalsForDay =
     selectedPlanningGroup.fcData.ahtIntraday[selectedWeekDay];
 
   // Log the data
-  console.debug("[OFG] dailyTotalOffered", dailyTotalOffered);
-  console.debug("[OFG] offeredPerIntervalForDay", offeredPerIntervalForDay);
-  console.debug("[OFG] dailyTotalAHT", dailyTotalAHT);
-  console.debug(
-    "[OFG] averageHandleTimeSecondsPerIntervalForDay",
-    averageHandleTimeSecondsPerIntervalForDay
-  );
+  console.debug("[OFG] offeredTotalForDay", offeredTotalForDay);
+  console.debug("[OFG] offeredIntervalsForDay", offeredIntervalsForDay);
+  console.debug("[OFG] ahtTotalForDay", ahtTotalForDay);
+  console.debug("[OFG] ahtIntervalsForDay", ahtIntervalsForDay);
 
   // Generate 96 15-minute intervals for a single calendar day
   let intervals = Array.from({ length: 96 }, (_, i) => {
@@ -448,7 +480,7 @@ export async function viewAndModifyFc(selectedPgId, selectedWeekDay) {
   });
 
   // Create intraday chart
-  let spec = {
+  let specIntraday = {
     "$schema": "https://vega.github.io/schema/vega/v5.json",
     "width": 350,
     "height": 360,
@@ -459,8 +491,8 @@ export async function viewAndModifyFc(selectedPgId, selectedWeekDay) {
         "name": "table",
         "values": intervals.map((x, i) => ({
           x,
-          "y1": offeredPerIntervalForDay[i],
-          "y2": averageHandleTimeSecondsPerIntervalForDay[i],
+          "y1": offeredIntervalsForDay[i],
+          "y2": ahtIntervalsForDay[i],
         })),
       },
     ],
@@ -538,7 +570,7 @@ export async function viewAndModifyFc(selectedPgId, selectedWeekDay) {
     ],
   };
 
-  let view = new vega.View(vega.parse(spec), {
+  let view = new vega.View(vega.parse(specIntraday), {
     renderer: "canvas", // renderer (canvas or svg)
     container: "#chart", // parent DOM container
     hover: true, // enable hover processing
@@ -554,20 +586,24 @@ export async function viewAndModifyFc(selectedPgId, selectedWeekDay) {
         .insert(
           intervals.map((x, i) => ({
             x,
-            "y1": offeredPerIntervalForDay[i],
-            "y2": averageHandleTimeSecondsPerIntervalForDay[i],
+            "y1": offeredIntervalsForDay[i],
+            "y2": ahtIntervalsForDay[i],
           }))
         )
     )
     .run();
 
   // Original data for reset
-  const originalOfferedData = JSON.parse(
-    JSON.stringify(offeredPerIntervalForDay)
+  const originalOfferedIntervalsForDay = JSON.parse(
+    JSON.stringify(offeredIntervalsForDay)
   );
-  const originalAHTData = JSON.parse(
-    JSON.stringify(averageHandleTimeSecondsPerIntervalForDay)
+  const originalOfferedTotalForDay = JSON.parse(
+    JSON.stringify(offeredTotalForDay)
   );
+  const originalAhtIntervalsForDay = JSON.parse(
+    JSON.stringify(ahtIntervalsForDay)
+  );
+  const originalAhtTotalForDay = JSON.parse(JSON.stringify(ahtTotalForDay));
 
   // Get the controls
   const smoothButton = document.getElementById("smooth-button");
@@ -582,11 +618,11 @@ export async function viewAndModifyFc(selectedPgId, selectedWeekDay) {
     if (dataType === "offered") {
       dailyTotal = data.reduce((a, b) => a + b, 0);
     } else if (dataType === "averageHandleTime") {
-      let sumProduct = offeredPerIntervalForDay.reduce(
+      let sumProduct = offeredIntervalsForDay.reduce(
         (sum, offered, i) => sum + offered * data[i],
         0
       );
-      dailyTotal = sumProduct / dailyTotalOffered;
+      dailyTotal = sumProduct / offeredTotalForDay;
     }
 
     // Update the daily total in the document
@@ -607,10 +643,12 @@ export async function viewAndModifyFc(selectedPgId, selectedWeekDay) {
     setTimeout(() => {
       span.classList.remove("bulge");
     }, 1000);
+
+    return dailyTotal;
   }
 
   // Function to update the completed planning group forecast with modified data
-  function updateCompletedPgForecast(modifiedData, dataType) {
+  function updateCompletedPgForecast(dataType, intervals, day) {
     // Find the selected planning group
     let selectedPlanningGroup = globalCompletedPgForecast.find(
       (group) => group.pgId === selectedPgId
@@ -622,11 +660,10 @@ export async function viewAndModifyFc(selectedPgId, selectedWeekDay) {
       if (dataType === "offered") {
         // Update the intraday data for offered
         selectedPlanningGroup.fcData.contactsIntraday[selectedWeekDay] =
-          modifiedData;
+          intervals;
       } else if (dataType === "averageHandleTime") {
         // Update the intraday data for averageHandleTime
-        selectedPlanningGroup.fcData.ahtIntraday[selectedWeekDay] =
-          modifiedData;
+        selectedPlanningGroup.fcData.ahtIntraday[selectedWeekDay] = intervals;
       }
     }
   }
@@ -677,30 +714,44 @@ export async function viewAndModifyFc(selectedPgId, selectedWeekDay) {
 
     // Smooth offered data and update daily total
     if (dataType === "offered" || dataType === "both") {
-      offeredPerIntervalForDay = smoothData(offeredPerIntervalForDay);
-      updateDailyTotal("forecast-offered", offeredPerIntervalForDay, "offered");
-      updateCompletedPgForecast(offeredPerIntervalForDay, "offered");
-      console.debug("[OFG] Smoothed offered data:", offeredPerIntervalForDay);
+      // Smooth the offered data
+      offeredIntervalsForDay = smoothData(offeredIntervalsForDay);
+
+      // Update the daily total for offered
+      offeredTotalForDay = updateDailyTotal(
+        "forecast-offered",
+        offeredIntervalsForDay,
+        "offered"
+      );
+
+      // Update the completed planning group forecast with the modified data
+      updateCompletedPgForecast(
+        "offered",
+        offeredIntervalsForDay,
+        offeredTotalForDay
+      );
+      console.debug("[OFG] Smoothed offered data:", offeredIntervalsForDay);
     }
 
     // Smooth AHT data and update daily total
     if (dataType === "averageHandleTime" || dataType === "both") {
-      averageHandleTimeSecondsPerIntervalForDay = smoothData(
-        averageHandleTimeSecondsPerIntervalForDay
-      );
-      updateDailyTotal(
+      // Smooth the AHT data
+      ahtIntervalsForDay = smoothData(ahtIntervalsForDay);
+
+      // Update the daily total for AHT
+      ahtTotalForDay = updateDailyTotal(
         "forecast-aht",
-        averageHandleTimeSecondsPerIntervalForDay,
+        ahtIntervalsForDay,
         "averageHandleTime"
       );
+
+      // Update the completed planning group forecast with the modified data
       updateCompletedPgForecast(
-        averageHandleTimeSecondsPerIntervalForDay,
-        "averageHandleTime"
+        "averageHandleTime",
+        ahtIntervalsForDay,
+        ahtTotalForDay
       );
-      console.debug(
-        "[OFG] Smoothed AHT data:",
-        averageHandleTimeSecondsPerIntervalForDay
-      );
+      console.debug("[OFG] Smoothed AHT data:", ahtIntervalsForDay);
     }
 
     if (!dataType) {
@@ -717,8 +768,8 @@ export async function viewAndModifyFc(selectedPgId, selectedWeekDay) {
           .insert(
             intervals.map((x, i) => ({
               x,
-              "y1": offeredPerIntervalForDay[i],
-              "y2": averageHandleTimeSecondsPerIntervalForDay[i],
+              "y1": offeredIntervalsForDay[i],
+              "y2": ahtIntervalsForDay[i],
             }))
           )
       )
@@ -777,30 +828,44 @@ export async function viewAndModifyFc(selectedPgId, selectedWeekDay) {
 
     // Normalise offered data and update daily total
     if (dataType === "offered" || dataType === "both") {
-      offeredPerIntervalForDay = normaliseData(offeredPerIntervalForDay);
-      updateDailyTotal("forecast-offered", offeredPerIntervalForDay, "offered");
-      updateCompletedPgForecast(offeredPerIntervalForDay, "offered");
-      console.debug("[OFG] Normalised offered data:", offeredPerIntervalForDay);
+      // Normalise the offered data
+      offeredIntervalsForDay = normaliseData(offeredIntervalsForDay);
+
+      // Update the daily total for offered
+      offeredTotalForDay = updateDailyTotal(
+        "forecast-offered",
+        offeredIntervalsForDay,
+        "offered"
+      );
+
+      // Update the completed planning group forecast with the modified data
+      updateCompletedPgForecast(
+        "offered",
+        offeredIntervalsForDay,
+        offeredTotalForDay
+      );
+      console.debug("[OFG] Normalised offered data:", offeredIntervalsForDay);
     }
 
     // Normalise AHT data and update daily total
     if (dataType === "averageHandleTime" || dataType === "both") {
-      averageHandleTimeSecondsPerIntervalForDay = normaliseData(
-        averageHandleTimeSecondsPerIntervalForDay
-      );
-      updateDailyTotal(
+      // Normalise the AHT data
+      ahtIntervalsForDay = normaliseData(ahtIntervalsForDay);
+
+      // Update the daily total for AHT
+      ahtTotalForDay = updateDailyTotal(
         "forecast-aht",
-        averageHandleTimeSecondsPerIntervalForDay,
+        ahtIntervalsForDay,
         "averageHandleTime"
       );
+
+      // Update the completed planning group forecast with the modified data
       updateCompletedPgForecast(
-        averageHandleTimeSecondsPerIntervalForDay,
-        "averageHandleTime"
+        "averageHandleTime",
+        ahtIntervalsForDay,
+        ahtTotalForDay
       );
-      console.debug(
-        "[OFG] Normalised AHT data:",
-        averageHandleTimeSecondsPerIntervalForDay
-      );
+      console.debug("[OFG] Normalised AHT data:", ahtIntervalsForDay);
     }
 
     if (!dataType) {
@@ -817,8 +882,8 @@ export async function viewAndModifyFc(selectedPgId, selectedWeekDay) {
           .insert(
             intervals.map((x, i) => ({
               x,
-              "y1": offeredPerIntervalForDay[i],
-              "y2": averageHandleTimeSecondsPerIntervalForDay[i],
+              "y1": offeredIntervalsForDay[i],
+              "y2": ahtIntervalsForDay[i],
             }))
           )
       )
@@ -860,35 +925,51 @@ export async function viewAndModifyFc(selectedPgId, selectedWeekDay) {
     }
 
     if (dataType === "offered" || dataType === "both") {
-      offeredPerIntervalForDay = flattenData(
-        offeredPerIntervalForDay,
-        dailyTotalOffered,
+      // Flatten offered data
+      offeredIntervalsForDay = flattenData(
+        offeredIntervalsForDay,
+        offeredTotalForDay,
         "offered"
       );
-      updateDailyTotal("forecast-offered", offeredPerIntervalForDay, "offered");
-      updateCompletedPgForecast(offeredPerIntervalForDay, "offered");
-      console.debug("[OFG] Flattened offered data:", offeredPerIntervalForDay);
+
+      // Update the daily total forecast-offered
+      offeredTotalForDay = updateDailyTotal(
+        "forecast-offered",
+        offeredIntervalsForDay,
+        "offered"
+      );
+
+      // Update the completed planning group forecast with the modified data
+      updateCompletedPgForecast(
+        "offered",
+        offeredIntervalsForDay,
+        offeredTotalForDay
+      );
+      console.debug("[OFG] Flattened offered data:", offeredIntervalsForDay);
     }
 
     if (dataType === "averageHandleTime" || dataType === "both") {
-      averageHandleTimeSecondsPerIntervalForDay = flattenData(
-        averageHandleTimeSecondsPerIntervalForDay,
-        dailyTotalAHT,
+      // Flatten AHT data
+      ahtIntervalsForDay = flattenData(
+        ahtIntervalsForDay,
+        ahtTotalForDay,
         "averageHandleTime"
       );
-      updateDailyTotal(
+
+      // Update the daily total forecast-aht
+      ahtTotalForDay = updateDailyTotal(
         "forecast-aht",
-        averageHandleTimeSecondsPerIntervalForDay,
+        ahtIntervalsForDay,
         "averageHandleTime"
       );
+
+      // Update the completed planning group forecast with the modified data
       updateCompletedPgForecast(
-        averageHandleTimeSecondsPerIntervalForDay,
-        "averageHandleTime"
+        "averageHandleTime",
+        ahtIntervalsForDay,
+        ahtTotalForDay
       );
-      console.debug(
-        "[OFG] Flattened AHT data:",
-        averageHandleTimeSecondsPerIntervalForDay
-      );
+      console.debug("[OFG] Flattened AHT data:", ahtIntervalsForDay);
     }
 
     if (!dataType) {
@@ -904,8 +985,8 @@ export async function viewAndModifyFc(selectedPgId, selectedWeekDay) {
           .insert(
             intervals.map((x, i) => ({
               x,
-              "y1": offeredPerIntervalForDay[i],
-              "y2": averageHandleTimeSecondsPerIntervalForDay[i],
+              "y1": offeredIntervalsForDay[i],
+              "y2": ahtIntervalsForDay[i],
             }))
           )
       )
@@ -920,14 +1001,24 @@ export async function viewAndModifyFc(selectedPgId, selectedWeekDay) {
     );
 
     if (dataType === "offered" || dataType === "both") {
-      offeredPerIntervalForDay = JSON.parse(
-        JSON.stringify(originalOfferedData)
+      // Reset offered data
+      offeredIntervalsForDay = JSON.parse(
+        JSON.stringify(originalOfferedIntervalsForDay)
       );
-      updateCompletedPgForecast(offeredPerIntervalForDay, "offered");
+      offeredTotalForDay = JSON.parse(
+        JSON.stringify(originalOfferedTotalForDay)
+      );
+
+      // Update the completed planning group forecast with the modified data
+      updateCompletedPgForecast(
+        "offered",
+        offeredIntervalsForDay,
+        offeredTotalForDay
+      );
 
       // Update the daily total forecast-offered
       let element = document.getElementById("forecast-offered");
-      element.textContent = dailyTotalOffered.toFixed(1);
+      element.textContent = offeredTotalForDay.toFixed(1);
 
       // Add the flash class to the element
       element.classList.add("flash");
@@ -938,17 +1029,22 @@ export async function viewAndModifyFc(selectedPgId, selectedWeekDay) {
       }, 1000);
     }
     if (dataType === "averageHandleTime" || dataType === "both") {
-      averageHandleTimeSecondsPerIntervalForDay = JSON.parse(
-        JSON.stringify(originalAHTData)
+      // Reset AHT data
+      ahtIntervalsForDay = JSON.parse(
+        JSON.stringify(originalAhtIntervalsForDay)
       );
+      ahtTotalForDay = JSON.parse(JSON.stringify(originalAhtTotalForDay));
+
+      // Update the completed planning group forecast with the modified data
       updateCompletedPgForecast(
-        averageHandleTimeSecondsPerIntervalForDay,
-        "averageHandleTime"
+        "averageHandleTime",
+        ahtIntervalsForDay,
+        ahtTotalForDay
       );
 
       // Update the daily total forecast-aht
       let element = document.getElementById("forecast-aht");
-      element.textContent = dailyTotalAHT.toFixed(1);
+      element.textContent = ahtTotalForDay.toFixed(1);
 
       // Add the flash class to the element
       element.classList.add("flash");
@@ -973,8 +1069,8 @@ export async function viewAndModifyFc(selectedPgId, selectedWeekDay) {
           .insert(
             intervals.map((x, i) => ({
               x,
-              "y1": offeredPerIntervalForDay[i],
-              "y2": averageHandleTimeSecondsPerIntervalForDay[i],
+              "y1": offeredIntervalsForDay[i],
+              "y2": ahtIntervalsForDay[i],
             }))
           )
       )
