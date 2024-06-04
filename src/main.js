@@ -688,6 +688,7 @@ export async function viewAndModifyFc(selectedPgId, selectedWeekDay) {
   const normaliseButton = document.getElementById("normalise-button");
   const flattenButton = document.getElementById("flatten-button");
   const resetButton = document.getElementById("reset-button");
+  // TODO: Make this work for new Weekly mode
 
   // Function to update daily total in the document
   function updateDailyTotal(elementId, data, dataType) {
