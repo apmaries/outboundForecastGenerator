@@ -1,5 +1,7 @@
 // notificationHandler.js
 
+import { loadPageFour } from "./pageHandler.js";
+
 // TODO: Add testing mode bypass
 var testMode = window.ofg.isTesting;
 
@@ -46,6 +48,22 @@ export class NotificationHandler {
     this.id = notificationsId;
 
     if ((!this.uri || !this.id) && !testMode) {
+      alert("An error occurred. Please refresh the page and try again.");
+
+      loadPageFour();
+      // Insert div to id="results-container" with error message
+
+      let message = document.createElement("div");
+      message.className = "alert-danger";
+      message.innerHTML =
+        "Something went wrong :(<br>Please refresh the page and try again.";
+      resultsContainer.appendChild(message);
+
+      const errorReason = document.createElement("div");
+
+      errorReason.innerHTML = userMessage;
+      resultsContainer.appendChild(errorReason);
+
       throw new Error("Missing required session storage items");
     }
 
