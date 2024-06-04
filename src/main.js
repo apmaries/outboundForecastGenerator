@@ -421,76 +421,128 @@ export function validatePlanningGroupDropdown() {
 
   // Convert planningGroups to an array and iterate over it
   Array.from(planningGroups).forEach((option) => {
-    // If the option value is not in fcImportBody.planningGroups, remove it
-    if (!globalCompletedPgForecast.some((pg) => pg.pgId === option.value)) {
+    const pgId = option.value;
+    const pgForecast = globalCompletedPgForecast.find((pg) => pg.pgId === pgId);
+    const totalOffered = pgForecast
+      ? pgForecast.fcData.contactsDaily.reduce((a, b) => a + b, 0)
+      : 0;
+
+    // If the option value is not in fcImportBody.planningGroups or totalOffered is 0, remove it
+    if (
+      !globalCompletedPgForecast.some((pg) => pg.pgId === option.value) ||
+      totalOffered === 0
+    ) {
       console.warn(
         `[OFG] Planning group ${option.value} not found in forecast data. Removing...`
       );
-      option.remove();
+
+      // Set the option to disabled
+      option.setAttribute("disabled", "true");
+
+      // Update the option text
+      let optionText = option.textContent;
+      option.textContent = `${optionText} - No forecast data available for this planning group`;
+    } else {
+      option.removeAttribute("disabled");
     }
   });
 }
 
 // Function to get forecast data for visualisation
 export async function viewAndModifyFc(selectedPgId, selectedWeekDay) {
-  // Convert selectedWeekDay to a number
   selectedWeekDay = Number(selectedWeekDay);
+  let weeklyMode = selectedWeekDay === 99;
 
-  // Find the selected planning group
   let selectedPlanningGroup = globalCompletedPgForecast.find(
     (group) => group.pgId === selectedPgId
   );
 
-  // Get the daily total for the selected day
-  let offeredTotalForDay = parseFloat(
-    selectedPlanningGroup.fcData.contactsDaily[selectedWeekDay]
-  );
-  let ahtTotalForDay = parseFloat(
-    selectedPlanningGroup.fcData.ahtDaily[selectedWeekDay]
-  );
+  let offeredDaysForWeek = selectedPlanningGroup.fcData.contactsDaily;
+  let ahtDaysForWeek = selectedPlanningGroup.fcData.ahtDaily;
 
-  // Update totals-table with daily total values
-  document.getElementById("forecast-offered").textContent =
-    offeredTotalForDay.toFixed(1);
-  document.getElementById("forecast-aht").textContent =
-    ahtTotalForDay.toFixed(1);
-
-  // Get the data for the selected day
   let offeredIntervalsForDay =
     selectedPlanningGroup.fcData.contactsIntraday[selectedWeekDay];
   let ahtIntervalsForDay =
     selectedPlanningGroup.fcData.ahtIntraday[selectedWeekDay];
 
-  // Log the data
-  console.debug("[OFG] offeredTotalForDay", offeredTotalForDay);
-  console.debug("[OFG] offeredIntervalsForDay", offeredIntervalsForDay);
-  console.debug("[OFG] ahtTotalForDay", ahtTotalForDay);
-  console.debug("[OFG] ahtIntervalsForDay", ahtIntervalsForDay);
+  let offeredTotalForDay = parseFloat(offeredDaysForWeek[selectedWeekDay]);
+  let ahtTotalForDay = parseFloat(ahtDaysForWeek[selectedWeekDay]);
 
-  // Generate 96 15-minute intervals for a single calendar day
-  let intervals = Array.from({ length: 96 }, (_, i) => {
-    let hours = Math.floor(i / 4);
-    let minutes = (i % 4) * 15;
-    return `${hours.toString().padStart(2, "0")}:${minutes
-      .toString()
-      .padStart(2, "0")}`;
-  });
+  let ahtSumForWeek = 0;
+  let offeredTotalForWeek = 0;
+  for (let i = 0; i < offeredDaysForWeek.length; i++) {
+    ahtSumForWeek += offeredDaysForWeek[i] * ahtDaysForWeek[i];
+    offeredTotalForWeek += offeredDaysForWeek[i];
+  }
+  let ahtTotalForWeek = ahtSumForWeek / offeredTotalForWeek;
 
-  // Create intraday chart
-  let specIntraday = {
+  let intervals;
+  let xAxisLabels;
+
+  if (weeklyMode) {
+    console.log("[OFG] Weekly mode selected for planning group", selectedPgId);
+
+    console.debug("[OFG] offeredTotalForWeek", offeredTotalForWeek);
+    console.debug("[OFG] offeredDaysForWeek", offeredDaysForWeek);
+    console.debug("[OFG] ahtTotalForWeek", ahtTotalForWeek);
+    console.debug("[OFG] ahtDaysForWeek", ahtDaysForWeek);
+
+    document.getElementById("forecast-offered").textContent =
+      offeredTotalForWeek.toFixed(1);
+    document.getElementById("forecast-aht").textContent =
+      ahtTotalForWeek.toFixed(1);
+
+    intervals = Array.from({ length: 7 }, (_, i) => i);
+
+    xAxisLabels = Array.from({ length: 7 }, (_, i) => {
+      let date = new Date(globalWeekStart);
+      date.setDate(date.getDate() + i);
+
+      let weekday = date.toLocaleDateString("en-GB", { weekday: "short" });
+
+      return weekday;
+    });
+  } else {
+    console.log("[OFG] Daily mode selected for planning group", selectedPgId);
+
+    console.debug("[OFG] offeredTotalForDay", offeredTotalForDay);
+    console.debug("[OFG] offeredIntervalsForDay", offeredIntervalsForDay);
+    console.debug("[OFG] ahtTotalForDay", ahtTotalForDay);
+    console.debug("[OFG] ahtIntervalsForDay", ahtIntervalsForDay);
+
+    document.getElementById("forecast-offered").textContent =
+      offeredTotalForDay.toFixed(1);
+    document.getElementById("forecast-aht").textContent =
+      ahtTotalForDay.toFixed(1);
+
+    intervals = Array.from({ length: 96 }, (_, i) => {
+      let hours = Math.floor(i / 4);
+      let minutes = (i % 4) * 15;
+      return `${hours.toString().padStart(2, "0")}:${minutes
+        .toString()
+        .padStart(2, "0")}`;
+    });
+
+    xAxisLabels = intervals;
+  }
+
+  let vegaSpec = {
     "$schema": "https://vega.github.io/schema/vega/v5.json",
-    "width": 350,
+    "width": 400,
     "height": 360,
     "padding": 5,
 
     "data": [
       {
         "name": "table",
-        "values": intervals.map((x, i) => ({
-          x,
-          "y1": offeredIntervalsForDay[i],
-          "y2": ahtIntervalsForDay[i],
-        })),
+        "values": intervals.map((x, i) => {
+          let y1 = weeklyMode
+            ? offeredDaysForWeek[i]
+            : offeredIntervalsForDay[i];
+          let y2 = weeklyMode ? ahtDaysForWeek[i] : ahtIntervalsForDay[i];
+
+          return { x, y1, y2 };
+        }),
       },
     ],
 
@@ -498,9 +550,9 @@ export async function viewAndModifyFc(selectedPgId, selectedWeekDay) {
       {
         "name": "x",
         "type": "band",
-        "range": [0, { "signal": "width-4" }], // Set the range to the width of the chart
+        "range": "width",
         "domain": { "data": "table", "field": "x" },
-        "padding": 0.1, // Add padding to the band scale
+        "padding": 0.1,
       },
       {
         "name": "y",
@@ -526,16 +578,20 @@ export async function viewAndModifyFc(selectedPgId, selectedWeekDay) {
       {
         "orient": "bottom",
         "scale": "x",
-        "values": Array.from(
-          { length: 24 },
-          (_, i) => `${i.toString().padStart(2, "0")}:00`
-        ), // Only display the hours
-        "labelAngle": -90, // Make labels vertical
-        "labelPadding": 10, // Add padding
-        "title": "Time (hours)", // x-axis title
+        "labelAngle": -90,
+        "labelPadding": 10,
+        "title": weeklyMode ? "Days" : "Time (hours)",
+        "bandPosition": 0.5, // Center the labels between the ticks
+        "labelAlign": "center", // Align labels to the center
+        "values": weeklyMode
+          ? xAxisLabels
+          : Array.from(
+              { length: 24 },
+              (_, i) => `${i.toString().padStart(2, "0")}:00`
+            ),
       },
-      { "orient": "left", "scale": "y", "title": "Offered" }, // y-axis title
-      { "orient": "right", "scale": "y2", "title": "Average Handle Time" }, // y-axis title
+      { "orient": "left", "scale": "y", "title": "Offered" },
+      { "orient": "right", "scale": "y2", "title": "Average Handle Time" },
     ],
 
     "marks": [
@@ -545,35 +601,58 @@ export async function viewAndModifyFc(selectedPgId, selectedWeekDay) {
         "encode": {
           "enter": {
             "x": { "scale": "x", "field": "x" },
-            "width": { "value": 5 },
+            "width": { "scale": "x", "band": 1 },
             "y": { "scale": "y", "field": "y1" },
             "y2": { "scale": "y", "value": 0 },
-            "fill": { "value": "rgb(31, 119, 180)" },
+            "fill": { "value": "steelblue" },
           },
         },
       },
       {
-        "type": "line", // Change from line to rule
+        "type": "line",
         "from": { "data": "table" },
         "encode": {
           "enter": {
-            "x": { "scale": "x", "field": "x", "offset": 2.5 }, // Add offset to center line
+            "x": { "scale": "x", "field": "x", "band": 0.5 },
             "y": { "scale": "y2", "field": "y2" },
-            "y2": { "scale": "y2", "value": 0 }, // Set y2 to 0
-            "stroke": { "value": "rgb(255, 127, 14)" },
+            "stroke": { "value": "orange" },
           },
         },
       },
+      weeklyMode
+        ? {
+            "type": "symbol",
+            "from": { "data": "table" },
+            "encode": {
+              "enter": {
+                "x": { "scale": "x", "field": "x", "band": 0.5 },
+                "y": { "scale": "y2", "field": "y2" },
+                "fill": { "value": "orange" },
+                "size": { "value": 50 },
+              },
+            },
+          }
+        : {
+            "type": "symbol",
+            "from": { "data": "table" },
+            "encode": {
+              "enter": {
+                "x": { "scale": "x", "field": "x", "band": 0.5 },
+                "y": { "scale": "y2", "field": "y2" },
+                "fill": { "value": "orange" },
+                "size": { "value": 0 },
+              },
+            },
+          },
     ],
   };
 
-  let view = new vega.View(vega.parse(specIntraday), {
-    renderer: "canvas", // renderer (canvas or svg)
-    container: "#chart", // parent DOM container
-    hover: true, // enable hover processing
+  let view = new vega.View(vega.parse(vegaSpec), {
+    renderer: "canvas",
+    container: "#chart",
+    hover: true,
   });
 
-  // Update chart datasets
   view
     .change(
       "table",
@@ -582,25 +661,27 @@ export async function viewAndModifyFc(selectedPgId, selectedWeekDay) {
         .remove(() => true)
         .insert(
           intervals.map((x, i) => ({
-            x,
-            "y1": offeredIntervalsForDay[i],
-            "y2": ahtIntervalsForDay[i],
+            x: xAxisLabels[i],
+            y1: weeklyMode ? offeredDaysForWeek[i] : offeredIntervalsForDay[i],
+            y2: weeklyMode ? ahtDaysForWeek[i] : ahtIntervalsForDay[i],
           }))
         )
     )
     .run();
 
   // Original data for reset
-  const originalOfferedIntervalsForDay = JSON.parse(
-    JSON.stringify(offeredIntervalsForDay)
+  const originalOfferedIntervals = JSON.parse(
+    JSON.stringify(weeklyMode ? offeredDaysForWeek : offeredIntervalsForDay)
   );
-  const originalOfferedTotalForDay = JSON.parse(
-    JSON.stringify(offeredTotalForDay)
+  const originalOfferedTotal = JSON.parse(
+    JSON.stringify(weeklyMode ? offeredTotalForWeek : offeredTotalForDay)
   );
-  const originalAhtIntervalsForDay = JSON.parse(
-    JSON.stringify(ahtIntervalsForDay)
+  const originalAhtIntervals = JSON.parse(
+    JSON.stringify(weeklyMode ? ahtDaysForWeek : ahtIntervalsForDay)
   );
-  const originalAhtTotalForDay = JSON.parse(JSON.stringify(ahtTotalForDay));
+  const originalAhtTotal = JSON.parse(
+    JSON.stringify(weeklyMode ? ahtTotalForWeek : ahtTotalForDay)
+  );
 
   // Get the controls
   const smoothButton = document.getElementById("smooth-button");
@@ -1000,11 +1081,9 @@ export async function viewAndModifyFc(selectedPgId, selectedWeekDay) {
     if (dataType === "offered" || dataType === "both") {
       // Reset offered data
       offeredIntervalsForDay = JSON.parse(
-        JSON.stringify(originalOfferedIntervalsForDay)
+        JSON.stringify(originalOfferedIntervals)
       );
-      offeredTotalForDay = JSON.parse(
-        JSON.stringify(originalOfferedTotalForDay)
-      );
+      offeredTotalForDay = JSON.parse(JSON.stringify(originalOfferedTotal));
 
       // Update the completed planning group forecast with the modified data
       updateCompletedPgForecast(
@@ -1027,10 +1106,8 @@ export async function viewAndModifyFc(selectedPgId, selectedWeekDay) {
     }
     if (dataType === "averageHandleTime" || dataType === "both") {
       // Reset AHT data
-      ahtIntervalsForDay = JSON.parse(
-        JSON.stringify(originalAhtIntervalsForDay)
-      );
-      ahtTotalForDay = JSON.parse(JSON.stringify(originalAhtTotalForDay));
+      ahtIntervalsForDay = JSON.parse(JSON.stringify(originalAhtIntervals));
+      ahtTotalForDay = JSON.parse(JSON.stringify(originalAhtTotal));
 
       // Update the completed planning group forecast with the modified data
       updateCompletedPgForecast(
