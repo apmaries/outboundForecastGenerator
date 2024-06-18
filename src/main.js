@@ -298,6 +298,7 @@ export async function generateForecast() {
   updateLoadingMessage("generate-loading-message", "Executing queries");
   queryResults = await executeQueries(queryBody, intervals);
   if (queryResults.length === 0) {
+    // TODO: Need to fix this!
     console.error("[OFG] Query results are empty");
     loadPageFour();
 
