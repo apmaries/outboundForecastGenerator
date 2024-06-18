@@ -222,6 +222,11 @@ export async function handleApiCalls(apiFunctionStr, ...args) {
         return allEntities;
       } else if (allResults.length > 0) {
         return allResults;
+      } else {
+        console.warn(
+          `[OFG] No entities or results found for ${apiFunctionStr}!`
+        );
+        return {};
       }
     } catch (error) {
       console.error(`[OFG] Error making API call to ${apiFunctionStr}!`);
