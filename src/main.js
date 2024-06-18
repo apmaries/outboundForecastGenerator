@@ -297,6 +297,24 @@ export async function generateForecast() {
   // Execute historical data queries
   updateLoadingMessage("generate-loading-message", "Executing queries");
   queryResults = await executeQueries(queryBody, intervals);
+  if (queryResults.length === 0) {
+    console.error("[OFG] Query results are empty");
+    loadPageFour();
+
+    // Insert div to id="results-container" with error message
+
+    let message = document.createElement("div");
+    message.className = "alert-danger";
+    message.innerHTML = "No historical data returned from queries!";
+    resultsContainer.appendChild(message);
+
+    const errorReason = document.createElement("div");
+
+    errorReason.innerHTML = userMessage;
+    resultsContainer.appendChild(errorReason);
+
+    return;
+  }
 
   // Process query results
   updateLoadingMessage("generate-loading-message", "Processing query results");
