@@ -245,7 +245,7 @@ export function deleteInboundForecast() {
   console.log("[OFG] Deleting inbound forecast");
   console.log("[OFG] Inbound forecast ID: ", sharedState.inboundForecastId);
 
-  const buId = sharedState.businessUnit.id;
+  const buId = sharedState.userInputs.businessUnit.id;
   const weekStart = sharedState.userInputs.forecastParameters.weekStart;
   const forecastId = sharedState.inboundForecastId;
 
@@ -270,5 +270,5 @@ export function deleteInboundForecast() {
 
   // Reset the forecast ID
   sharedState.inboundForecastId = null;
-  console.log("[OFG] Inbound forecast deleted");
+  console.log("[OFG] Inbound forecast deleted", delResponse.json());
 }
