@@ -187,14 +187,20 @@ export async function executeQueries(body, intervals) {
       body.interval = intervals[i];
 
       try {
-        results = await handleApiCalls(
+        let response = await handleApiCalls(
           "ConversationsApi.postAnalyticsConversationsAggregatesQuery",
           body
         ); // LIVE DATA
+
+        // Check if the response is not an empty object before pushing it to results
+        if (Object.keys(response).length !== 0) {
+          results.push(...response);
+        }
+
         /*
         results =
           await window.ofg.PlatformClient.MockAnalyticsApi.getOutboundConversationsAggregates(); // TEST DATA
-          */
+        */
       } catch (error) {
         console.error("[OFG] Query execution failed: ", error);
         throw error;
@@ -202,20 +208,25 @@ export async function executeQueries(body, intervals) {
     }
   }
 
-  console.warn(`[OFG] Query results: `, results);
+  // Special handling for when results is empty
+  if (results.length === 0) {
+    console.warn("[OFG] No results found.");
+  } else {
+    // Get variables from sharedState
+    const forcastPlanningGroups = sharedState.completedForecast;
 
-  // Get variables from sharedState
-  const forcastPlanningGroups = sharedState.completedForecast;
-
-  // Return only the data for the campaigns in the forcastPlanningGroups where pg.isForecast is true
-  results = results.filter((result) => {
-    return forcastPlanningGroups.some((pg) => {
-      return (
-        pg.campaign.id === result.group.outboundCampaignId &&
-        pg.metadata.forecastStatus.isForecast
-      );
+    // Return only the data for the campaigns in the forcastPlanningGroups where pg.isForecast is true
+    results = results.filter((result) => {
+      return forcastPlanningGroups.some((pg) => {
+        return (
+          pg.campaign.id === result.group.outboundCampaignId &&
+          pg.metadata.forecastStatus.isForecast
+        );
+      });
     });
-  });
+  }
 
+  // Return results
+  console.debug("[OFG] Query results: ", results);
   return results;
 }
