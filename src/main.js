@@ -7,77 +7,78 @@ import {
   loadPageThree,
   loadPageFour,
 } from "./pageHandler.js";
-import { queryBuilder, executeQueries } from "./queryHandler.js";
+import {
+  queryBuilder,
+  intervalBuilder,
+  executeQueries,
+} from "./queryHandler.js";
 import {
   prepFcMetrics,
-  groupByIndexNumber,
   generateAverages,
   applyContacts,
   resolveContactsAht,
 } from "./numberHandler.js";
-import { generateInboundForecast } from "./inboundHandler.js";
+import {
+  generateInboundForecast,
+  deleteInboundForecast,
+} from "./inboundHandler.js";
 import {
   prepFcImportBody,
   generateUrl,
-  invokeGCF,
-  importFc,
+  invokeGCF, // invokeGCF calls a Google Cloud Function to make PUT request
+  importFc, // importFc makes a PUT request to the upload URL - need CORS fixed before being able to switch to this
 } from "./importHandler.js";
 import { NotificationHandler } from "../src/notificationHandler.js";
-// invokeGCF calls a Google Cloud Function to make PUT request
-// importFc makes a PUT request to the upload URL - need CORS fixed before being able to switch to this
 
-// Gloabl variables
-let globalCompletedPgForecast;
-let globalBusinessUnitId;
-let globalWeekStart;
-let globalForecastDescription;
-let globalBusinessUnitStartDayOfWeek;
+// Define and export shared state object
+export let sharedState = {
+  completedForecast: null,
+  modifiedForecast: null,
+  userInputs: {
+    businessUnit: {
+      name: null,
+      id: null,
+      settings: null,
+    },
+    forecastParameters: {
+      weekStart: null,
+      historicalWeeks: null,
+      description: null,
+    },
+    forecastOptions: {
+      ignoreZeroes: null,
+      resolveContactsAhtMode: null,
+      generateInbound: null,
+      retainInbound: null,
+    },
+    planningGroups: [],
+  },
+};
 
-const testMode = window.ofg.isTesting;
-
+/* FUNCTIONS START */
 // Generate outbound forecast data
-export async function generateForecast(
-  businessUnitName,
-  businessUnitId,
-  businessUnitStartDayOfWeek,
-  selectedBuTimeZone,
-  weekStart,
-  historicalWeeks,
-  forecastDescription,
-  planningGroupContactsArray,
-  ignoreZeroes,
-  resolveContactsAhtMode,
-  generateInbound,
-  retainInbound
-) {
+export async function generateForecast() {
   console.info("[OFG] Forecast generation initiated");
   switchPages("page-two", "page-three");
 
-  // Log user variables
-  let userSelections = {
-    businessUnitName,
-    businessUnitId,
-    businessUnitStartDayOfWeek,
-    selectedBuTimeZone,
-    weekStart,
-    historicalWeeks,
-    forecastDescription,
-    planningGroupCount: planningGroupContactsArray.length,
-    planningGroupDetails: planningGroupContactsArray,
-    ignoreZeroes,
-    resolveContactsAhtMode,
-    generateInbound,
-    retainInbound,
-  };
-  console.log("[OFG] User selections:", userSelections);
+  console.log("[OFG] User selections:", sharedState.userInputs);
+
+  // Create each planning group in the sharedState.completedForecast object
+  sharedState.completedForecast = sharedState.userInputs.planningGroups.map(
+    (pg) => {
+      let obj = {
+        planningGroup: { ...pg.planningGroup },
+        campaign: { ...pg.campaign },
+        queue: { ...pg.queue },
+        metadata: { numContacts: pg.numContacts },
+      };
+      return obj;
+      // historicalWeeks and forecastData will be added later by queryHandler
+    }
+  );
 
   // Declare variables
   let queryResults = [];
-  var historicalDataByCampaign = [];
-  globalBusinessUnitId = businessUnitId;
-  globalWeekStart = weekStart;
-  globalForecastDescription = forecastDescription;
-  globalBusinessUnitStartDayOfWeek = businessUnitStartDayOfWeek;
 
   // Functions start here
 
@@ -108,6 +109,7 @@ export async function generateForecast(
     return dateCopy.getFullYear();
   }
 
+  // Returns the year and week number in the format "YYYY-WW".
   function getYearWeek(date) {
     var week = getWeek(date);
     var year = getWeekYear(date);
@@ -116,8 +118,11 @@ export async function generateForecast(
     return `${year}-${weekString}`;
   }
 
+  // Process query results
   async function processQueryResults(results) {
     console.log(`[OFG] Processing ${results.length} groups in query results`);
+    const completedForecast = sharedState.completedForecast;
+
     // loop through results and crunch numbers
     for (let i = 0; i < results.length; i++) {
       var resultsGrouping = results[i];
@@ -126,39 +131,19 @@ export async function generateForecast(
       var data = resultsGrouping.data;
       var campaignId = group.outboundCampaignId;
 
-      // check if campaign exists in historicalDataByCampaign
-      var campaignExists = historicalDataByCampaign.some(
-        (campaign) => campaign.campaignId === campaignId
+      // Find matching planning group in sharedState.completedForecast
+      var planningGroupIndex = completedForecast.findIndex(
+        (pg) => pg.campaign.id === campaignId
       );
 
-      // if campaign does not exist, create a new campaign object
-      if (!campaignExists) {
-        let campaignObj = {
-          campaignId: campaignId,
-          historicalWeeks: [],
-        };
-        console.log(
-          `[OFG] New campaign found in results. Campaign ID = ${campaignId}`
-        );
-        historicalDataByCampaign.push(campaignObj);
-      }
-
-      // create a baseWeekArray that contains 7 arrays of 96 zeros
+      // Create a baseWeekArray that contains 7 arrays of 96 zeros
       var baseWeekArray = Array.from({ length: 7 }, () =>
         Array.from({ length: 96 }, () => 0)
       );
 
-      // create a new week object
-      // TODO: Refactor to use a class
+      // Create a new week object
       let weekObj = {
         weekNumber: "",
-        dailySummary: {
-          // TODO: Refactor these to use an objects rather than arrays only - get's difficult to understand what's what when using arrays only later on
-          nAttempted: Array(7).fill(0),
-          nConnected: Array(7).fill(0),
-          tHandle: Array(7).fill(0),
-          nHandled: Array(7).fill(0),
-        },
         intradayValues: {
           nAttempted: JSON.parse(JSON.stringify(baseWeekArray)),
           nConnected: JSON.parse(JSON.stringify(baseWeekArray)),
@@ -167,8 +152,10 @@ export async function generateForecast(
         },
       };
 
-      // for each interval in the data, get the week number and add to the campaign object
-      console.debug(`[OFG] [${campaignId}] Extracting data from query results`);
+      // For each interval in the data, get the week number and add to the campaign object
+      console.debug(
+        `[OFG] Extracting data from campaign id ${campaignId} query results`
+      );
       for (let j = 0; j < data.length; j++) {
         var interval = data[j].interval;
         var metrics = data[j].metrics;
@@ -177,30 +164,26 @@ export async function generateForecast(
         const startDate = new Date(startString);
         const weekNumber = getYearWeek(startDate);
 
-        // get weekday index from startDate
+        // Get weekday index from startDate
         const dayIndex = startDate.getDay();
 
-        // get interval index from startDate
+        // Get interval index from startDate
         const hours = startDate.getHours();
         const minutes = startDate.getMinutes();
         const totalMinutes = hours * 60 + minutes;
         const intervalDuration = 15;
         const intervalIndex = Math.floor(totalMinutes / intervalDuration);
 
-        var campaignIndex = historicalDataByCampaign.findIndex(
-          (campaign) => campaign.campaignId === campaignId
-        );
-
-        // add weekNumber to campaign object if it does not yet exist
-        var weekExists = historicalDataByCampaign[
-          campaignIndex
+        // Add weekNumber to campaign object if it does not yet exist
+        var weekExists = completedForecast[
+          planningGroupIndex
         ].historicalWeeks.some((week) => week.weekNumber === weekNumber);
         if (!weekExists) {
           weekObj.weekNumber = weekNumber;
-          historicalDataByCampaign[campaignIndex].historicalWeeks.push(weekObj);
+          completedForecast[planningGroupIndex].historicalWeeks.push(weekObj);
         }
 
-        // loop through metrics and add to dailySummary & intradayValues
+        // loop through metrics and add to intradayValues
         for (let k = 0; k < metrics.length; k++) {
           var metric = metrics[k];
           var metricName = metric.metric;
@@ -208,9 +191,6 @@ export async function generateForecast(
           // nOuotboundAttempted
           if (metricName === "nOutboundAttempted") {
             var attempted = metric.stats.count;
-
-            // add nOutboundAttempted stat to dailySummary
-            weekObj.dailySummary.nAttempted[dayIndex] += attempted;
 
             // add nOutboundAttempted stat to intradayValues
             weekObj.intradayValues.nAttempted[dayIndex][intervalIndex] +=
@@ -220,9 +200,6 @@ export async function generateForecast(
           // nOutboundConnected
           if (metricName === "nOutboundConnected") {
             var connected = metric.stats.count;
-
-            // add nOutboundConnected stat to dailySummary
-            weekObj.dailySummary.nConnected[dayIndex] += connected;
 
             // add nOutboundConnected stat to intradayValues
             weekObj.intradayValues.nConnected[dayIndex][intervalIndex] +=
@@ -234,10 +211,6 @@ export async function generateForecast(
             var tHandle = metric.stats.sum / 1000; // convert to seconds
             var nHandled = metric.stats.count;
 
-            // add tHandle stats to dailySummary
-            weekObj.dailySummary.tHandle[dayIndex] += tHandle;
-            weekObj.dailySummary.nHandled[dayIndex] += nHandled;
-
             // add tHandle stats to intradayValues
             weekObj.intradayValues.tHandle[dayIndex][intervalIndex] += tHandle;
             weekObj.intradayValues.nHandled[dayIndex][intervalIndex] +=
@@ -246,9 +219,14 @@ export async function generateForecast(
         }
       }
     }
+
+    console.log("[OFG] Query results processed", completedForecast);
   }
 
+  // Run forecast prep function on group
   async function runFunctionOnGroup(group, func, funcName, ...args) {
+    const pgName = group.planningGroup.name;
+    console.log(`[OFG] [${pgName}] Running ${funcName}`);
     try {
       group = await func(group, ...args);
       // downloadJson(group, `${funcName}_${group.campaignId}`);
@@ -261,904 +239,100 @@ export async function generateForecast(
   async function prepareForecast() {
     let functionsToRun = [
       { func: prepFcMetrics, name: "prepFcMetrics" },
-      { func: groupByIndexNumber, name: "groupByIndexNumber" },
       {
         func: generateAverages,
         name: "generateAverages",
-        args: [ignoreZeroes],
+        args: [sharedState.userInputs.forecastOptions.ignoreZeroes],
       },
       {
         func: applyContacts,
         name: "applyContacts",
-        args: [planningGroupContactsArray, testMode],
       },
+      /* Removing this for now
       {
         func: resolveContactsAht,
         name: "resolveContactsAht",
         args: [resolveContactsAhtMode],
-      },
+      },*/
     ];
 
-    let fcPrepPromises = historicalDataByCampaign.map(async (group) => {
-      console.log(
-        `[OFG] [${group.campaignId}] Preparing campaign for forecast`
-      );
+    //
+    const completedForecast = sharedState.completedForecast;
+    let fcPrepPromises = completedForecast
+      .filter((group) => Number(group.metadata.numContacts) > 0)
+      .map(async (group) => {
+        const pgName = group.planningGroup.name;
+        console.log(`[OFG] [${pgName}] Preparing outbound forecast`);
 
-      for (let { func, name, args = [] } of functionsToRun) {
-        group = await runFunctionOnGroup(group, func, name, ...args);
-      }
+        for (let { func, name, args = [] } of functionsToRun) {
+          group = await runFunctionOnGroup(group, func, name, ...args);
+        }
 
-      return group;
-    });
+        return group;
+      });
 
     return Promise.all(fcPrepPromises).then(async (completedPgForecast) => {
-      console.log("[OFG] All groups have been processed.", completedPgForecast);
+      console.log(
+        "[OFG] Outbound Planning Groups have been processed.",
+        JSON.parse(JSON.stringify(completedPgForecast))
+      );
       return completedPgForecast;
     });
   }
 
   // Functions end here
 
-  // Main generate forecastcode starts here
+  // Main generate forecast code starts here
 
-  if (testMode) {
-    console.warn(
-      "[OFG] Running in test mode - static data will be used for forecast generation"
-    );
-    // load test data
-    try {
-      const response = await fetch("./test/testData.json");
-      const testData = await response.json();
+  // Execute queryBuilder after queueCampaignMatcher complete
+  updateLoadingMessage("generate-loading-message", "Building queries");
+  var queryBody = await queryBuilder();
 
-      // Execute historical data queries
-      updateLoadingMessage("generate-loading-message", "Retrieving test data");
-      queryResults = testData;
-      console.log("[OFG] Test historical campaign data loaded");
-    } catch (error) {
-      console.error(error);
-    }
-  } else {
-    // TODO: Update for production
-    console.warn(
-      "[OFG] Running in live mode - this has not yet been completed!"
-    );
-    // Execute queryBuilder after queueCampaignMatcher complete
-    updateLoadingMessage("generate-loading-message", "Building queries");
-    var queriesArray = await queryBuilder(
-      planningGroupContactsArray,
-      historicalWeeks
-    );
+  updateLoadingMessage(
+    "generate-loading-message",
+    "Generating query intervals"
+  );
+  var intervals = await intervalBuilder();
 
-    // Execute historical data queries
-    updateLoadingMessage("generate-loading-message", "Executing queries");
-    queryResults = await executeQueries(queriesArray);
-  }
+  // Execute historical data queries
+  updateLoadingMessage("generate-loading-message", "Executing queries");
+  queryResults = await executeQueries(queryBody, intervals);
+
   // Process query results
   updateLoadingMessage("generate-loading-message", "Processing query results");
   await processQueryResults(queryResults);
 
   // Prepare forecast
   updateLoadingMessage("generate-loading-message", "Preparing forecast");
-  globalCompletedPgForecast = await prepareForecast();
+  await prepareForecast();
 
   // Generate inbound forecast if required
-  if (generateInbound) {
+  if (sharedState.userInputs.forecastOptions.generateInbound) {
     updateLoadingMessage(
       "generate-loading-message",
       "Generating inbound forecast"
     );
-    const inboundFcData = await generateInboundForecast(
-      globalBusinessUnitId,
-      globalWeekStart,
-      globalForecastDescription,
-      retainInbound
-    );
 
-    // Add inbound forecast data to globalCompletedPgForecast if pgId not already present
-    console.log(
-      "[OFG] Adding inbound forecast data to globalCompletedPgForecast"
-    );
-    inboundFcData.planningGroups.forEach((pg) => {
-      if (
-        !globalCompletedPgForecast.some(
-          (pgForecast) => pgForecast.pgId === pg.planningGroupId
-        )
-      ) {
-        // Transform inbound forecast data to same schema as outbound
-        let contactsDaily = [];
-        let contactsIntraday = [];
-        let weightedAhtDaily = [];
-        let ahtIntraday = [];
-
-        for (let i = 0; i < pg.offeredPerInterval.length; i += 96) {
-          let chunkOffered = pg.offeredPerInterval.slice(i, i + 96);
-          let chunkAht = pg.averageHandleTimeSecondsPerInterval.slice(
-            i,
-            i + 96
-          );
-          let chunkTht = chunkOffered.map((val, idx) => val * chunkAht[idx]);
-          let dayTht = chunkTht.reduce((a, b) => a + b, 0);
-          let dayOffered = chunkOffered.reduce((a, b) => a + b, 0);
-          let dayAht = dayTht / dayOffered;
-
-          contactsIntraday.push(chunkOffered);
-          contactsDaily.push(dayOffered);
-          weightedAhtDaily.push(dayAht);
-          ahtIntraday.push(chunkAht);
-        }
-
-        let transformedPg = {
-          campaignId: null,
-          pgId: pg.planningGroupId,
-          fcData: {
-            contactsDaily: contactsDaily,
-            contactsIntraday: contactsIntraday,
-            ahtDaily: weightedAhtDaily,
-            ahtIntraday: ahtIntraday,
-          },
-        };
-
-        globalCompletedPgForecast.push(transformedPg);
+    // Update inbound planning groups in completedForecast with metadata.forecastStatus.isForecast = true
+    sharedState.completedForecast.forEach((pg) => {
+      const forecastMode = pg.metadata.forecastMode;
+      if (forecastMode === "inbound") {
+        pg.metadata.forecastStatus = { isForecast: true };
+        delete pg.metadata.forecastStatus.reason;
       }
     });
 
+    await generateInboundForecast();
+    if (!sharedState.userInputs.forecastOptions.retainInbound) {
+      deleteInboundForecast();
+    }
+
     console.log(
-      "[OFG] Merged inbound and outbound forecast data",
-      globalCompletedPgForecast
+      "[OFG] Inbound Planning Groups have been processed.",
+      JSON.parse(JSON.stringify(sharedState.completedForecast))
     );
   }
   loadPageThree();
-}
-
-// Function to validate planning group dropdown entries
-export function validatePlanningGroupDropdown() {
-  const planningGroupDropdown = document.getElementById(
-    "planning-group-listbox"
-  );
-
-  // Get list of planning groups in listbox
-  const planningGroups = planningGroupDropdown.querySelectorAll("gux-option");
-
-  // Convert planningGroups to an array and iterate over it
-  Array.from(planningGroups).forEach((option) => {
-    const pgId = option.value;
-    const pgForecast = globalCompletedPgForecast.find((pg) => pg.pgId === pgId);
-    const totalOffered = pgForecast
-      ? pgForecast.fcData.contactsDaily.reduce((a, b) => a + b, 0)
-      : 0;
-
-    // If the option value is not in fcImportBody.planningGroups or totalOffered is 0, remove it
-    if (
-      !globalCompletedPgForecast.some((pg) => pg.pgId === option.value) ||
-      totalOffered === 0
-    ) {
-      console.warn(
-        `[OFG] Planning group ${option.value} not found in forecast data. Removing...`
-      );
-
-      // Set the option to disabled
-      option.setAttribute("disabled", "true");
-
-      // Update the option text
-      let optionText = option.textContent;
-      option.textContent = `${optionText} - No forecast data available for this planning group`;
-    } else {
-      option.removeAttribute("disabled");
-    }
-  });
-}
-
-// Function to get forecast data for visualisation
-export async function viewAndModifyFc(selectedPgId, selectedWeekDay) {
-  selectedWeekDay = Number(selectedWeekDay);
-  let weeklyMode = selectedWeekDay === 99;
-
-  let selectedPlanningGroup = globalCompletedPgForecast.find(
-    (group) => group.pgId === selectedPgId
-  );
-
-  let offeredDaysForWeek = selectedPlanningGroup.fcData.contactsDaily;
-  let ahtDaysForWeek = selectedPlanningGroup.fcData.ahtDaily;
-
-  let offeredIntervalsForDay =
-    selectedPlanningGroup.fcData.contactsIntraday[selectedWeekDay];
-  let ahtIntervalsForDay =
-    selectedPlanningGroup.fcData.ahtIntraday[selectedWeekDay];
-
-  let offeredTotalForDay = parseFloat(offeredDaysForWeek[selectedWeekDay]);
-  let ahtTotalForDay = parseFloat(ahtDaysForWeek[selectedWeekDay]);
-
-  let ahtSumForWeek = 0;
-  let offeredTotalForWeek = 0;
-  for (let i = 0; i < offeredDaysForWeek.length; i++) {
-    ahtSumForWeek += offeredDaysForWeek[i] * ahtDaysForWeek[i];
-    offeredTotalForWeek += offeredDaysForWeek[i];
-  }
-  let ahtTotalForWeek = ahtSumForWeek / offeredTotalForWeek;
-
-  let intervals;
-  let xAxisLabels;
-
-  if (weeklyMode) {
-    console.log("[OFG] Weekly mode selected for planning group", selectedPgId);
-
-    console.debug("[OFG] offeredTotalForWeek", offeredTotalForWeek);
-    console.debug("[OFG] offeredDaysForWeek", offeredDaysForWeek);
-    console.debug("[OFG] ahtTotalForWeek", ahtTotalForWeek);
-    console.debug("[OFG] ahtDaysForWeek", ahtDaysForWeek);
-
-    document.getElementById("forecast-offered").textContent =
-      offeredTotalForWeek.toFixed(1);
-    document.getElementById("forecast-aht").textContent =
-      ahtTotalForWeek.toFixed(1);
-
-    intervals = Array.from({ length: 7 }, (_, i) => i);
-
-    xAxisLabels = Array.from({ length: 7 }, (_, i) => {
-      let date = new Date(globalWeekStart);
-      date.setDate(date.getDate() + i);
-
-      let weekday = date.toLocaleDateString("en-GB", { weekday: "short" });
-
-      return weekday;
-    });
-  } else {
-    console.log("[OFG] Daily mode selected for planning group", selectedPgId);
-
-    console.debug("[OFG] offeredTotalForDay", offeredTotalForDay);
-    console.debug("[OFG] offeredIntervalsForDay", offeredIntervalsForDay);
-    console.debug("[OFG] ahtTotalForDay", ahtTotalForDay);
-    console.debug("[OFG] ahtIntervalsForDay", ahtIntervalsForDay);
-
-    document.getElementById("forecast-offered").textContent =
-      offeredTotalForDay.toFixed(1);
-    document.getElementById("forecast-aht").textContent =
-      ahtTotalForDay.toFixed(1);
-
-    intervals = Array.from({ length: 96 }, (_, i) => {
-      let hours = Math.floor(i / 4);
-      let minutes = (i % 4) * 15;
-      return `${hours.toString().padStart(2, "0")}:${minutes
-        .toString()
-        .padStart(2, "0")}`;
-    });
-
-    xAxisLabels = intervals;
-  }
-
-  let vegaSpec = {
-    "$schema": "https://vega.github.io/schema/vega/v5.json",
-    "width": 400,
-    "height": 360,
-    "padding": 5,
-
-    "data": [
-      {
-        "name": "table",
-        "values": intervals.map((x, i) => {
-          let y1 = weeklyMode
-            ? offeredDaysForWeek[i]
-            : offeredIntervalsForDay[i];
-          let y2 = weeklyMode ? ahtDaysForWeek[i] : ahtIntervalsForDay[i];
-
-          return { x, y1, y2 };
-        }),
-      },
-    ],
-
-    "scales": [
-      {
-        "name": "x",
-        "type": "band",
-        "range": "width",
-        "domain": { "data": "table", "field": "x" },
-        "padding": 0.1,
-      },
-      {
-        "name": "y",
-        "type": "linear",
-        "range": "height",
-        "nice": true,
-        "zero": false,
-        "domain": { "data": "table", "field": "y1" },
-        "domainMin": 0,
-      },
-      {
-        "name": "y2",
-        "type": "linear",
-        "range": "height",
-        "nice": true,
-        "zero": false,
-        "domain": { "data": "table", "field": "y2" },
-        "domainMin": 0,
-      },
-    ],
-
-    "axes": [
-      {
-        "orient": "bottom",
-        "scale": "x",
-        "labelAngle": -90,
-        "labelPadding": 10,
-        "title": weeklyMode ? "Days" : "Time (hours)",
-        "bandPosition": 0.5, // Center the labels between the ticks
-        "labelAlign": "center", // Align labels to the center
-        "values": weeklyMode
-          ? xAxisLabels
-          : Array.from(
-              { length: 24 },
-              (_, i) => `${i.toString().padStart(2, "0")}:00`
-            ),
-      },
-      { "orient": "left", "scale": "y", "title": "Offered" },
-      { "orient": "right", "scale": "y2", "title": "Average Handle Time" },
-    ],
-
-    "marks": [
-      {
-        "type": "rect",
-        "from": { "data": "table" },
-        "encode": {
-          "enter": {
-            "x": { "scale": "x", "field": "x" },
-            "width": { "scale": "x", "band": 1 },
-            "y": { "scale": "y", "field": "y1" },
-            "y2": { "scale": "y", "value": 0 },
-            "fill": { "value": "steelblue" },
-          },
-        },
-      },
-      {
-        "type": "line",
-        "from": { "data": "table" },
-        "encode": {
-          "enter": {
-            "x": { "scale": "x", "field": "x", "band": 0.5 },
-            "y": { "scale": "y2", "field": "y2" },
-            "stroke": { "value": "orange" },
-          },
-        },
-      },
-      weeklyMode
-        ? {
-            "type": "symbol",
-            "from": { "data": "table" },
-            "encode": {
-              "enter": {
-                "x": { "scale": "x", "field": "x", "band": 0.5 },
-                "y": { "scale": "y2", "field": "y2" },
-                "fill": { "value": "orange" },
-                "size": { "value": 50 },
-              },
-            },
-          }
-        : {
-            "type": "symbol",
-            "from": { "data": "table" },
-            "encode": {
-              "enter": {
-                "x": { "scale": "x", "field": "x", "band": 0.5 },
-                "y": { "scale": "y2", "field": "y2" },
-                "fill": { "value": "orange" },
-                "size": { "value": 0 },
-              },
-            },
-          },
-    ],
-  };
-
-  let view = new vega.View(vega.parse(vegaSpec), {
-    renderer: "canvas",
-    container: "#chart",
-    hover: true,
-  });
-
-  view
-    .change(
-      "table",
-      vega
-        .changeset()
-        .remove(() => true)
-        .insert(
-          intervals.map((x, i) => ({
-            x: xAxisLabels[i],
-            y1: weeklyMode ? offeredDaysForWeek[i] : offeredIntervalsForDay[i],
-            y2: weeklyMode ? ahtDaysForWeek[i] : ahtIntervalsForDay[i],
-          }))
-        )
-    )
-    .run();
-
-  // Original data for reset
-  const originalOfferedIntervals = JSON.parse(
-    JSON.stringify(weeklyMode ? offeredDaysForWeek : offeredIntervalsForDay)
-  );
-  const originalOfferedTotal = JSON.parse(
-    JSON.stringify(weeklyMode ? offeredTotalForWeek : offeredTotalForDay)
-  );
-  const originalAhtIntervals = JSON.parse(
-    JSON.stringify(weeklyMode ? ahtDaysForWeek : ahtIntervalsForDay)
-  );
-  const originalAhtTotal = JSON.parse(
-    JSON.stringify(weeklyMode ? ahtTotalForWeek : ahtTotalForDay)
-  );
-
-  // Get the controls
-  const smoothButton = document.getElementById("smooth-button");
-  const normaliseButton = document.getElementById("normalise-button");
-  const flattenButton = document.getElementById("flatten-button");
-  const resetButton = document.getElementById("reset-button");
-  // TODO: Make this work for new Weekly mode
-
-  // Function to update daily total in the document
-  function updateDailyTotal(elementId, data, dataType) {
-    let dailyTotal;
-
-    if (dataType === "offered") {
-      dailyTotal = data.reduce((a, b) => a + b, 0);
-    } else if (dataType === "averageHandleTime") {
-      let sumProduct = offeredIntervalsForDay.reduce(
-        (sum, offered, i) => sum + offered * data[i],
-        0
-      );
-      dailyTotal = sumProduct / offeredTotalForDay;
-    }
-
-    // Update the daily total in the document
-    let element = document.getElementById(elementId);
-
-    // Create a new span for the text content
-    let span = document.createElement("span");
-    span.textContent = dailyTotal.toFixed(1);
-
-    // Add the bulge class to the span
-    span.classList.add("bulge");
-
-    // Clear the element's existing content and add the new span
-    element.textContent = "";
-    element.appendChild(span);
-
-    // Remove the bulge class after the animation ends
-    setTimeout(() => {
-      span.classList.remove("bulge");
-    }, 1000);
-
-    return dailyTotal;
-  }
-
-  // Function to update the completed planning group forecast with modified data
-  function updateCompletedPgForecast(dataType, intervals, day) {
-    // Find the selected planning group
-    let selectedPlanningGroup = globalCompletedPgForecast.find(
-      (group) => group.pgId === selectedPgId
-    );
-
-    if (selectedPlanningGroup) {
-      // TODO: Currently only updating the interval level data - do I need to update daily totals also?
-
-      if (dataType === "offered") {
-        // Update the intraday data for offered
-        selectedPlanningGroup.fcData.contactsIntraday[selectedWeekDay] =
-          intervals;
-      } else if (dataType === "averageHandleTime") {
-        // Update the intraday data for averageHandleTime
-        selectedPlanningGroup.fcData.ahtIntraday[selectedWeekDay] = intervals;
-      }
-    }
-  }
-
-  // Smooth button event listener
-  smoothButton.addEventListener("click", () => {
-    // Get the selected data type
-    let dataType = document.getElementById("metric-select").value;
-    console.log(
-      `[OFG] Smoothing ${dataType} data for planning group ${selectedPgId}`
-    );
-
-    function smoothData(data) {
-      // Identify the first and last non-zero indices
-      let nonZeroIndices = data
-        .map((value, index) => (value !== 0 ? index : -1))
-        .filter((index) => index !== -1);
-      let start_index = nonZeroIndices[0];
-      let end_index = nonZeroIndices[nonZeroIndices.length - 1];
-
-      // Extract the subrange
-      let subrange = data.slice(start_index, end_index + 1);
-
-      // Smooth the subrange
-      let smoothedSubrange = subrange.map((num, i, arr) => {
-        if (i === 0 || i === arr.length - 1) return num; // Skip the first and last element
-        return Math.max(0, (arr[i - 1] + num + arr[i + 1]) / 3); // Ensure no values are less than zero
-      });
-
-      // Maintain the original sum
-      let subrangeSum = subrange.reduce((a, b) => a + b, 0);
-      let smoothedSum = smoothedSubrange.reduce((a, b) => a + b, 0);
-      let diff = subrangeSum - smoothedSum;
-      smoothedSubrange = smoothedSubrange.map((num) =>
-        num !== 0
-          ? num + diff / smoothedSubrange.filter((num) => num !== 0).length
-          : num
-      );
-
-      // Replace the subrange in the original data
-      let smoothedData = [...data];
-      for (let i = start_index; i <= end_index; i++) {
-        smoothedData[i] = smoothedSubrange[i - start_index];
-      }
-
-      return smoothedData;
-    }
-
-    // Smooth offered data and update daily total
-    if (dataType === "offered" || dataType === "both") {
-      // Smooth the offered data
-      offeredIntervalsForDay = smoothData(offeredIntervalsForDay);
-
-      // Update the daily total for offered
-      offeredTotalForDay = updateDailyTotal(
-        "forecast-offered",
-        offeredIntervalsForDay,
-        "offered"
-      );
-
-      // Update the completed planning group forecast with the modified data
-      updateCompletedPgForecast(
-        "offered",
-        offeredIntervalsForDay,
-        offeredTotalForDay
-      );
-      console.debug("[OFG] Smoothed offered data:", offeredIntervalsForDay);
-    }
-
-    // Smooth AHT data and update daily total
-    if (dataType === "averageHandleTime" || dataType === "both") {
-      // Smooth the AHT data
-      ahtIntervalsForDay = smoothData(ahtIntervalsForDay);
-
-      // Update the daily total for AHT
-      ahtTotalForDay = updateDailyTotal(
-        "forecast-aht",
-        ahtIntervalsForDay,
-        "averageHandleTime"
-      );
-
-      // Update the completed planning group forecast with the modified data
-      updateCompletedPgForecast(
-        "averageHandleTime",
-        ahtIntervalsForDay,
-        ahtTotalForDay
-      );
-      console.debug("[OFG] Smoothed AHT data:", ahtIntervalsForDay);
-    }
-
-    if (!dataType) {
-      alert("Please select a metric to smooth");
-    }
-
-    // Update chart datasets
-    view
-      .change(
-        "table",
-        vega
-          .changeset()
-          .remove(() => true)
-          .insert(
-            intervals.map((x, i) => ({
-              x,
-              "y1": offeredIntervalsForDay[i],
-              "y2": ahtIntervalsForDay[i],
-            }))
-          )
-      )
-      .run();
-  });
-
-  // Normalise button event listener
-  normaliseButton.addEventListener("click", () => {
-    let dataType = document.getElementById("metric-select").value;
-    console.log(
-      `[OFG] Normalising outliers from ${dataType} data for planning group ${selectedPgId}`
-    );
-
-    function normaliseData(data) {
-      // Identify the first and last non-zero indices
-      let nonZeroIndices = data
-        .map((value, index) => (value !== 0 ? index : -1))
-        .filter((index) => index !== -1);
-      let start_index = nonZeroIndices[0];
-      let end_index = nonZeroIndices[nonZeroIndices.length - 1];
-
-      // Extract the subrange
-      let subrange = data.slice(start_index, end_index + 1);
-
-      // Calculate thresholds for peaks and troughs based on percentiles
-      let sortedSubrange = [...subrange].sort((a, b) => a - b);
-      let lowerPercentile =
-        sortedSubrange[Math.floor(sortedSubrange.length * 0.1)];
-      let upperPercentile =
-        sortedSubrange[Math.floor(sortedSubrange.length * 0.9)];
-
-      // Trim peaks and uplift troughs
-      let adjustedSubrange = subrange.map((num) => {
-        if (num < lowerPercentile) return lowerPercentile;
-        if (num > upperPercentile) return upperPercentile;
-        return num;
-      });
-
-      // Maintain the original sum
-      let originalSum = subrange.reduce((a, b) => a + b, 0);
-      let adjustedSum = adjustedSubrange.reduce((a, b) => a + b, 0);
-      let diff = originalSum - adjustedSum;
-      let nonZeroCount = adjustedSubrange.filter((num) => num !== 0).length;
-      adjustedSubrange = adjustedSubrange.map((num) =>
-        num !== 0 ? num + diff / nonZeroCount : num
-      );
-
-      // Replace the subrange in the original data
-      let adjustedData = [...data];
-      for (let i = start_index; i <= end_index; i++) {
-        adjustedData[i] = adjustedSubrange[i - start_index];
-      }
-
-      return adjustedData;
-    }
-
-    // Normalise offered data and update daily total
-    if (dataType === "offered" || dataType === "both") {
-      // Normalise the offered data
-      offeredIntervalsForDay = normaliseData(offeredIntervalsForDay);
-
-      // Update the daily total for offered
-      offeredTotalForDay = updateDailyTotal(
-        "forecast-offered",
-        offeredIntervalsForDay,
-        "offered"
-      );
-
-      // Update the completed planning group forecast with the modified data
-      updateCompletedPgForecast(
-        "offered",
-        offeredIntervalsForDay,
-        offeredTotalForDay
-      );
-      console.debug("[OFG] Normalised offered data:", offeredIntervalsForDay);
-    }
-
-    // Normalise AHT data and update daily total
-    if (dataType === "averageHandleTime" || dataType === "both") {
-      // Normalise the AHT data
-      ahtIntervalsForDay = normaliseData(ahtIntervalsForDay);
-
-      // Update the daily total for AHT
-      ahtTotalForDay = updateDailyTotal(
-        "forecast-aht",
-        ahtIntervalsForDay,
-        "averageHandleTime"
-      );
-
-      // Update the completed planning group forecast with the modified data
-      updateCompletedPgForecast(
-        "averageHandleTime",
-        ahtIntervalsForDay,
-        ahtTotalForDay
-      );
-      console.debug("[OFG] Normalised AHT data:", ahtIntervalsForDay);
-    }
-
-    if (!dataType) {
-      alert("Please select a metric to normalise");
-    }
-
-    // Update chart datasets
-    view
-      .change(
-        "table",
-        vega
-          .changeset()
-          .remove(() => true)
-          .insert(
-            intervals.map((x, i) => ({
-              x,
-              "y1": offeredIntervalsForDay[i],
-              "y2": ahtIntervalsForDay[i],
-            }))
-          )
-      )
-      .run();
-  });
-
-  // Flatten button event listener
-  flattenButton.addEventListener("click", () => {
-    let dataType = document.getElementById("metric-select").value;
-    console.log(
-      `[OFG] Flattening ${dataType} data for planning group ${selectedPgId}`
-    );
-
-    function flattenData(data, total, dataType) {
-      let nonZeroIndices = data
-        .map((value, index) => (value !== 0 ? index : -1))
-        .filter((index) => index !== -1);
-      let start_index = nonZeroIndices[0];
-      let end_index = nonZeroIndices[nonZeroIndices.length - 1];
-
-      let subrange = data.slice(start_index, end_index + 1);
-      let nonZeroValues = subrange.filter((value) => value !== 0);
-      let average = nonZeroValues.length > 0 ? total / nonZeroValues.length : 0;
-
-      let flattenedSubrange = subrange.map((value) => {
-        if (dataType === "offered") {
-          return value !== 0 ? average : 0;
-        } else {
-          return value !== 0 ? total : 0;
-        }
-      });
-
-      let flattenedData = [...data];
-      for (let i = start_index; i <= end_index; i++) {
-        flattenedData[i] = flattenedSubrange[i - start_index];
-      }
-
-      return flattenedData;
-    }
-
-    if (dataType === "offered" || dataType === "both") {
-      // Flatten offered data
-      offeredIntervalsForDay = flattenData(
-        offeredIntervalsForDay,
-        offeredTotalForDay,
-        "offered"
-      );
-
-      // Update the daily total forecast-offered
-      offeredTotalForDay = updateDailyTotal(
-        "forecast-offered",
-        offeredIntervalsForDay,
-        "offered"
-      );
-
-      // Update the completed planning group forecast with the modified data
-      updateCompletedPgForecast(
-        "offered",
-        offeredIntervalsForDay,
-        offeredTotalForDay
-      );
-      console.debug("[OFG] Flattened offered data:", offeredIntervalsForDay);
-    }
-
-    if (dataType === "averageHandleTime" || dataType === "both") {
-      // Flatten AHT data
-      ahtIntervalsForDay = flattenData(
-        ahtIntervalsForDay,
-        ahtTotalForDay,
-        "averageHandleTime"
-      );
-
-      // Update the daily total forecast-aht
-      ahtTotalForDay = updateDailyTotal(
-        "forecast-aht",
-        ahtIntervalsForDay,
-        "averageHandleTime"
-      );
-
-      // Update the completed planning group forecast with the modified data
-      updateCompletedPgForecast(
-        "averageHandleTime",
-        ahtIntervalsForDay,
-        ahtTotalForDay
-      );
-      console.debug("[OFG] Flattened AHT data:", ahtIntervalsForDay);
-    }
-
-    if (!dataType) {
-      alert("Please select a metric to flatten");
-    }
-
-    view
-      .change(
-        "table",
-        vega
-          .changeset()
-          .remove(() => true)
-          .insert(
-            intervals.map((x, i) => ({
-              x,
-              "y1": offeredIntervalsForDay[i],
-              "y2": ahtIntervalsForDay[i],
-            }))
-          )
-      )
-      .run();
-  });
-
-  // Reset button event listener
-  resetButton.addEventListener("click", () => {
-    let dataType = document.getElementById("metric-select").value;
-    console.log(
-      `[OFG] Resetting ${dataType} data for planning group ${selectedPgId}`
-    );
-
-    if (dataType === "offered" || dataType === "both") {
-      // Reset offered data
-      offeredIntervalsForDay = JSON.parse(
-        JSON.stringify(originalOfferedIntervals)
-      );
-      offeredTotalForDay = JSON.parse(JSON.stringify(originalOfferedTotal));
-
-      // Update the completed planning group forecast with the modified data
-      updateCompletedPgForecast(
-        "offered",
-        offeredIntervalsForDay,
-        offeredTotalForDay
-      );
-
-      // Update the daily total forecast-offered
-      let element = document.getElementById("forecast-offered");
-      element.textContent = offeredTotalForDay.toFixed(1);
-
-      // Add the flash class to the element
-      element.classList.add("flash");
-
-      // Remove the flash class after the animation ends
-      setTimeout(() => {
-        element.classList.remove("flash");
-      }, 1000);
-    }
-    if (dataType === "averageHandleTime" || dataType === "both") {
-      // Reset AHT data
-      ahtIntervalsForDay = JSON.parse(JSON.stringify(originalAhtIntervals));
-      ahtTotalForDay = JSON.parse(JSON.stringify(originalAhtTotal));
-
-      // Update the completed planning group forecast with the modified data
-      updateCompletedPgForecast(
-        "averageHandleTime",
-        ahtIntervalsForDay,
-        ahtTotalForDay
-      );
-
-      // Update the daily total forecast-aht
-      let element = document.getElementById("forecast-aht");
-      element.textContent = ahtTotalForDay.toFixed(1);
-
-      // Add the flash class to the element
-      element.classList.add("flash");
-
-      // Remove the flash class after the animation ends
-      setTimeout(() => {
-        element.classList.remove("flash");
-      }, 1000);
-    }
-
-    if (!dataType) {
-      alert("Please select a metric to reset");
-    }
-
-    // Update chart datasets
-    view
-      .change(
-        "table",
-        vega
-          .changeset()
-          .remove(() => true)
-          .insert(
-            intervals.map((x, i) => ({
-              x,
-              "y1": offeredIntervalsForDay[i],
-              "y2": ahtIntervalsForDay[i],
-            }))
-          )
-      )
-      .run();
-  });
-
-  // Unhide the totals table div
-  const totalsTableDiv = document.getElementById("totals-table");
-  totalsTableDiv.hidden = false;
-
-  // Unhide the controls div
-  const controlsDiv = document.getElementById("controls");
-  controlsDiv.hidden = false;
 }
 
 // Import forecast to GC
@@ -1168,7 +342,7 @@ export async function importForecast() {
   // Prepare forecast
   updateLoadingMessage("import-loading-message", "Preparing forecast");
   let [fcImportBody, importGzip, contentLength] = await prepFcImportBody(
-    globalCompletedPgForecast,
+    sharedState.completedForecast,
     globalBusinessUnitStartDayOfWeek,
     globalForecastDescription
   );
@@ -1334,3 +508,4 @@ export async function importForecast() {
     }
   }
 }
+/* FUNCTIONS END */

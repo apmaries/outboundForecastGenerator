@@ -322,14 +322,15 @@
                 <fieldset>
                   <legend>Outbound options</legend>
                   <label for="ignore-zeroes"
-                    >Ignore zero values when generating averages?
+                    >Ignore zero days when generating averages?
                     <gux-icon
                       icon-name="help"
                       screenreader-text="help-icon"
                     ></gux-icon
                     ><gux-tooltip
-                      >Exclude zero values during forecast generation to prevent
-                      distortion of results.</gux-tooltip
+                      >Exclude days of zero values (e.g. closed public holiday)
+                      during forecast generation to prevent distortion of
+                      results.</gux-tooltip
                     ></label
                   >
                   <gux-toggle
@@ -468,6 +469,7 @@
                   <table slot="data">
                     <thead>
                       <tr>
+                        <th data-column-name="totals-interval">Total for</th>
                         <th data-column-name="forecast-offered">
                           Forecast Offered
                         </th>
@@ -475,9 +477,15 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr>
-                        <td id="forecast-offered">0</td>
-                        <td id="forecast-aht">0</td>
+                      <tr id="fc-day-tr">
+                        <td id="fc-day-tr-heading">Day</td>
+                        <td id="fc-day-offered">0</td>
+                        <td id="fc-day-aht">0</td>
+                      </tr>
+                      <tr id="fc-week-tr">
+                        <td>Week</td>
+                        <td id="fc-week-offered">0</td>
+                        <td id="fc-week-aht">0</td>
                       </tr>
                     </tbody>
                   </table>
@@ -491,7 +499,7 @@
                   >
                     <gux-listbox>
                       <gux-option value="offered">Offered</gux-option>
-                      <gux-option value="averageHandleTime"
+                      <gux-option value="aver-handle-time"
                         >Average Handle Time</gux-option
                       >
                       <gux-option value="both">Both</gux-option>
@@ -506,10 +514,10 @@
                     Smooth with 3 point moving average
                   </gux-tooltip></gux-button
                 >
-                <gux-button id="normalise-button" accent="tertiary"
-                  >Normalise
+                <gux-button id="trendline-button" accent="tertiary"
+                  >Trendline
                   <gux-tooltip>
-                    Normalise peaks and troughs
+                    Create a trendline using linear regression
                   </gux-tooltip></gux-button
                 >
                 <gux-button id="flatten-button" accent="tertiary"
@@ -618,6 +626,17 @@
         console.log("[OFG] Testing mode");
 
         // Fetch static JSON data
+        let outboundAggregatesDataPromise = fetch(
+          "/outboundForecastGenerator/test/source/outboundAggregateData.json"
+        )
+          .then((response) => response.json())
+          .catch((error) =>
+            console.error(
+              "[OFG] Error fetching outbound aggregates data",
+              error
+            )
+          );
+
         let businessUnitsPromise = fetch(
           "/outboundForecastGenerator/test/source/businessUnits.json"
         )
@@ -667,6 +686,13 @@
 
         // Create mock objects for testing
         window.ofg.PlatformClient = {
+          MockAnalyticsApi: {
+            getOutboundConversationsAggregates: function () {
+              // Return promise from fetch
+              return outboundAggregatesDataPromise;
+            },
+          },
+
           MockOutboundApi: {
             getOutboundCampaigns: function () {
               // Return promise from fetch
@@ -718,7 +744,6 @@
           pcEnvironment: environment,
         });
       }
-      console.dir(window);
     </script>
 
     <!-- Script to login with Cloud -->
@@ -808,6 +833,12 @@
     <script
       type="module"
       src="/outboundForecastGenerator/src/inboundHandler.js"
+    ></script>
+
+    <!-- Handles chart generation and forecast modifications -->
+    <script
+      type="module"
+      src="/outboundForecastGenerator/src/modificationHandler.js"
     ></script>
 
     <!-- Handles forecast import -->

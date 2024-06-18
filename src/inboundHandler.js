@@ -1,18 +1,74 @@
 // Module to handle generating the forecast for the inbound data
 import { handleApiCalls, globalPageOpts } from "./apiHandler.js";
 import { NotificationHandler } from "../src/notificationHandler.js";
+import { sharedState } from "./main.js";
 
 // Declare global variables
 let generateOperationId;
 const testMode = window.ofg.isTesting;
 
-export async function generateInboundForecast(
-  buId,
-  weekStart,
-  description,
-  retainInboundFc
-) {
+async function transformInboundForecastData(inboundFcData) {
+  const weekStart = sharedState.weekStart;
+
+  // Add inbound forecast data to sharedState.completedForecast if pgId not already present
+  console.log("[OFG] Merging inbound forecast data with completed forecast");
+
+  // Process each planning group in inbound forecast data
+  inboundFcData.planningGroups.forEach((pg) => {
+    // Find the planning group in sharedState.completedForecast
+    const completedFcPg = sharedState.completedForecast.find(
+      (pgForecast) => pgForecast.planningGroup.id === pg.planningGroupId
+    );
+    const isInbound = completedFcPg.metadata.forecastMode === "inbound";
+
+    if (isInbound) {
+      // Transform inbound forecast data to same schema as outbound forecast data
+      let nContactsArray = [];
+      let tHandleArray = [];
+
+      for (let i = 0; i < pg.offeredPerInterval.length; i += 96) {
+        let chunkOffered = pg.offeredPerInterval.slice(i, i + 96);
+        let chunkAht = pg.averageHandleTimeSecondsPerInterval.slice(i, i + 96);
+        let chunkTht = chunkOffered.map((val, idx) => val * chunkAht[idx]);
+
+        nContactsArray.push(chunkOffered);
+        tHandleArray.push(chunkTht);
+      }
+
+      // Get the day of the week from weekStart
+      let date = new Date(weekStart);
+      let dayOfWeek = date.getDay();
+
+      // Calculate the difference between the current day of the week and Sunday
+      let rotateBy = (7 - dayOfWeek) % 7;
+
+      // Rotate the arrays
+      nContactsArray = [
+        ...nContactsArray.slice(rotateBy),
+        ...nContactsArray.slice(0, rotateBy),
+      ];
+      tHandleArray = [
+        ...tHandleArray.slice(rotateBy),
+        ...tHandleArray.slice(0, rotateBy),
+      ];
+
+      let forecastData = {
+        nContacts: nContactsArray,
+        tHandle: tHandleArray,
+        nHandled: nContactsArray, // Replicating nContacts for now - inbound forecast doesn't have nHandled data and need something to divide by when making modifications
+      };
+
+      completedFcPg.forecastData = forecastData;
+    }
+  });
+}
+
+export async function generateInboundForecast() {
   console.log("[OFG] Initiating inbound forecast generation");
+
+  const buId = sharedState.businessUnitId;
+  const weekStart = sharedState.weekStart;
+  const description = sharedState.fcDescription;
 
   // Declare variables
   let resolveInboundForecast;
@@ -30,7 +86,9 @@ export async function generateInboundForecast(
       "[OFG] Forecast data loaded from test data",
       inboundForecastData
     );
-    return inboundForecastData.result;
+    await transformInboundForecastData(inboundForecastData.result);
+    sharedState.inboundForecastId = "abc-123";
+    return;
   }
 
   // Subscribe to generate notifications
@@ -45,12 +103,18 @@ export async function generateInboundForecast(
   async function getInboundForecastData(forecastId) {
     console.log("[OFG] Getting inbound forecast data");
 
-    let forecastData = await handleApiCalls(
-      "WorkforceManagementApi.getWorkforcemanagementBusinessunitWeekShorttermforecastData",
-      buId,
-      weekStart,
-      forecastId
-    );
+    let forecastData;
+    try {
+      forecastData = await handleApiCalls(
+        "WorkforceManagementApi.getWorkforcemanagementBusinessunitWeekShorttermforecastData",
+        buId,
+        weekStart,
+        forecastId
+      );
+    } catch (error) {
+      console.error("[OFG] Inbound forecast data retrieval failed: ", error);
+      throw error;
+    }
 
     console.log(
       "[OFG] Inbound forecast data retrieved. Trimming to 7 days only"
@@ -82,13 +146,19 @@ export async function generateInboundForecast(
       };
 
       // Generate the forecast
-      let generateResponse = await handleApiCalls(
-        "WorkforceManagementApi.postWorkforcemanagementBusinessunitWeekShorttermforecastsGenerate",
-        buId,
-        weekStart,
-        body,
-        opts
-      );
+      let generateResponse;
+      try {
+        generateResponse = await handleApiCalls(
+          "WorkforceManagementApi.postWorkforcemanagementBusinessunitWeekShorttermforecastsGenerate",
+          buId,
+          weekStart,
+          body,
+          opts
+        );
+      } catch (error) {
+        console.error("[OFG] Inbound forecast generation failed: ", error);
+        reject(error);
+      }
 
       console.log(
         `[OFG] Inbound forecast generate status = ${generateResponse.status}`
@@ -99,6 +169,7 @@ export async function generateInboundForecast(
         console.log("[OFG] Inbound forecast generated synchronously");
         // Get the forecast id
         const forecastId = generateResponse.result.id;
+        sharedState.inboundForecastId = forecastId;
         inboundForecastData = await getInboundForecastData(forecastId);
         resolveInboundForecast(inboundForecastData);
       }
@@ -136,6 +207,7 @@ export async function generateInboundForecast(
       if (status === "Complete") {
         console.log("[OFG] Inbound forecast generation complete");
         const forecastId = notification.eventBody.result.id;
+        sharedState.inboundForecastId = forecastId;
 
         console.debug("[OFG] Inbound forecast ID: ", forecastId);
         inboundForecastData = await getInboundForecastData(forecastId);
@@ -166,5 +238,10 @@ export async function generateInboundForecast(
     generateAbmForecast();
   });
 
-  return inboundForecastData;
+  await transformInboundForecastData(inboundForecastData);
+}
+
+export function deleteInboundForecast() {
+  console.log("[OFG] Deleting inbound forecast");
+  console.log("[OFG] Inbound forecast ID: ", sharedState.inboundForecastId);
 }

@@ -1,10 +1,15 @@
 import { handleApiCalls, globalPageOpts } from "./apiHandler.js";
-import { validatePlanningGroupDropdown } from "./main.js";
+import { calculateTotals } from "./numberHandler.js";
+import { sharedState } from "./main.js";
+import { PlanningGroup } from "./classHandler.js";
 
 // Global variables
+const testMode = window.ofg.isTesting;
 let businessUnits = [];
 const businessUnitListbox = document.getElementById("business-unit-listbox");
-let planningGroupsSummary = []; // Array to store planning group name & id for later use in page three visualisations
+const planningGroupsDropdown = document.getElementById(
+  "planning-group-dropdown"
+);
 const planningGroupsListbox = document.getElementById("planning-group-listbox");
 
 // Function to hide loading spinner and show content
@@ -133,7 +138,7 @@ export function downloadGzip(gzip) {
 // Function to load selected Business Unit data
 export async function getBusinessUnit() {
   let businessUnitData;
-  if (window.ofg.isTesting) {
+  if (testMode) {
     // Testing mode - Get Business Unit data from mock PlatformClient
     businessUnitData =
       await window.ofg.PlatformClient.MockWfmApi.getBusinessUnitData();
@@ -172,7 +177,14 @@ export async function getBusinessUnit() {
 
   // Update the week-start element to next occurance of the start day of week e.g. "Monday"
   const weekStart = document.getElementById("week-start");
-  const today = new Date();
+
+  // Get the current date and time in the business unit's time zone
+  const nowTz = new Date().toLocaleString("en-US", {
+    timeZone: businessUnitTimeZone,
+  });
+  const today = new Date(nowTz);
+
+  // Calculate the next start date in the business unit's time zone
   const daysUntilStart =
     (dayNameToNumber[businessUnitStartDayOfWeek] - today.getDay() + 7) % 7;
   const nextStart = new Date(today);
@@ -182,12 +194,15 @@ export async function getBusinessUnit() {
   // Re-enable the week start element
   weekStart.disabled = false;
 
+  // Assign Business Unit values to sharedState
+  Object.assign(sharedState.userInputs.businessUnit, businessUnitData);
+
   return businessUnitData;
 }
 
 // Function to load page one
 export async function loadPageOne() {
-  if (window.ofg.isTesting) {
+  if (testMode) {
     // Testing mode - Get Business Units from mock PlatformClient
     businessUnits =
       await window.ofg.PlatformClient.MockWfmApi.getBusinessUnits();
@@ -237,23 +252,15 @@ export async function loadPageTwo() {
     let planningGroupsArray = [];
 
     try {
-      if (window.ofg.isTesting) {
+      if (testMode) {
         // Testing mode - Get Planning Groups from mock PlatformClient
         planningGroups =
           await window.ofg.PlatformClient.MockWfmApi.getPlanningGroups();
-        console.log(
-          "[OFG] Planning Groups loaded from test data",
-          planningGroups
-        );
       } else {
         // Production mode
         planningGroups = await handleApiCalls(
           "WorkforceManagementApi.getWorkforcemanagementBusinessunitPlanninggroups",
           selectedBuId
-        );
-        console.log(
-          `[OFG] ${planningGroups.length} Planning Groups loaded`,
-          planningGroups
         );
       }
     } catch (error) {
@@ -264,39 +271,33 @@ export async function loadPageTwo() {
       // Special handling when 0 planning groups are loaded
       console.log("[OFG] No planning groups found");
       return;
+    } else {
+      console.log(`[OFG] ${planningGroups.length} Planning Groups loaded`);
     }
 
-    // loop through planning groups to build array of planning group objects
+    // Loop through planning groups to build array of planning group objects
     for (let i = 0; i < planningGroups.length; i++) {
       const group = planningGroups[i];
-      console.debug(
-        `[OFG] Processing planning group ${i + 1}: ${group.name} (${group.id})`
-      );
 
-      // get planning group data
+      // Get planning group data
       const groupId = group.id;
       const groupName = group.name;
       const groupRpQueue = group.routePaths[0].queue;
       const groupQueueId = groupRpQueue.id;
 
-      // create a new planning group object
+      // Create a new planning group object
       let pgObj = {
-        "pgId": groupId,
-        "pgName": groupName,
-        "pgQueueId": groupQueueId,
+        "groupId": groupId,
+        "groupName": groupName,
+        "groupQueueId": groupQueueId,
       };
 
-      // add planning group object to array
+      // Add planning group object to array
       planningGroupsArray.push(pgObj);
-      console.debug(`[OFG] PG[${i + 1}] = ` + JSON.stringify(pgObj));
-
-      // add planning group name & id to planningGroupsSummary array
-      planningGroupsSummary.push({
-        "name": groupName,
-        "id": groupId,
-      });
     }
 
+    // Return the array of planning group objects
+    console.debug("[OFG] Planning Groups: ", planningGroupsArray);
     return planningGroupsArray;
   }
 
@@ -306,11 +307,10 @@ export async function loadPageTwo() {
     let campaignsArray = [];
     console.log(`[OFG] Get Campaigns initiated`);
 
-    if (window.ofg.isTesting) {
+    if (testMode) {
       // Testing mode - Get Campaigns from mock PlatformClient
       campaigns =
         await window.ofg.PlatformClient.MockOutboundApi.getOutboundCampaigns();
-      console.log("[OFG] Campaigns loaded from test data", campaigns);
     } else {
       // Production mode
       try {
@@ -318,30 +318,31 @@ export async function loadPageTwo() {
           "OutboundApi.getOutboundCampaigns",
           globalPageOpts
         );
-
-        console.log(`[OFG] ${campaigns.length} Campaigns loaded`, campaigns);
       } catch (error) {
         console.error("[OFG] Error loading campaigns", error);
       }
     }
 
-    // loop through campaigns to build array of campaign objects
+    if (!campaigns || campaigns.length === 0) {
+      // Special handling when 0 planning groups are loaded
+      console.log("[OFG] No Campaigns found");
+      return;
+    } else {
+      console.log(`[OFG] ${campaigns.length} Campaigns loaded`);
+    }
+
+    // Loop through campaigns to build array of campaign objects
     for (let i = 0; i < campaigns.length; i++) {
       try {
         const campaign = campaigns[i];
-        console.debug(
-          `[OFG] Processing campaign ${i + 1}: ${campaign.name} (${
-            campaign.id
-          })`
-        );
 
-        // get campaign data
+        // Get campaign data
         const campaignId = campaign.id;
         const campaignName = campaign.name;
         const campaignQueueId = campaign.queue.id;
         const campaignQueueName = campaign.queue.name;
 
-        // create a new campaign object
+        // Create a new campaign object
         let campaignObj = {
           "campaignId": campaignId,
           "campaignName": campaignName,
@@ -349,92 +350,34 @@ export async function loadPageTwo() {
           "campaignQueueName": campaignQueueName,
         };
 
-        // add campaign object to array
+        // Add campaign object to array
         campaignsArray.push(campaignObj);
-        console.debug(
-          `[OFG] Campaign[${i + 1}] = ` + JSON.stringify(campaignObj)
-        );
       } catch (error) {
         console.warn(`[OFG] Error processing campaign ${i + 1}`, error);
       }
     }
 
+    // Return the array of campaign objects
+    console.debug("[OFG] Campaigns: ", campaignsArray);
     return campaignsArray;
   }
 
-  // Function to get queue campaigns
+  // Function to match queues and campaigns
   async function queueCampaignMatcher(planningGroups, campaigns) {
-    // define document elements
-    const loadingSpinner = document.getElementById("planning-groups-loading");
-    const planningGroupsDiv = document.getElementById(
-      "planning-groups-container"
-    );
-    const planningGroupsTable = document.querySelector(
-      "#planning-groups-table"
-    );
-    const tableBody = document.querySelector("#planning-groups-table tbody");
-
-    // Clear out any existing rows
-    tableBody.innerHTML = "";
-
     console.log(`[OFG] Matching queues & campaigns`);
 
-    // Flag to track if inbound forecast mode div has been unhidden
-    window.ofg.isInboundForecastMode = false;
-
-    for (let i = 0; i < planningGroups.length; i++) {
-      // loop through planning groups to link to campaigns and populate table
-      const group = planningGroups[i];
-      const groupQueueId = group.pgQueueId;
-      const groupId = group.pgId;
-      const groupName = group.pgName;
-
-      console.debug(
-        `[OFG] PG${
-          i + 1
-        }[${groupId}] Matching ${groupName} to campaigns with queue id ${groupQueueId}`
-      );
-
-      // find matching campaign
-      const matchingCampaign = campaigns.find(
-        (campaign) => campaign.campaignQueueId === groupQueueId
-      );
-
-      // create table row
-      const row = document.createElement("tr");
-
-      // populate pg name cell
-      const pgNameCell = document.createElement("td");
-      pgNameCell.textContent = groupName;
-      pgNameCell.dataset.pgId = groupId; // Add the planning group id as a data attribute
-      row.appendChild(pgNameCell);
-
-      // populate campaign name cell
-      const campaignNameCell = document.createElement("td");
-      if (matchingCampaign) {
-        // populate campaign name if matching campaign found
-        console.log(
-          `[OFG] PG${i + 1}[${groupId}] Matched ${groupName} to ${
-            matchingCampaign.campaignName
-          } (${matchingCampaign.campaignId})`
-        );
-        campaignNameCell.textContent = matchingCampaign.campaignName;
-        campaignNameCell.dataset.campaignId = matchingCampaign.campaignId; // Add the campaign id as a data attribute
-      } else {
-        // populate empty cell if no matching campaign found
-        console.warn(
-          `[OFG] PG${
-            1 + 1
-          }[${groupId}] No matching campaign found for ${groupName}`
-        );
-        campaignNameCell.textContent = "";
+    // Function to create a table cell
+    function createCell(textContent, dataId, dataValue) {
+      const cell = document.createElement("td");
+      cell.textContent = textContent;
+      if (dataId) {
+        cell.dataset[dataId] = dataValue;
       }
-      row.appendChild(campaignNameCell);
+      return cell;
+    }
 
-      // populate nContacts cell
-      const inputId = "nContacts_" + groupId;
-      const nContactsCell = document.createElement("td");
-
+    // Function to create a number input
+    function createNumberInput(groupId, groupName, matchingCampaign) {
       const guxFormFieldNumber = document.createElement(
         "gux-form-field-number"
       );
@@ -443,7 +386,7 @@ export async function loadPageTwo() {
       const input = document.createElement("input");
       input.slot = "input";
       input.type = "number";
-      input.id = inputId;
+      input.id = "nContacts_" + groupId;
       input.min = "0";
       input.max = "100000";
       input.value = "0";
@@ -454,35 +397,103 @@ export async function loadPageTwo() {
       label.textContent = groupName + " number of contacts";
 
       if (!matchingCampaign) {
-        // Set window flag to indicate that no matching campaign found
-        window.ofg.isInboundForecastMode = true;
-
-        // Disable input if no matching campaign found and add data attribute to indicate this
         input.disabled = true;
-        campaignNameCell.dataset.matchedCampaign = "false";
-        row.style.fontStyle = "italic";
-        row.style.color = "grey";
-        // TODO: Would like to move row to the bottom of the table if no matching campaign found - pending fix to sortable table
-
-        // Unhide inbound-forecast-div
-        document.getElementById("inbound-forecast-div").style.display = "block";
-      } else {
-        // Add data attribute to indicate that a matching campaign was found
-        campaignNameCell.dataset.matchedCampaign = "true";
       }
 
       guxFormFieldNumber.appendChild(input);
       guxFormFieldNumber.appendChild(label);
-      nContactsCell.appendChild(guxFormFieldNumber);
 
+      return guxFormFieldNumber;
+    }
+
+    // Define variables
+    let sharedStatePlanningGroups = sharedState.userInputs.planningGroups;
+    window.ofg.isInboundForecastMode = false;
+
+    // Define document elements
+    const loadingSpinner = document.getElementById("planning-groups-loading");
+    const planningGroupsDiv = document.getElementById(
+      "planning-groups-container"
+    );
+    const tableBody = document.querySelector("#planning-groups-table tbody");
+
+    // Clear out any existing rows
+    tableBody.innerHTML = "";
+
+    for (const [i, group] of planningGroups.entries()) {
+      const groupQueueId = group.groupQueueId;
+      const groupId = group.groupId;
+      const groupName = group.groupName;
+
+      const matchingCampaign = campaigns.find(
+        (campaign) => campaign.campaignQueueId === groupQueueId
+      );
+
+      // Initialize variables
+      let campaignId = null;
+      let campaignName = null;
+      let queueId = null;
+      let queueName = null;
+
+      // If a matching campaign is found, set the variables
+      if (matchingCampaign) {
+        campaignId = matchingCampaign.campaignId;
+        campaignName = matchingCampaign.campaignName;
+        queueId = matchingCampaign.campaignQueueId;
+        queueName = matchingCampaign.campaignQueueName;
+      }
+
+      // Add planning group to sharedStatePlanningGroups
+      const planningGroup = new PlanningGroup(
+        groupId,
+        groupName,
+        campaignId,
+        campaignName,
+        queueId,
+        queueName
+      );
+      sharedStatePlanningGroups.push(planningGroup);
+
+      // Log to console
+      console.debug(
+        `[OFG] [${groupName}] pgId: ${groupId}, cpId: ${campaignId}, queueId: ${queueId}`
+      );
+
+      // Add planning group to table
+      const row = document.createElement("tr");
+      row.appendChild(createCell(groupName, "pgId", groupId));
+
+      if (matchingCampaign) {
+        row.appendChild(
+          createCell(
+            matchingCampaign.campaignName,
+            "campaignId",
+            matchingCampaign.campaignId
+          )
+        );
+      } else {
+        row.appendChild(createCell("", "matchedCampaign", "false"));
+        row.style.fontStyle = "italic";
+        row.style.color = "grey";
+        document.getElementById("inbound-forecast-div").style.display = "block";
+        window.ofg.isInboundForecastMode = true;
+      }
+
+      // Add number input to table
+      const nContactsCell = document.createElement("td");
+      nContactsCell.appendChild(
+        createNumberInput(groupId, groupName, matchingCampaign)
+      );
       row.appendChild(nContactsCell);
 
       tableBody.appendChild(row);
     }
 
+    // Hide loading spinner and show planning groups
     loadingSpinner.style.display = "none";
     planningGroupsDiv.style.display = "block";
 
+    // Add event listener to "generate-inbound-fc" checkbox
     if (window.ofg.isInboundForecastMode) {
       const inboundForecastToggle = document.getElementById(
         "generate-inbound-fc"
@@ -499,6 +510,11 @@ export async function loadPageTwo() {
         }
       });
     }
+
+    console.log(
+      "[OFG] Campaigns matched to Planning Groups: ",
+      sharedStatePlanningGroups
+    );
   }
 
   // Use Promise.all to run getPlanningGroups and getCampaigns concurrently
@@ -513,19 +529,31 @@ export async function loadPageTwo() {
 
 // Function to load page three
 export async function loadPageThree() {
-  // Hide page 2 and show page 3
   console.log("[OFG] Loading page 3 initiated");
+
+  // Initialize the modifiedForecast
+  sharedState.modifiedForecast = JSON.parse(
+    JSON.stringify(sharedState.completedForecast)
+  );
 
   // Remove existing planning group gux-option elements from page three
   while (planningGroupsListbox.firstChild) {
     planningGroupsListbox.removeChild(planningGroupsListbox.firstChild);
   }
 
+  // Get the planning groups from sharedState
+  const planningGroupsSummary = sharedState.modifiedForecast.map((pg) => {
+    return {
+      id: pg.planningGroup.id,
+      name: pg.planningGroup.name,
+    };
+  });
+
   // Populate Planning Groups dropdown
   populateDropdown(planningGroupsListbox, planningGroupsSummary);
 
   // Remove any dropdown options not in forecast data
-  validatePlanningGroupDropdown();
+  await validatePlanningGroupDropdown();
 
   // Hide loading spinner and show page three
   await hideLoadingSpinner(
@@ -538,4 +566,41 @@ export async function loadPageThree() {
 export async function loadPageFour() {
   // Hide page 3 and show page 4
   switchPages("page-three", "page-four");
+}
+
+// Function to validate planning group dropdown entries
+async function validatePlanningGroupDropdown() {
+  console.log("[OFG] Validating Planning Group dropdown entries");
+
+  // Get list of planning groups in listbox
+  const planningGroups = planningGroupsListbox.querySelectorAll("gux-option");
+
+  // Convert planningGroups to an array and iterate over it
+  Array.from(planningGroups).forEach((option) => {
+    const optionId = option.value;
+
+    // Find the planning group in sharedState.completedForecast
+    const completedFcPg = sharedState.completedForecast.find(
+      (pgForecast) => pgForecast.planningGroup.id === optionId
+    );
+    const pgName = completedFcPg.planningGroup.name;
+
+    if (completedFcPg.metadata.forecastStatus.isForecast === false) {
+      const reason = completedFcPg.metadata.forecastStatus.reason;
+      console.warn(
+        `[OFG] [${pgName}] Disabling dropdown option with reason: `,
+        reason
+      );
+
+      // Set the option to disabled
+      option.setAttribute("disabled", "true");
+
+      // Update the option text
+      let optionText = option.textContent;
+      option.textContent = `${optionText} - ${reason}`;
+    } else {
+      option.removeAttribute("disabled");
+    }
+  });
+  planningGroupsDropdown.removeAttribute("disabled");
 }
