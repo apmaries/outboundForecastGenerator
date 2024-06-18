@@ -164,18 +164,25 @@ export async function handleApiCalls(apiFunctionStr, ...args) {
 
         // If the response has a body
         if (responseBody) {
+          console.warn(
+            `[OFG] Response body is not blank for ${apiFunctionStr}!`,
+            responseBody
+          );
           // If the response body is paginated, process the pages
           if (
             responseBody.pageNumber !== undefined &&
             responseBody.pageCount !== undefined
           ) {
+            console.warn(`[OFG] ${apiFunctionStr} is paginated!`, responseBody);
             const pageCount = responseBody.pageCount;
 
             // Combine the entities or results
             if (responseBody.entities) {
               allEntities = allEntities.concat(responseBody.entities);
+              console.warn(`[OFG] allEntities = `, allEntities);
             } else if (responseBody.results) {
               allResults = allResults.concat(responseBody.results);
+              console.warn(`[OFG] allResults = `, allResults);
             }
 
             // If the current page is less than the pageCount, request the next page
@@ -207,6 +214,9 @@ export async function handleApiCalls(apiFunctionStr, ...args) {
             } else if (responseBody.results) {
               return responseBody.results;
             } else {
+              console.warn(
+                `[OFG] No entities or results found for ${apiFunctionStr}!`
+              );
               return responseBody;
             }
           }
