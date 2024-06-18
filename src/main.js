@@ -123,7 +123,7 @@ export async function generateForecast() {
     console.log(`[OFG] Processing ${results.length} groups in query results`);
     const completedForecast = sharedState.completedForecast;
 
-    // loop through results and crunch numbers
+    // Loop through results and crunch numbers
     for (let i = 0; i < results.length; i++) {
       var resultsGrouping = results[i];
       console.debug(`[OFG] Processing query group ${i + 1}`);

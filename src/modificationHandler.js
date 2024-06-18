@@ -83,11 +83,6 @@ function generateIntervalsAndLabels(weeklyMode) {
     xAxisLabels = intervals;
   }
 
-  console.warn(
-    "[OFG] Generated intervals and xAxisLabels",
-    intervals,
-    xAxisLabels
-  );
   return { intervals, xAxisLabels };
 }
 
@@ -108,7 +103,7 @@ function extractSubrange(data) {
 
 // Function to maintain the original sum
 function maintainOriginalSum(modifiedData, originalSum) {
-  console.warn("[OFG] Maintaining original sum", modifiedData, originalSum);
+  console.debug("[OFG] Maintaining original sum", modifiedData, originalSum);
   // Check if modifiedData is a 2D array
   if (Array.isArray(modifiedData[0])) {
     // Calculate the sum of the modified data
@@ -222,7 +217,7 @@ export async function getSelectedPgForecastData(
 // Function to populate the UI data
 export async function populateGraphAndTable(data) {
   let { selectedPgId, selectedWeekDay, fcValues } = data;
-  console.warn(
+  console.debug(
     `[OFG] [${selectedPgId}] Populating graph & table with data`,
     data
   );
