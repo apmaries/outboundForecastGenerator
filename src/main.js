@@ -298,21 +298,54 @@ export async function generateForecast() {
   updateLoadingMessage("generate-loading-message", "Executing queries");
   queryResults = await executeQueries(queryBody, intervals);
   if (queryResults.length === 0) {
-    // TODO: Need to fix this!
     console.error("[OFG] Query results are empty");
-    loadPageFour();
 
+    // Hide loading spinner div
+    hideLoadingSpinner("import-results-container", "import-loading-div");
+    await loadPageFour();
+
+    // TODO: This is repeated code from importForecast function - refactor to a function
     // Insert div to id="results-container" with error message
-
+    const resultsContainer = document.getElementById(
+      "import-results-container"
+    );
     let message = document.createElement("div");
     message.className = "alert-danger";
-    message.innerHTML = "No historical data returned from queries!";
+    message.innerHTML = "Data query failed!";
     resultsContainer.appendChild(message);
 
     const errorReason = document.createElement("div");
 
-    errorReason.innerHTML = userMessage;
+    errorReason.innerHTML = "No historical data returned from queries!";
     resultsContainer.appendChild(errorReason);
+
+    // Create a button to restart the process
+    const restartButton = document.createElement("gux-button");
+    restartButton.id = "restart-button";
+    restartButton.setAttribute("accent", "secondary");
+    restartButton.className = "align-left";
+    restartButton.textContent = "Restart";
+
+    // Add event listener to restart button
+    restartButton.addEventListener("click", (event) => {
+      switchPages("page-four", "page-one");
+      loadPageOne();
+    });
+
+    // Create a new div
+    const buttonsContainer = document.createElement("div");
+
+    // Set the id, class, and style attributes
+    buttonsContainer.id = "page-three-buttons";
+    buttonsContainer.className = "row";
+    buttonsContainer.style.paddingTop = "20px";
+
+    // Append buttons to the results container
+    buttonsContainer.appendChild(restartButton);
+    //buttonsContainer.appendChild(openForecastButton);
+
+    // Append the buttonsContainer
+    resultsContainer.appendChild(buttonsContainer);
 
     return;
   }

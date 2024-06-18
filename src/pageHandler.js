@@ -71,17 +71,21 @@ function populateDropdown(listbox, data, sortAttribute = "name") {
 }
 
 // Function to handle page transitions
-export function switchPages(currentPageId, nextPageId) {
-  const currentPage = document.getElementById(currentPageId);
-  const nextPage = document.getElementById(nextPageId);
+export async function switchPages(hidePageId, showPageId) {
+  console.log(`[OFG] Switching from ${hidePageId} to ${showPageId}`);
 
-  currentPage.classList.remove("active-page");
-  currentPage.classList.add("inactive-page");
+  const hidePage = document.getElementById(hidePageId);
+  const showPage = document.getElementById(showPageId);
 
-  setTimeout(() => {
-    nextPage.classList.add("active-page");
-    nextPage.classList.remove("inactive-page");
-  }, 100); // Delay for a smoother transition
+  if (hidePage) {
+    hidePage.classList.add("inactive-page");
+    hidePage.classList.remove("active-page");
+  }
+
+  if (showPage) {
+    showPage.classList.remove("inactive-page");
+    showPage.classList.add("active-page");
+  }
 }
 
 // function to get value of a radio buttons
@@ -564,8 +568,10 @@ export async function loadPageThree() {
 
 // Function to load page four
 export async function loadPageFour() {
+  console.log("[OFG] Loading page 4 initiated");
+
   // Hide page 3 and show page 4
-  switchPages("page-three", "page-four");
+  await switchPages("page-three", "page-four");
 }
 
 // Function to validate planning group dropdown entries
