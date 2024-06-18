@@ -93,7 +93,7 @@ async function handleApiErrors(error, apiFunctionStr) {
 
 // Handle API calls
 export async function handleApiCalls(apiFunctionStr, ...args) {
-  console.info(`[OFG] Making API call to ${apiFunctionStr}...`);
+  console.debug(`[OFG] Making API call to ${apiFunctionStr}...`);
   // Split the apiFunctionStr string and get the API instance and function
   const [apiInstanceName, functionName] = apiFunctionStr.split(".");
 
@@ -169,7 +169,6 @@ export async function handleApiCalls(apiFunctionStr, ...args) {
             responseBody.pageNumber !== undefined &&
             responseBody.pageCount !== undefined
           ) {
-            console.warn(`[OFG] ${apiFunctionStr} is paginated!`, responseBody);
             const pageCount = responseBody.pageCount;
 
             // Combine the entities or results
@@ -208,7 +207,7 @@ export async function handleApiCalls(apiFunctionStr, ...args) {
             } else if (responseBody.results) {
               return responseBody.results;
             } else {
-              console.warn(
+              console.debug(
                 `[OFG] No entities or results found for ${apiFunctionStr}!`
               );
               return responseBody;
@@ -216,7 +215,7 @@ export async function handleApiCalls(apiFunctionStr, ...args) {
           }
         } else {
           // Return an empty object if the response body is blank
-          console.warn(`[OFG] Response body is blank for ${apiFunctionStr}!`);
+          console.debug(`[OFG] Response body is blank for ${apiFunctionStr}!`);
           return {};
         }
       }
@@ -227,7 +226,7 @@ export async function handleApiCalls(apiFunctionStr, ...args) {
       } else if (allResults.length > 0) {
         return allResults;
       } else {
-        console.warn(
+        console.debug(
           `[OFG] No entities or results found for ${apiFunctionStr}!`
         );
         return {};
