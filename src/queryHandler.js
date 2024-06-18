@@ -177,19 +177,6 @@ export async function executeQueries(body, intervals) {
       throw error;
     }
 
-    // Get variables from sharedState
-    const forcastPlanningGroups = sharedState.completedForecast;
-
-    // Return only the data for the campaigns in the forcastPlanningGroups where pg.isForecast is true
-    results = results.filter((result) => {
-      return forcastPlanningGroups.some((pg) => {
-        return (
-          pg.campaign.id === result.group.outboundCampaignId &&
-          pg.metadata.forecastStatus.isForecast
-        );
-      });
-    });
-
     return results;
   } else {
     console.log("[OFG] Query execution initiated");
@@ -200,17 +187,33 @@ export async function executeQueries(body, intervals) {
       body.interval = intervals[i];
 
       try {
-        const queryResult = await window.ofg.PlatformClient.AnalyticsApi.query(
+        results = await handleApiCalls(
+          "ConversationsApi.postAnalyticsConversationsAggregatesQuery",
           body
-        );
-        const queryResults = queryResult.results;
-        results.push(queryResults);
+        ); // LIVE DATA
+        /*
+        results =
+          await window.ofg.PlatformClient.MockAnalyticsApi.getOutboundConversationsAggregates(); // TEST DATA
+          */
       } catch (error) {
         console.error("[OFG] Query execution failed: ", error);
         throw error;
       }
     }
   }
+
+  // Get variables from sharedState
+  const forcastPlanningGroups = sharedState.completedForecast;
+
+  // Return only the data for the campaigns in the forcastPlanningGroups where pg.isForecast is true
+  results = results.filter((result) => {
+    return forcastPlanningGroups.some((pg) => {
+      return (
+        pg.campaign.id === result.group.outboundCampaignId &&
+        pg.metadata.forecastStatus.isForecast
+      );
+    });
+  });
 
   return results;
 }
