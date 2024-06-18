@@ -244,4 +244,31 @@ export async function generateInboundForecast() {
 export function deleteInboundForecast() {
   console.log("[OFG] Deleting inbound forecast");
   console.log("[OFG] Inbound forecast ID: ", sharedState.inboundForecastId);
+
+  const buId = sharedState.businessUnit.id;
+  const weekStart = sharedState.userInputs.forecastParameters.weekStart;
+  const forecastId = sharedState.inboundForecastId;
+
+  // Return if forecast ID is not set
+  if (!forecastId) {
+    console.warn("[OFG] Inbound forecast ID not set. Skipping deletion");
+    return;
+  }
+
+  if (testMode) {
+    console.log("[OFG] Testing mode enabled. Skipping deletion");
+    return;
+  }
+
+  // Delete the forecast
+  let delResponse = handleApiCalls(
+    "WorkforceManagementApi.deleteWorkforcemanagementBusinessunitWeekShorttermforecast",
+    buId,
+    weekStart,
+    forecastId
+  );
+
+  // Reset the forecast ID
+  sharedState.inboundForecastId = null;
+  console.log("[OFG] Inbound forecast deleted");
 }
