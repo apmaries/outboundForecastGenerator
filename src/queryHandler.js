@@ -202,6 +202,8 @@ export async function executeQueries(body, intervals) {
     }
   }
 
+  console.warn(`[OFG] Query results: `, results);
+
   // Get variables from sharedState
   const forcastPlanningGroups = sharedState.completedForecast;
 
