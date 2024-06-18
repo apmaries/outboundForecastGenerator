@@ -164,10 +164,6 @@ export async function handleApiCalls(apiFunctionStr, ...args) {
 
         // If the response has a body
         if (responseBody) {
-          console.warn(
-            `[OFG] Response body is not blank for ${apiFunctionStr}!`,
-            responseBody
-          );
           // If the response body is paginated, process the pages
           if (
             responseBody.pageNumber !== undefined &&
@@ -179,10 +175,8 @@ export async function handleApiCalls(apiFunctionStr, ...args) {
             // Combine the entities or results
             if (responseBody.entities) {
               allEntities = allEntities.concat(responseBody.entities);
-              console.warn(`[OFG] allEntities = `, allEntities);
             } else if (responseBody.results) {
               allResults = allResults.concat(responseBody.results);
-              console.warn(`[OFG] allResults = `, allResults);
             }
 
             // If the current page is less than the pageCount, request the next page
