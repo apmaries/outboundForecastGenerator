@@ -13,11 +13,9 @@ import {
   executeQueries,
 } from "./queryHandler.js";
 import {
-  calculateTotals,
   prepFcMetrics,
   generateAverages,
   applyContacts,
-  resolveContactsAht,
 } from "./numberHandler.js";
 import {
   generateInboundForecast,
@@ -369,6 +367,7 @@ export async function generateForecast() {
 
     // Add event listener to restart button
     restartButton.addEventListener("click", (event) => {
+      console.log("[OFG] Restarting...");
       switchPages("page-four", "page-one");
       loadPageOne();
     });

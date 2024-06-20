@@ -1,5 +1,5 @@
 // Module to handle generating the forecast for the inbound data
-import { handleApiCalls, globalPageOpts } from "./apiHandler.js";
+import { handleApiCalls } from "./apiHandler.js";
 import { NotificationHandler } from "../src/notificationHandler.js";
 import { sharedState } from "./main.js";
 

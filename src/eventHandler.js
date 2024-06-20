@@ -1,11 +1,8 @@
 import {
   switchPages,
-  getRadioValue,
   getBusinessUnit,
   loadPageOne,
   loadPageTwo,
-  loadPageThree,
-  loadPageFour,
 } from "./pageHandler.js";
 import { generateForecast, importForecast } from "./main.js";
 import {
@@ -167,7 +164,6 @@ async function getPlanningGroupContacts() {
   let planningGroups = sharedState.userInputs.planningGroups;
 
   // Get and validate user planning group values
-  let planningGroupContactsArray = [];
   const tableBody = document.querySelector("#planning-groups-table tbody");
   const rows = tableBody.querySelectorAll("tr");
 

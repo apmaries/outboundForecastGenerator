@@ -1,5 +1,4 @@
 import { handleApiCalls } from "./apiHandler.js";
-import { downloadJson, downloadGzip } from "./pageHandler.js";
 
 export async function prepFcImportBody(
   forecastData,
@@ -7,7 +6,10 @@ export async function prepFcImportBody(
   description
 ) {
   console.log("[OFG] Preparing Forecast Import Body and encoding to gzip");
-  console.log("[OFG] Preparing forecast data: ", forecastData);
+  console.log(
+    "[OFG] Preparing forecast data: ",
+    JSON.parse(JSON.stringify(forecastData))
+  );
 
   // Function to gzip encode the body
   function gzipEncode(body) {
