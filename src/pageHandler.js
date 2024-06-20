@@ -464,6 +464,7 @@ export async function loadPageTwo() {
         `[OFG] [${groupName}] pgId: ${groupId}, cpId: ${campaignId}, queueId: ${queueId}`
       );
 
+      /* OLD CODE
       // Add planning group to table
       const row = document.createElement("tr");
       row.appendChild(createCell(groupName, "pgId", groupId));
@@ -483,6 +484,32 @@ export async function loadPageTwo() {
         document.getElementById("inbound-forecast-div").style.display = "block";
         window.ofg.isInboundForecastMode = true;
       }
+
+      // Add number input to table
+      const nContactsCell = document.createElement("td");
+      nContactsCell.appendChild(
+        createNumberInput(groupId, groupName, matchingCampaign)
+      );
+      row.appendChild(nContactsCell);
+
+      tableBody.appendChild(row);
+      */
+
+      // Add planning group to table
+      const row = document.createElement("tr");
+
+      let cellContent;
+      if (matchingCampaign) {
+        cellContent = `${groupName} [${matchingCampaign.campaignName}]`;
+      } else {
+        cellContent = groupName;
+        row.style.fontStyle = "italic";
+        row.style.color = "grey";
+        document.getElementById("inbound-forecast-div").style.display = "block";
+        window.ofg.isInboundForecastMode = true;
+      }
+
+      row.appendChild(createCell(cellContent, "pgId", groupId));
 
       // Add number input to table
       const nContactsCell = document.createElement("td");
