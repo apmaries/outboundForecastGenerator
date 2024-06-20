@@ -175,6 +175,14 @@ export async function generateForecast() {
         const intervalDuration = 15;
         const intervalIndex = Math.floor(totalMinutes / intervalDuration);
 
+        // Skip processing if completedForecast does not contain planningGroupIndex
+        if (planningGroupIndex === -1) {
+          console.warn(
+            `[OFG] Campaign id ${campaignId} not found in Planning Groups. Skipping...`
+          );
+          continue;
+        }
+
         // Add weekNumber to campaign object if it does not yet exist
         var weekExists = completedForecast[
           planningGroupIndex
@@ -221,10 +229,39 @@ export async function generateForecast() {
       }
     }
 
+    validateHistoricalData();
+
     console.log(
       "[OFG] Query results processed",
       JSON.parse(JSON.stringify(completedForecast))
     );
+  }
+
+  // Validate and update PG's if no historical data is found
+  function validateHistoricalData() {
+    const completedForecast = sharedState.completedForecast;
+    console.warn(JSON.parse(JSON.stringify(completedForecast)));
+
+    for (let i = 0; i < completedForecast.length; i++) {
+      const group = completedForecast[i];
+      const pgName = group.planningGroup.name;
+      const forecastMode = group.metadata.forecastMode;
+
+      // Skip inbound planning groups
+      if (forecastMode === "inbound") {
+        continue;
+      }
+
+      // Update metadata.forecastStatus if no historical data is found
+      const historicalWeeks = group.historicalWeeks;
+      if (!historicalWeeks || historicalWeeks.length === 0) {
+        console.warn(`[OFG] [${pgName}] No historical data found!`);
+        group.metadata.forecastStatus = {
+          isForecast: false,
+          reason: "No historical data",
+        };
+      }
+    }
   }
 
   // Run forecast prep function on group
