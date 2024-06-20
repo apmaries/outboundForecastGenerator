@@ -13,6 +13,7 @@ import {
   executeQueries,
 } from "./queryHandler.js";
 import {
+  calculateTotals,
   prepFcMetrics,
   generateAverages,
   applyContacts,
@@ -220,7 +221,10 @@ export async function generateForecast() {
       }
     }
 
-    console.log("[OFG] Query results processed", completedForecast);
+    console.log(
+      "[OFG] Query results processed",
+      JSON.parse(JSON.stringify(completedForecast))
+    );
   }
 
   // Run forecast prep function on group
@@ -259,7 +263,7 @@ export async function generateForecast() {
     //
     const completedForecast = sharedState.completedForecast;
     let fcPrepPromises = completedForecast
-      .filter((group) => Number(group.metadata.numContacts) > 0)
+      .filter((group) => group.metadata.forecastStatus.isForecast === true)
       .map(async (group) => {
         const pgName = group.planningGroup.name;
         console.log(`[OFG] [${pgName}] Preparing outbound forecast`);
