@@ -19,3 +19,5 @@ export class PlanningGroup {
     this.queue = { id: queueId, name: queueName };
   }
 }
+
+// More classes as needed in future

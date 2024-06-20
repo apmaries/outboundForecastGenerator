@@ -1,5 +1,4 @@
 import { handleApiCalls, globalPageOpts } from "./apiHandler.js";
-import { calculateTotals } from "./numberHandler.js";
 import { sharedState } from "./main.js";
 import { PlanningGroup } from "./classHandler.js";
 
