@@ -182,18 +182,22 @@ export async function getBusinessUnit() {
   // Update the week-start element to next occurance of the start day of week e.g. "Monday"
   const weekStart = document.getElementById("week-start");
 
-  // Get the current date and time in the business unit's time zone
-  const nowTz = new Date().toLocaleString("en-US", {
-    timeZone: businessUnitTimeZone,
-  });
-  const today = new Date(nowTz);
+  // Get the current date and time in the user's time zone
+  const nowLocal = new Date();
 
-  // Calculate the next start date in the business unit's time zone
+  // Calculate the next start date in the user's time zone
   const daysUntilStart =
-    (dayNameToNumber[businessUnitStartDayOfWeek] - today.getDay() + 7) % 7;
-  const nextStart = new Date(today);
-  nextStart.setDate(today.getDate() + daysUntilStart);
-  weekStart.value = nextStart.toISOString().slice(0, 10);
+    (dayNameToNumber[businessUnitStartDayOfWeek] - nowLocal.getDay() + 7) % 7;
+  const nextStartLocal = new Date(nowLocal);
+  nextStartLocal.setDate(nowLocal.getDate() + daysUntilStart);
+
+  // Convert the next start date to the business unit's time zone
+  const nextStartTz = new Date(
+    nextStartLocal.toLocaleString("en-US", { timeZone: businessUnitTimeZone })
+  );
+
+  // Set the value of the week-start element
+  weekStart.value = nextStartTz.toISOString().slice(0, 10);
 
   // Re-enable the week start element
   weekStart.disabled = false;
