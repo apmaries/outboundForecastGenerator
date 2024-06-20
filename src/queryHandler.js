@@ -3,20 +3,6 @@ import { sharedState } from "./main.js";
 
 const testMode = window.ofg.isTesting;
 
-/*
-async function getUtcOffset(timezone) {
-  // Create a date object in the specified timezone
-  const date = new Date(
-    new Intl.DateTimeFormat("en-US", { timeZone: timezone }).format()
-  );
-
-  // Get the offset in minutes and convert it to hours
-  const offset = date.getTimezoneOffset() / 60;
-
-  return offset;
-}
-*/
-
 // Function to build query body
 export async function queryBuilder() {
   // Get variables from sharedState
