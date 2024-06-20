@@ -173,6 +173,7 @@ export async function executeQueries(body, intervals) {
       body.interval = intervals[i];
 
       try {
+        /*
         let response = await handleApiCalls(
           "ConversationsApi.postAnalyticsConversationsAggregatesQuery",
           body
@@ -182,11 +183,10 @@ export async function executeQueries(body, intervals) {
         if (Object.keys(response).length !== 0) {
           results.push(...response);
         }
+          */
 
-        /*
         results =
           await window.ofg.PlatformClient.MockAnalyticsApi.getOutboundConversationsAggregates(); // TEST DATA
-        */
       } catch (error) {
         console.error("[OFG] Query execution failed: ", error);
         throw error;
