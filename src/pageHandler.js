@@ -72,8 +72,6 @@ function populateDropdown(listbox, data, sortAttribute = "name") {
 
 // Function to handle page transitions
 export async function switchPages(hidePageId, showPageId) {
-  console.log(`[OFG] Switching from ${hidePageId} to ${showPageId}`);
-
   const hidePage = document.getElementById(hidePageId);
   const showPage = document.getElementById(showPageId);
 
