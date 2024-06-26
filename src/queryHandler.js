@@ -190,11 +190,20 @@ export async function executeQueries(body, intervals) {
       }
     }
     // TEST DATA
-    response = await fetch(
-      "/outboundForecastGenerator/test/source/outboundAggregateData.json"
-    )
-      .then((res) => (results = res.json()))
-      .catch((error) => console.error("[OFG] Query execution failed: ", error)); // TEST DATA
+    try {
+      response = await fetch(
+        "/outboundForecastGenerator/test/source/outboundAggregateData_prod.json"
+      );
+      results = await response.json();
+      console.log("[OFG] Test data used in production mode");
+    } catch (error) {
+      console.error(
+        "[OFG] Test data retrieval in production mode failed: ",
+        error
+      );
+      throw error;
+    }
+    // TEST DATA
   }
 
   // Special handling for when results is empty
