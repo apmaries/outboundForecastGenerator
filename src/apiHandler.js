@@ -2,7 +2,6 @@
 var PlatformClient = window.ofg.PlatformClient;
 var ClientApp = window.ofg.ClientApp;
 
-/*
 // Set client logging
 PlatformClient.ApiClient.instance.config.logger.log_level =
   PlatformClient.ApiClient.instance.config.logger.logLevelEnum.level.LTrace;
@@ -12,7 +11,6 @@ PlatformClient.ApiClient.instance.config.logger.log_request_body = true;
 PlatformClient.ApiClient.instance.config.logger.log_response_body = true;
 PlatformClient.ApiClient.instance.config.logger.log_to_console = true;
 PlatformClient.ApiClient.instance.config.logger.setLogger(); // To apply above changes
-*/
 
 // Define the API instances in an object
 const apiInstances = {}; // Is added to dynamically as calls are made
