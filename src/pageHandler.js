@@ -48,6 +48,7 @@ function populateDropdown(listbox, data, sortAttribute = "name") {
           const option = document.createElement("gux-option");
           option.value = item.id;
           option.dataset.name = item.name;
+          option.dataset.id = item.id;
           option.innerHTML = item.name;
           listbox.appendChild(option);
         });

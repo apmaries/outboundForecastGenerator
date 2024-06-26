@@ -185,9 +185,6 @@ export async function generateForecast() {
         const historicalWeeks =
           completedForecast[planningGroupIndex].historicalWeeks;
         if (!historicalWeeks) {
-          console.warn(
-            `[OFG] No forecast contacts for campaign id ${campaignId}. Skipping...`
-          );
           continue;
         }
 

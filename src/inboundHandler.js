@@ -8,7 +8,7 @@ let generateOperationId;
 const testMode = window.ofg.isTesting;
 
 async function transformInboundForecastData(inboundFcData) {
-  const weekStart = sharedState.weekStart;
+  const weekStart = sharedState.userInputs.forecastParameters.weekStart;
 
   // Add inbound forecast data to sharedState.completedForecast if pgId not already present
   console.log("[OFG] Merging inbound forecast data with completed forecast");
@@ -66,8 +66,6 @@ async function transformInboundForecastData(inboundFcData) {
 export async function generateInboundForecast() {
   console.log("[OFG] Initiating inbound forecast generation");
 
-  console.warn(JSON.parse(JSON.stringify(sharedState)));
-
   const buId = sharedState.userInputs.businessUnit.id;
   const weekStart = sharedState.userInputs.forecastParameters.weekStart;
   const description = sharedState.userInputs.forecastParameters.description;
@@ -123,7 +121,9 @@ export async function generateInboundForecast() {
     );
     // Trim results to 7 days only (8th day will be re-added later after modifications)
     forecastData.result.planningGroups.forEach((pg) => {
-      console.debug(`[OFG] Trimming data for Planning Group ${pg.id}`);
+      console.debug(
+        `[OFG] Trimming data for Planning Group ${pg.planningGroupId}`
+      );
       pg.offeredPerInterval = pg.offeredPerInterval.slice(0, 672);
       pg.averageHandleTimeSecondsPerInterval =
         pg.averageHandleTimeSecondsPerInterval.slice(0, 672);

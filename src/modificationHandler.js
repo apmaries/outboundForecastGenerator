@@ -4,7 +4,7 @@ import { calculateTotals, calculateWeightedAverages } from "./numberHandler.js";
 /* HELPER FUNCTIONS START */
 // Function to rotate arrays based on the week start day
 function rotateArrays(array) {
-  let weekStart = new Date(sharedState.weekStart);
+  let weekStart = new Date(sharedState.userInputs.forecastParameters.weekStart);
   let dayOfWeek = weekStart.getDay();
   let rotateBy = dayOfWeek;
 
@@ -165,25 +165,25 @@ export async function getSelectedPgForecastData(
   const planningGroupDropdown = document.getElementById(
     "planning-group-dropdown"
   );
-  const selectedPgId = planningGroupDropdown
-    ? planningGroupDropdown.value
-    : null;
 
-  if (!selectedPgId) {
-    console.error("[OFG] No planning group selected");
-    return null;
-  }
+  // Assuming you have the container's ID, get the element
+  const listBox = document.getElementById("planning-group-listbox");
+
+  // Find the selected option within the list box
+  const selectedOption = listBox.querySelector(".gux-selected");
+
+  const selectedPgName = selectedOption.dataset.name;
+  const selectedPgId = selectedOption.dataset.id;
 
   const weekDayDropdown = document.getElementById("week-day-dropdown");
   const selectedWeekDay = weekDayDropdown.value;
-  console.log("[OFG] Selected day of week:", selectedWeekDay);
 
   // Define weekly mode
   let weeklyMode = selectedWeekDay === "99";
 
   // Log to console
   if (weeklyMode) {
-    console.log(`[OFG] [${selectedPgId}] Getting weekly forecast data`);
+    console.log(`[OFG] [${selectedPgName}] Getting weekly forecast data`);
   } else {
     const daysOfWeek = [
       "Sunday",
@@ -195,7 +195,7 @@ export async function getSelectedPgForecastData(
       "Saturday",
     ];
     console.log(
-      `[OFG] [${selectedPgId}] Getting ${daysOfWeek[selectedWeekDay]} forecast data`
+      `[OFG] [${selectedPgName}] Getting ${daysOfWeek[selectedWeekDay]} forecast data`
     );
   }
 
@@ -431,7 +431,7 @@ async function initializeModificationListeners(pgFcData) {
   let flattenButton = document.getElementById("flatten-button");
   let resetButton = document.getElementById("reset-button");
 
-  console.log(
+  console.debug(
     "[OFG] Initializing modification listeners with data:",
     JSON.parse(JSON.stringify(pgFcData))
   );
