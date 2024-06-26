@@ -51,8 +51,11 @@ export class NotificationHandler {
       alert("An error occurred. Please refresh the page and try again.");
 
       loadPageFour();
-      // Insert div to id="results-container" with error message
+      // Insert div to id="import-results-container" with error message
 
+      let resultsContainer = document.getElementById(
+        "import-results-container"
+      );
       let message = document.createElement("div");
       message.className = "alert-danger";
       message.innerHTML =
