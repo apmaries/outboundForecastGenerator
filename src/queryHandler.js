@@ -184,15 +184,17 @@ export async function executeQueries(body, intervals) {
           results.push(...response);
         }
           */
-
-        results = await fetch(
-          "/outboundForecastGenerator/test/source/outboundAggregateData.json"
-        ); // TEST DATA
       } catch (error) {
         console.error("[OFG] Query execution failed: ", error);
         throw error;
       }
     }
+    // TEST DATA
+    response = await fetch(
+      "/outboundForecastGenerator/test/source/outboundAggregateData.json"
+    )
+      .then((res) => res.json())
+      .catch((error) => console.error("[OFG] Query execution failed: ", error)); // TEST DATA
   }
 
   // Special handling for when results is empty
