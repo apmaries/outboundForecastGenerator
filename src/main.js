@@ -181,13 +181,23 @@ export async function generateForecast() {
           continue;
         }
 
+        // Skip processing if weekNumber is not found (e.g. no contacts have been forecast for PG)
+        const historicalWeeks =
+          completedForecast[planningGroupIndex].historicalWeeks;
+        if (!historicalWeeks) {
+          console.warn(
+            `[OFG] No forecast contacts for campaign id ${campaignId}. Skipping...`
+          );
+          continue;
+        }
+
         // Add weekNumber to campaign object if it does not yet exist
-        var weekExists = completedForecast[
-          planningGroupIndex
-        ].historicalWeeks.some((week) => week.weekNumber === weekNumber);
+        var weekExists = historicalWeeks.some(
+          (week) => week.weekNumber === weekNumber
+        );
         if (!weekExists) {
           weekObj.weekNumber = weekNumber;
-          completedForecast[planningGroupIndex].historicalWeeks.push(weekObj);
+          historicalWeeks.push(weekObj);
         }
 
         // loop through metrics and add to intradayValues
@@ -238,7 +248,6 @@ export async function generateForecast() {
   // Validate and update PG's if no historical data is found
   function validateHistoricalData() {
     const completedForecast = sharedState.completedForecast;
-    console.warn(JSON.parse(JSON.stringify(completedForecast)));
 
     for (let i = 0; i < completedForecast.length; i++) {
       const group = completedForecast[i];
@@ -429,14 +438,21 @@ export async function generateForecast() {
 
 // Import forecast to GC
 export async function importForecast() {
+  const buId = sharedState.userInputs.businessUnit.id;
+  const weekStart = sharedState.userInputs.forecastParameters.weekStart;
+  const startDayOfWeek =
+    sharedState.userInputs.businessUnit.settings.startDayOfWeek;
+  const description = sharedState.userInputs.forecastParameters.description;
+
+  console.warn(JSON.parse(JSON.stringify(sharedState)));
   loadPageFour();
 
   // Prepare forecast
   updateLoadingMessage("import-loading-message", "Preparing forecast");
   let [fcImportBody, importGzip, contentLength] = await prepFcImportBody(
-    sharedState.completedForecast,
-    globalBusinessUnitStartDayOfWeek,
-    globalForecastDescription
+    sharedState.modifiedForecast,
+    startDayOfWeek,
+    description
   );
 
   // Log the forecast import body
@@ -449,7 +465,7 @@ export async function importForecast() {
 
   let importNotifications = new NotificationHandler(
     topics,
-    globalBusinessUnitId,
+    buId,
     runImport,
     handleImportNotification
   );
@@ -460,16 +476,12 @@ export async function importForecast() {
   async function runImport() {
     // Generate URL for upload
     updateLoadingMessage("import-loading-message", "Generating URL for upload");
-    let uploadAttributes = await generateUrl(
-      globalBusinessUnitId,
-      globalWeekStart,
-      contentLength
-    );
+    let uploadAttributes = await generateUrl(buId, weekStart, contentLength);
 
     // Upload forecast
     updateLoadingMessage("import-loading-message", "Uploading forecast");
     /* GCF function being used until CORS blocking removed */
-    // importFc(globalBusinessUnitId, globalWeekStart, importGzip, uploadAttributes);
+    // importFc(buId, globalWeekStart, importGzip, uploadAttributes);
     const uploadResponse = await invokeGCF(uploadAttributes, fcImportBody);
 
     // Check if upload was successful
@@ -481,11 +493,7 @@ export async function importForecast() {
 
       // Import forecast
       updateLoadingMessage("import-loading-message", "Importing forecast");
-      const importResponse = await importFc(
-        globalBusinessUnitId,
-        globalWeekStart,
-        uploadKey
-      );
+      const importResponse = await importFc(buId, weekStart, uploadKey);
 
       // Check if operation id is in response
       if (importResponse) {

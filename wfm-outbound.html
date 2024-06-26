@@ -148,6 +148,11 @@
         transition: opacity 0.5s ease-in-out;
       }
 
+      .italic-gray {
+        color: grey;
+        font-style: italic;
+      }
+
       .alert-danger,
       .alert-success {
         border-radius: 50em;
@@ -317,7 +322,9 @@
                     <thead>
                       <tr>
                         <th data-column-name="p-name">
-                          Planning Group [Campaign]
+                          Planning Group<br /><span class="italic-gray"
+                            >[Campaign]</span
+                          >
                         </th>
                         <!-- Consolidated to single column
                         <th data-column-name="c-name">Campaign</th>

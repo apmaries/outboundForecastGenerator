@@ -1,15 +1,8 @@
 import { handleApiCalls } from "./apiHandler.js";
+import { calculateWeightedAverages } from "./numberHandler.js";
 
-export async function prepFcImportBody(
-  forecastData,
-  buStartDayOfWeek,
-  description
-) {
+export async function prepFcImportBody(groups, buStartDayOfWeek, description) {
   console.log("[OFG] Preparing Forecast Import Body and encoding to gzip");
-  console.log(
-    "[OFG] Preparing forecast data: ",
-    JSON.parse(JSON.stringify(forecastData))
-  );
 
   // Function to gzip encode the body
   function gzipEncode(body) {
@@ -26,17 +19,26 @@ export async function prepFcImportBody(
   // Build the body for the forecast import
   let planningGroupsArray = [];
 
-  for (let i = 0; i < forecastData.length; i++) {
-    const campaign = forecastData[i];
-    const campaigPgId = campaign.pgId;
-    console.log(`[OFG] Processing forecast for Planning Group: ${campaigPgId}`);
+  for (let i = 0; i < groups.length; i++) {
+    const group = groups[i];
+    const planningGroup = group.planningGroup;
+    const forecastData = group.forecastData;
+
+    if (!forecastData) {
+      console.warn(`[OFG] [${planningGroup.name}] No forecast data found`);
+      continue;
+    }
+
+    console.debug(`[OFG] [${planningGroup.name}] Processing forecast data`);
 
     // Reorder arrays to align to BU start day of week
     console.debug(
-      `[OFG] ${campaigPgId}: Reordering forecast data to ${buStartDayOfWeek} week start`
+      `[OFG] [${planningGroup.name}] Reordering forecast data to ${buStartDayOfWeek} week start`
     );
-    const contactsIntraday = campaign.fcData.contactsIntraday;
-    const ahtIntraday = campaign.fcData.ahtIntraday;
+    const nContacts = forecastData.nContacts;
+    const tHandle = forecastData.tHandle;
+    const nHandled = forecastData.nHandled;
+    const aHandleTime = calculateWeightedAverages(tHandle, nHandled);
 
     const dayOfWeek = [
       "Sunday",
@@ -50,30 +52,32 @@ export async function prepFcImportBody(
 
     const buStartDayIndex = dayOfWeek.indexOf(buStartDayOfWeek);
 
-    const contactsIntradayReordered = [];
-    const ahtIntradayReordered = [];
+    const nContactsReordered = [];
+    const aHandleTimeReordered = [];
 
-    for (let i = 0; i < contactsIntraday.length; i++) {
+    for (let i = 0; i < nContacts.length; i++) {
       const index = (buStartDayIndex + i) % 7;
-      contactsIntradayReordered.push(contactsIntraday[index]);
-      ahtIntradayReordered.push(ahtIntraday[index]);
+      nContactsReordered.push(nContacts[index]);
+      aHandleTimeReordered.push(aHandleTime[index]);
     }
 
     // Replicate the new 0 index at the end of the arrays
     console.debug(
-      `[OFG] ${campaigPgId}: Adding required 8th day to reordered forecast data`
+      `[OFG] [${planningGroup.name}] Adding required 8th day to reordered forecast data`
     );
-    contactsIntradayReordered.push(contactsIntradayReordered[0]);
-    ahtIntradayReordered.push(ahtIntradayReordered[0]);
+    nContactsReordered.push(nContactsReordered[0]);
+    aHandleTimeReordered.push(aHandleTimeReordered[0]);
 
     // Flatten the arrays
-    console.debug(`[OFG] ${campaigPgId}: Flattening reordered forecast data`);
-    const offeredPerInterval = contactsIntradayReordered.flat();
-    const averageHandleTimeSecondsPerInterval = ahtIntradayReordered.flat();
+    console.debug(
+      `[OFG] [${planningGroup.name}] Flattening reordered forecast data`
+    );
+    const offeredPerInterval = nContactsReordered.flat();
+    const averageHandleTimeSecondsPerInterval = aHandleTimeReordered.flat();
 
     // Round data per interval to 2 decimal places
     console.debug(
-      `[OFG] ${campaigPgId}: Rounding forecast data to 2 decimal places`
+      `[OFG] [${planningGroup.name}] Rounding forecast data to 2 decimal places`
     );
     // offered
     for (let i = 0; i < offeredPerInterval.length; i++) {
@@ -88,10 +92,10 @@ export async function prepFcImportBody(
 
     // Create the object for the planning group
     console.debug(
-      `[OFG] ${campaigPgId}: Creating Planning Group object for import body`
+      `[OFG] [${planningGroup.name}] Creating Planning Group object for import body`
     );
     let pgObj = {
-      "planningGroupId": campaigPgId,
+      "planningGroupId": planningGroup.id,
       "offeredPerInterval": offeredPerInterval,
       "averageHandleTimeSecondsPerInterval":
         averageHandleTimeSecondsPerInterval,
