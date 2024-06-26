@@ -185,8 +185,9 @@ export async function executeQueries(body, intervals) {
         }
           */
 
-        results =
-          await window.ofg.PlatformClient.MockAnalyticsApi.getOutboundConversationsAggregates(); // TEST DATA
+        results = await fetch(
+          "/outboundForecastGenerator/test/source/outboundAggregateData.json"
+        ); // TEST DATA
       } catch (error) {
         console.error("[OFG] Query execution failed: ", error);
         throw error;
