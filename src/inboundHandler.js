@@ -272,5 +272,5 @@ export function deleteInboundForecast() {
 
   // Reset the forecast ID
   sharedState.inboundForecastId = null;
-  console.log("[OFG] Inbound forecast deleted", delResponse.json());
+  console.log("[OFG] Inbound forecast deleted", delResponse);
 }
