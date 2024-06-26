@@ -189,9 +189,10 @@ export async function executeQueries(body, intervals) {
         throw error;
       }
     }
+
     // TEST DATA
     try {
-      response = await fetch(
+      let response = await fetch(
         "/outboundForecastGenerator/test/source/outboundAggregateData_prod.json"
       );
       results = await response.json();
