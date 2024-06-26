@@ -441,7 +441,10 @@ export async function importForecast() {
     sharedState.userInputs.businessUnit.settings.startDayOfWeek;
   const description = sharedState.userInputs.forecastParameters.description;
 
-  console.warn(JSON.parse(JSON.stringify(sharedState)));
+  console.debug(
+    "[OFG] Shared state at importForecast start",
+    JSON.parse(JSON.stringify(sharedState))
+  );
   loadPageFour();
 
   // Prepare forecast
@@ -453,7 +456,7 @@ export async function importForecast() {
   );
 
   // Log the forecast import body
-  console.debug("[OFG] Forecast import body:", fcImportBody);
+  console.log("[OFG] Forecast import body:", fcImportBody);
 
   // Declare variables
   let importOperationId = null;

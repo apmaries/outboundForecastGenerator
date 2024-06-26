@@ -43,7 +43,8 @@ export async function prepFcImportBody(groups, buStartDayOfWeek, description) {
     console.warn(`[OFG] [${planningGroup.name}] tHandle: `, tHandle);
     console.warn(`[OFG] [${planningGroup.name}] nHandled: `, nHandled);
 
-    const aHandleTime = calculateWeightedAverages(tHandle, nHandled);
+    const weightedAverages = calculateWeightedAverages(tHandle, nHandled);
+    const aHandleTime = weightedAverages.intervalAverages;
 
     const dayOfWeek = [
       "Sunday",
