@@ -66,9 +66,11 @@ async function transformInboundForecastData(inboundFcData) {
 export async function generateInboundForecast() {
   console.log("[OFG] Initiating inbound forecast generation");
 
-  const buId = sharedState.businessUnitId;
-  const weekStart = sharedState.weekStart;
-  const description = sharedState.fcDescription;
+  console.warn(JSON.parse(JSON.stringify(sharedState)));
+
+  const buId = sharedState.userInputs.businessUnit.id;
+  const weekStart = sharedState.userInputs.forecastParameters.weekStart;
+  const description = sharedState.userInputs.forecastParameters.description;
 
   // Declare variables
   let resolveInboundForecast;
