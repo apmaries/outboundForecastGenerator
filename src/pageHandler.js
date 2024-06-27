@@ -12,6 +12,13 @@ const planningGroupsDropdown = document.getElementById(
 );
 const planningGroupsListbox = document.getElementById("planning-group-listbox");
 
+function cleanListBox(listbox) {
+  // Remove existing planning group gux-option elements from page three
+  while (listbox.firstChild) {
+    listbox.removeChild(listbox.firstChild);
+  }
+}
+
 // Function to hide loading spinner and show content
 export async function hideLoadingSpinner(elem, spinner) {
   const spinnerElem = document.getElementById(spinner);
@@ -214,6 +221,10 @@ export async function getBusinessUnit() {
 
 // Function to load page one
 export async function loadPageOne() {
+  // Clean up the listboxes
+  cleanListBox(businessUnitListbox);
+  cleanListBox(planningGroupsListbox);
+
   if (testMode) {
     // Testing mode - Get Business Units from mock PlatformClient
     businessUnits =
@@ -253,10 +264,8 @@ export async function loadPageTwo() {
   // Variables
   const selectedBuId = businessUnitListbox.value;
 
-  // Remove existing planning group gux-option elements from page three
-  while (planningGroupsListbox.firstChild) {
-    planningGroupsListbox.removeChild(planningGroupsListbox.firstChild);
-  }
+  // Clean up the planning group listbox
+  cleanListBox(planningGroupsListbox);
 
   // Function to get planning groups from BU id
   async function getPlanningGroups() {
