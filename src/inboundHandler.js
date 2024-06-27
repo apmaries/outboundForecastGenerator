@@ -21,7 +21,7 @@ async function transformInboundForecastData(inboundFcData) {
   console.log("[OFG] Merging inbound forecast data with completed forecast");
 
   // Process each planning group in inbound forecast data
-  inboundFcData.planningGroups.forEach((pg) => {
+  inboundFcData.result.planningGroups.forEach((pg) => {
     // Find the planning group in sharedState.completedForecast
     const completedFcPg = sharedState.completedForecast.find(
       (pgForecast) => pgForecast.planningGroup.id === pg.planningGroupId
@@ -104,9 +104,9 @@ async function getInboundForecastData(forecastId) {
   // temp logging
   console.warn(
     "[OFG] getInboundForecastData completed with data",
-    JSON.parse(JSON.stringify(forecastData.result))
+    JSON.parse(JSON.stringify(forecastData))
   );
-  return forecastData.result;
+  return forecastData;
 }
 
 // Generate the forecast
@@ -177,7 +177,7 @@ export async function generateInboundForecast() {
       "[OFG] Forecast data loaded from test data",
       inboundForecastData
     );
-    await transformInboundForecastData(inboundForecastData.result);
+    await transformInboundForecastData(inboundForecastData);
     sharedState.inboundForecastId = "abc-123";
     return;
   }
