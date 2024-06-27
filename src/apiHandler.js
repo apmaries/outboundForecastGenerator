@@ -207,9 +207,6 @@ export async function handleApiCalls(apiFunctionStr, ...args) {
             } else if (responseBody.results) {
               return responseBody.results;
             } else {
-              console.debug(
-                `[OFG] No entities or results found for ${apiFunctionStr}!`
-              );
               return responseBody;
             }
           }
