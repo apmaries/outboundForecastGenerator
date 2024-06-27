@@ -161,6 +161,12 @@ async function generateAbmForecast(buId, weekStart, description) {
     throw error;
   }
 
+  // temp logging
+  console.warn(
+    "[OFG] generateAbmForecast generateResponse",
+    JSON.parse(JSON.stringify(generateResponse))
+  );
+
   return generateResponse;
 }
 
