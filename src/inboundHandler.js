@@ -63,6 +63,87 @@ async function transformInboundForecastData(inboundFcData) {
   });
 }
 
+// Function to retrieve the inbound forecast data
+async function getInboundForecastData(forecastId) {
+  console.log("[OFG] Getting inbound forecast data");
+
+  let forecastData;
+  try {
+    forecastData = await handleApiCalls(
+      "WorkforceManagementApi.getWorkforcemanagementBusinessunitWeekShorttermforecastData",
+      buId,
+      weekStart,
+      forecastId
+    );
+  } catch (error) {
+    console.error("[OFG] Inbound forecast data retrieval failed: ", error);
+    throw error;
+  }
+
+  console.log("[OFG] Inbound forecast data retrieved. Trimming to 7 days only");
+  // Trim results to 7 days only (8th day will be re-added later after modifications)
+  forecastData.result.planningGroups.forEach((pg) => {
+    console.debug(
+      `[OFG] Trimming data for Planning Group ${pg.planningGroupId}`
+    );
+    pg.offeredPerInterval = pg.offeredPerInterval.slice(0, 672);
+    pg.averageHandleTimeSecondsPerInterval =
+      pg.averageHandleTimeSecondsPerInterval.slice(0, 672);
+  });
+
+  return forecastData.result;
+}
+
+// Generate the forecast
+async function generateAbmForecast(buId, weekStart, description) {
+  console.log("[OFG] Generating ABM forecast");
+  const abmFcDescription = description + " ([OFG] Inbound ABM)";
+
+  let body = {
+    "description": abmFcDescription,
+    "weekCount": 1,
+    "canUseForScheduling": true,
+  };
+  let opts = {
+    "forceAsync": true,
+  };
+
+  try {
+    let generateResponse = await handleApiCalls(
+      "WorkforceManagementApi.postWorkforcemanagementBusinessunitWeekShorttermforecastsGenerate",
+      buId,
+      weekStart,
+      body,
+      opts
+    );
+    console.log(
+      `[OFG] Inbound forecast generate status = ${generateResponse.status}`
+    );
+
+    if (generateResponse.status === "Complete") {
+      console.log("[OFG] Inbound forecast generated synchronously");
+      const forecastId = generateResponse.result.id;
+      sharedState.inboundForecastId = forecastId;
+      let inboundForecastData = await getInboundForecastData(forecastId);
+      return inboundForecastData; // Assuming resolveInboundForecast logic is moved here
+    } else if (generateResponse.status === "Processing") {
+      console.log(
+        "[OFG] Inbound forecast generation in progress. Waiting for completion"
+      );
+      // Logic for handling "Processing" status
+    } else {
+      console.error(
+        "[OFG] Inbound forecast generation failed: ",
+        generateResponse
+      );
+      throw generateResponse; // Rethrow or handle error appropriately
+    }
+  } catch (error) {
+    console.error("[OFG] Inbound forecast generation failed: ", error);
+    throw error; // Rethrow or handle error appropriately
+  }
+}
+
 export async function generateInboundForecast() {
   console.log("[OFG] Initiating inbound forecast generation");
 
@@ -70,17 +151,12 @@ export async function generateInboundForecast() {
   const weekStart = sharedState.userInputs.forecastParameters.weekStart;
   const description = sharedState.userInputs.forecastParameters.description;
 
-  // Declare variables
-  let resolveInboundForecast;
-  const topics = ["shorttermforecasts.generate"];
-  let inboundForecastData;
-
   // Return test data if in test mode
   if (testMode) {
     console.log(
       "[OFG] Testing mode enabled. Skipping notifications setup and getting test data"
     );
-    inboundForecastData =
+    const inboundForecastData =
       await window.ofg.PlatformClient.MockWfmApi.getInboundForecastData();
     console.log(
       "[OFG] Forecast data loaded from test data",
@@ -91,156 +167,90 @@ export async function generateInboundForecast() {
     return;
   }
 
-  // Subscribe to generate notifications
+  // Generate the forecast and immediately check its status
+  const initialStatus = await generateAbmForecast(buId, weekStart, description);
+  if (initialStatus === "Complete") {
+    // Synchronous handling if the forecast is already complete
+    const forecastId = initialStatus.result.id;
+    sharedState.inboundForecastId = forecastId;
+    const inboundForecastData = await getInboundForecastData(forecastId);
+    await transformInboundForecastData(inboundForecastData);
+    console.log(
+      "[OFG] Inbound forecast generation complete",
+      inboundForecastData
+    );
+    return inboundForecastData;
+  } else if (initialStatus === "Processing") {
+    // Asynchronous handling through notifications
+    return handleAsyncForecastGeneration(buId);
+  } else {
+    console.error(
+      "[OFG] Inbound forecast generation failed with initial status: ",
+      initialStatus
+    );
+    throw new Error("Inbound forecast generation failed");
+  }
+}
+
+async function handleAsyncForecastGeneration(buId) {
+  const topics = ["shorttermforecasts.generate"];
+
+  function onSubscriptionSuccess() {
+    console.log(
+      "[OFG] Successfully subscribed to forecast generate notifications"
+    );
+  }
+
   const generateNotifications = new NotificationHandler(
     topics,
     buId,
-    generateAbmForecast,
+    onSubscriptionSuccess,
     handleInboundForecastNotification
   );
 
-  // Function to retrieve the inbound forecast data
-  async function getInboundForecastData(forecastId) {
-    console.log("[OFG] Getting inbound forecast data");
-
-    let forecastData;
-    try {
-      forecastData = await handleApiCalls(
-        "WorkforceManagementApi.getWorkforcemanagementBusinessunitWeekShorttermforecastData",
-        buId,
-        weekStart,
-        forecastId
-      );
-    } catch (error) {
-      console.error("[OFG] Inbound forecast data retrieval failed: ", error);
-      throw error;
-    }
-
-    console.log(
-      "[OFG] Inbound forecast data retrieved. Trimming to 7 days only"
-    );
-    // Trim results to 7 days only (8th day will be re-added later after modifications)
-    forecastData.result.planningGroups.forEach((pg) => {
-      console.debug(
-        `[OFG] Trimming data for Planning Group ${pg.planningGroupId}`
-      );
-      pg.offeredPerInterval = pg.offeredPerInterval.slice(0, 672);
-      pg.averageHandleTimeSecondsPerInterval =
-        pg.averageHandleTimeSecondsPerInterval.slice(0, 672);
-    });
-
-    return forecastData.result;
-  }
-
-  // Generate the forecast
-  function generateAbmForecast() {
-    return new Promise(async (resolve, reject) => {
-      console.log("[OFG] Generating ABM forecast");
-      const abmFcDescription = description + " ([OFG] Inbound ABM)";
-
-      let body = {
-        "description": abmFcDescription,
-        "weekCount": 1,
-        "canUseForScheduling": true,
-      };
-      let opts = {
-        "forceAsync": true,
-      };
-
-      // Generate the forecast
-      let generateResponse;
-      try {
-        generateResponse = await handleApiCalls(
-          "WorkforceManagementApi.postWorkforcemanagementBusinessunitWeekShorttermforecastsGenerate",
-          buId,
-          weekStart,
-          body,
-          opts
-        );
-      } catch (error) {
-        console.error("[OFG] Inbound forecast generation failed: ", error);
-        reject(error);
-      }
-
-      console.log(
-        `[OFG] Inbound forecast generate status = ${generateResponse.status}`
-      );
-
-      // Forecast created successfully
-      if (generateResponse.status === "Complete") {
-        console.log("[OFG] Inbound forecast generated synchronously");
-        // Get the forecast id
-        const forecastId = generateResponse.result.id;
-        sharedState.inboundForecastId = forecastId;
-        inboundForecastData = await getInboundForecastData(forecastId);
-        resolveInboundForecast(inboundForecastData);
-      }
-      // Forecast creation in progress
-      else if (generateResponse.status === "Processing") {
-        console.log(
-          "[OFG] Inbound forecast generation in progress. Waiting for completion"
-        );
-
-        // Set the operation ID
-        generateOperationId = generateResponse.operationId;
-      }
-      // Forecast creation failed
-      else {
-        console.error(
-          "[OFG] Inbound forecast generation failed: ",
-          generateResponse
-        );
-        reject(generateResponse);
-      }
-    });
-  }
-
-  // Get the forecast data
-  async function handleInboundForecastNotification(notification) {
-    console.debug("[OFG] Message from server: ", notification);
-    if (
-      notification.eventBody &&
-      notification.eventBody.operationId === generateOperationId
-    ) {
-      const status = notification.eventBody.status;
-      console.log(`[OFG] Generate inbound forecast status updated <${status}>`);
-
-      // Check if status = "Complete"
-      if (status === "Complete") {
-        console.log("[OFG] Inbound forecast generation complete");
-        const forecastId = notification.eventBody.result.id;
-        sharedState.inboundForecastId = forecastId;
-
-        console.debug("[OFG] Inbound forecast ID: ", forecastId);
-        inboundForecastData = await getInboundForecastData(forecastId);
-        resolveInboundForecast(inboundForecastData);
-        console.log(
-          "[OFG] Inbound forecast generation complete",
-          inboundForecastData
-        );
-        return inboundForecastData;
-      }
-      // Status is Cancelled or Error
-      else {
-        console.error(
-          "[OFG] Inbound forecast generation failed: ",
-          notification.eventBody
-        );
-      }
-    }
-  }
-
-  // Connect and subscribe to notifications, then generate the forecast
   generateNotifications.connect();
   generateNotifications.subscribeToNotifications();
 
-  // Generate the forecast and wait for it to complete
-  await new Promise((resolve, reject) => {
-    resolveInboundForecast = resolve;
-    generateAbmForecast();
-  });
+  return new Promise((resolve, reject) => {
+    const handleComplete = (event) => {
+      window.removeEventListener("inboundForecastComplete", handleComplete);
+      window.removeEventListener("inboundForecastError", handleError);
+      resolve(event.detail);
+    };
 
-  await transformInboundForecastData(inboundForecastData);
+    const handleError = (event) => {
+      window.removeEventListener("inboundForecastComplete", handleComplete);
+      window.removeEventListener("inboundForecastError", handleError);
+      reject(new Error("Inbound forecast generation failed"));
+    };
+
+    window.addEventListener("inboundForecastComplete", handleComplete);
+    window.addEventListener("inboundForecastError", handleError);
+  });
+}
+
+async function handleInboundForecastNotification(notification) {
+  console.debug("[OFG] Message from server: ", notification);
+  if (
+    notification.eventBody &&
+    notification.eventBody.operationId === generateOperationId
+  ) {
+    const status = notification.eventBody.status;
+    console.log(`[OFG] Generate inbound forecast status updated <${status}>`);
+
+    if (status === "Complete") {
+      const forecastId = notification.eventBody.result.id;
+      sharedState.inboundForecastId = forecastId;
+      const inboundForecastData = await getInboundForecastData(forecastId);
+      window.dispatchEvent(
+        new CustomEvent("inboundForecastComplete", {
+          detail: inboundForecastData,
+        })
+      );
+    } else {
+      window.dispatchEvent(new CustomEvent("inboundForecastError"));
+    }
+  }
 }
 
 export function deleteInboundForecast() {
