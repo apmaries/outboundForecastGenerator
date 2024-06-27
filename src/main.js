@@ -439,6 +439,8 @@ export async function generateForecast() {
 
 // Import forecast to GC
 export async function importForecast() {
+  console.info("[OFG] Forecast import initiated");
+
   const buId = sharedState.userInputs.businessUnit.id;
   const weekStart = sharedState.userInputs.forecastParameters.weekStart;
   const startDayOfWeek =
