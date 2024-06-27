@@ -135,6 +135,7 @@ async function generateAbmForecast(buId, weekStart, description) {
       `[OFG] Inbound forecast generate status = ${generateResponse.status}`
     );
 
+    /*
     if (generateResponse.status === "Complete") {
       console.log("[OFG] Inbound forecast generated synchronously");
       const forecastId = generateResponse.result.id;
@@ -153,9 +154,76 @@ async function generateAbmForecast(buId, weekStart, description) {
       );
       throw generateResponse; // Rethrow or handle error appropriately
     }
+      */
   } catch (error) {
     handleError(error, "generateAbmForecast");
     throw error; // Rethrow or handle error appropriately
+  }
+
+  return generateResponse;
+}
+
+// Handle the asynchronous forecast generation
+async function handleAsyncForecastGeneration(buId) {
+  const topics = ["shorttermforecasts.generate"];
+
+  function onSubscriptionSuccess() {
+    console.log(
+      "[OFG] Successfully subscribed to forecast generate notifications"
+    );
+  }
+
+  const generateNotifications = new NotificationHandler(
+    topics,
+    buId,
+    onSubscriptionSuccess,
+    handleInboundForecastNotification
+  );
+
+  generateNotifications.connect();
+  generateNotifications.subscribeToNotifications();
+
+  return new Promise((resolve, reject) => {
+    const handleComplete = (event) => {
+      window.removeEventListener("inboundForecastComplete", handleComplete);
+      window.removeEventListener("inboundForecastError", handleError);
+      resolve(event.detail);
+    };
+
+    const handleError = (event) => {
+      window.removeEventListener("inboundForecastComplete", handleComplete);
+      window.removeEventListener("inboundForecastError", handleError);
+      reject(new Error("Inbound forecast generation failed"));
+    };
+
+    window.addEventListener("inboundForecastComplete", handleComplete);
+    window.addEventListener("inboundForecastError", handleError);
+  });
+}
+
+// Handle the inbound forecast notification
+async function handleInboundForecastNotification(notification) {
+  console.debug("[OFG] Message from server: ", notification);
+  if (
+    notification.eventBody &&
+    notification.eventBody.operationId === generateOperationId
+  ) {
+    const status = notification.eventBody.status;
+    console.log(`[OFG] Generate inbound forecast status updated <${status}>`);
+
+    if (status === "Complete") {
+      const forecastId = notification.eventBody.result.id;
+      sharedState.inboundForecastId = forecastId;
+      const inboundForecastData = await getInboundForecastData(forecastId);
+      await transformInboundForecastData(inboundForecastData);
+      window.dispatchEvent(
+        new CustomEvent("inboundForecastComplete", {
+          detail: inboundForecastData,
+        })
+      );
+    } else {
+      window.dispatchEvent(new CustomEvent("inboundForecastError"));
+    }
   }
 }
 
@@ -204,67 +272,6 @@ export async function generateInboundForecast() {
       initialStatus
     );
     throw new Error("Inbound forecast generation failed");
-  }
-}
-
-async function handleAsyncForecastGeneration(buId) {
-  const topics = ["shorttermforecasts.generate"];
-
-  function onSubscriptionSuccess() {
-    console.log(
-      "[OFG] Successfully subscribed to forecast generate notifications"
-    );
-  }
-
-  const generateNotifications = new NotificationHandler(
-    topics,
-    buId,
-    onSubscriptionSuccess,
-    handleInboundForecastNotification
-  );
-
-  generateNotifications.connect();
-  generateNotifications.subscribeToNotifications();
-
-  return new Promise((resolve, reject) => {
-    const handleComplete = (event) => {
-      window.removeEventListener("inboundForecastComplete", handleComplete);
-      window.removeEventListener("inboundForecastError", handleError);
-      resolve(event.detail);
-    };
-
-    const handleError = (event) => {
-      window.removeEventListener("inboundForecastComplete", handleComplete);
-      window.removeEventListener("inboundForecastError", handleError);
-      reject(new Error("Inbound forecast generation failed"));
-    };
-
-    window.addEventListener("inboundForecastComplete", handleComplete);
-    window.addEventListener("inboundForecastError", handleError);
-  });
-}
-
-async function handleInboundForecastNotification(notification) {
-  console.debug("[OFG] Message from server: ", notification);
-  if (
-    notification.eventBody &&
-    notification.eventBody.operationId === generateOperationId
-  ) {
-    const status = notification.eventBody.status;
-    console.log(`[OFG] Generate inbound forecast status updated <${status}>`);
-
-    if (status === "Complete") {
-      const forecastId = notification.eventBody.result.id;
-      sharedState.inboundForecastId = forecastId;
-      const inboundForecastData = await getInboundForecastData(forecastId);
-      window.dispatchEvent(
-        new CustomEvent("inboundForecastComplete", {
-          detail: inboundForecastData,
-        })
-      );
-    } else {
-      window.dispatchEvent(new CustomEvent("inboundForecastError"));
-    }
   }
 }
 
