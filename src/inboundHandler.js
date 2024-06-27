@@ -9,12 +9,6 @@ let generateOperationId;
 const testMode = window.ofg.isTesting;
 
 async function transformAndLoadInboundForecast(inboundFcData) {
-  // temp logging
-  console.warn(
-    "[OFG] transformAndLoadInboundForecast initated with data",
-    JSON.parse(JSON.stringify(inboundFcData))
-  );
-
   const weekStart = sharedState.userInputs.forecastParameters.weekStart;
 
   // Add inbound forecast data to sharedState.completedForecast if pgId not already present
@@ -101,11 +95,6 @@ async function getInboundForecastData(forecastId) {
       pg.averageHandleTimeSecondsPerInterval.slice(0, 672);
   });
 
-  // temp logging
-  console.warn(
-    "[OFG] getInboundForecastData completed with data",
-    JSON.parse(JSON.stringify(forecastData))
-  );
   return forecastData;
 }
 
@@ -135,37 +124,10 @@ async function generateAbmForecast(buId, weekStart, description) {
     console.log(
       `[OFG] Inbound forecast generate status = ${generateResponse.status}`
     );
-
-    /*
-    if (generateResponse.status === "Complete") {
-      console.log("[OFG] Inbound forecast generated synchronously");
-      const forecastId = generateResponse.result.id;
-      sharedState.inboundForecastId = forecastId;
-      let inboundForecastData = await getInboundForecastData(forecastId);
-      return inboundForecastData; // Assuming resolveInboundForecast logic is moved here
-    } else if (generateResponse.status === "Processing") {
-      console.log(
-        "[OFG] Inbound forecast generation in progress. Waiting for completion"
-      );
-      // Logic for handling "Processing" status
-    } else {
-      console.error(
-        "[OFG] Inbound forecast generation failed: ",
-        generateResponse
-      );
-      throw generateResponse; // Rethrow or handle error appropriately
-    }
-      */
   } catch (error) {
     handleError(error, "generateAbmForecast");
     throw error;
   }
-
-  // temp logging
-  console.warn(
-    "[OFG] generateAbmForecast generateResponse",
-    JSON.parse(JSON.stringify(generateResponse))
-  );
 
   return generateResponse;
 }
@@ -234,6 +196,7 @@ async function handleInboundForecastNotification(notification) {
   }
 }
 
+// Primary function to generate the inbound forecast
 export async function generateInboundForecast() {
   console.log("[OFG] Initiating inbound forecast generation");
 
@@ -264,12 +227,6 @@ export async function generateInboundForecast() {
     description
   );
 
-  // temp logging
-  console.warn(
-    "[OFG] generateInboundForecast generateResponse",
-    JSON.parse(JSON.stringify(generateResponse))
-  );
-
   if (generateResponse.status === "Complete") {
     // Synchronous handling if the forecast is already complete
     const forecastId = generateResponse.result.id;
@@ -293,6 +250,7 @@ export async function generateInboundForecast() {
   }
 }
 
+// Function to delete the inbound forecast
 export function deleteInboundForecast() {
   console.log(
     `[OFG] Deleting inbound forecast with id: ${sharedState.inboundForecastId}`
@@ -308,14 +266,15 @@ export function deleteInboundForecast() {
     return;
   }
 
+  // Return if in test mode
   if (testMode) {
     console.log("[OFG] Testing mode enabled. Skipping deletion");
     return;
   }
 
+  // Delete the forecast
   let delResponse = null;
   try {
-    // Delete the forecast
     delResponse = handleApiCalls(
       "WorkforceManagementApi.deleteWorkforcemanagementBusinessunitWeekShorttermforecast",
       buId,
