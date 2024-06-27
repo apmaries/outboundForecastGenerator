@@ -30,7 +30,10 @@ export async function prepFcImportBody(groups, buStartDayOfWeek, description) {
       continue;
     }
 
-    console.debug(`[OFG] [${planningGroup.name}] Processing forecast data`);
+    console.debug(
+      `[OFG] [${planningGroup.name}] Processing forecast data`,
+      JSON.parse(JSON.stringify(forecastData))
+    );
 
     // Reorder arrays to align to BU start day of week
     console.debug(
