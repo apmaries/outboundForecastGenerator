@@ -8,10 +8,10 @@ import { handleError } from "./errorHandler.js";
 let generateOperationId;
 const testMode = window.ofg.isTesting;
 
-async function transformInboundForecastData(inboundFcData) {
+async function transformAndLoadInboundForecast(inboundFcData) {
   // temp logging
   console.warn(
-    "[OFG] transformInboundForecastData initated with data",
+    "[OFG] transformAndLoadInboundForecast initated with data",
     JSON.parse(JSON.stringify(inboundFcData))
   );
 
@@ -222,7 +222,7 @@ async function handleInboundForecastNotification(notification) {
       const forecastId = notification.eventBody.result.id;
       sharedState.inboundForecastId = forecastId;
       const inboundForecastData = await getInboundForecastData(forecastId);
-      await transformInboundForecastData(inboundForecastData);
+      await transformAndLoadInboundForecast(inboundForecastData);
       window.dispatchEvent(
         new CustomEvent("inboundForecastComplete", {
           detail: inboundForecastData,
@@ -252,7 +252,7 @@ export async function generateInboundForecast() {
       "[OFG] Forecast data loaded from test data",
       inboundForecastData
     );
-    await transformInboundForecastData(inboundForecastData);
+    await transformAndLoadInboundForecast(inboundForecastData);
     sharedState.inboundForecastId = "abc-123";
     return;
   }
@@ -275,7 +275,7 @@ export async function generateInboundForecast() {
     const forecastId = generateResponse.result.id;
     sharedState.inboundForecastId = forecastId;
     const inboundForecastData = await getInboundForecastData(forecastId);
-    await transformInboundForecastData(inboundForecastData);
+    await transformAndLoadInboundForecast(inboundForecastData);
     console.log(
       "[OFG] Inbound forecast generation complete",
       inboundForecastData
@@ -313,9 +313,10 @@ export function deleteInboundForecast() {
     return;
   }
 
+  let delResponse = null;
   try {
     // Delete the forecast
-    let delResponse = handleApiCalls(
+    delResponse = handleApiCalls(
       "WorkforceManagementApi.deleteWorkforcemanagementBusinessunitWeekShorttermforecast",
       buId,
       weekStart,
