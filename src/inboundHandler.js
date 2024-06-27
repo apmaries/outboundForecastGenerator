@@ -65,6 +65,9 @@ async function transformInboundForecastData(inboundFcData) {
 
 // Function to retrieve the inbound forecast data
 async function getInboundForecastData(forecastId) {
+  const buId = sharedState.userInputs.businessUnit.id;
+  const weekStart = sharedState.userInputs.forecastParameters.weekStart;
+
   console.log("[OFG] Getting inbound forecast data");
 
   let forecastData;
