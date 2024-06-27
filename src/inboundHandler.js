@@ -123,8 +123,9 @@ async function generateAbmForecast(buId, weekStart, description) {
     "forceAsync": true,
   };
 
+  let generateResponse = null;
   try {
-    let generateResponse = await handleApiCalls(
+    generateResponse = await handleApiCalls(
       "WorkforceManagementApi.postWorkforcemanagementBusinessunitWeekShorttermforecastsGenerate",
       buId,
       weekStart,
