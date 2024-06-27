@@ -9,6 +9,12 @@ let generateOperationId;
 const testMode = window.ofg.isTesting;
 
 async function transformInboundForecastData(inboundFcData) {
+  // temp logging
+  console.warn(
+    "[OFG] transformInboundForecastData initated with data",
+    JSON.parse(JSON.stringify(inboundFcData))
+  );
+
   const weekStart = sharedState.userInputs.forecastParameters.weekStart;
 
   // Add inbound forecast data to sharedState.completedForecast if pgId not already present
@@ -95,6 +101,11 @@ async function getInboundForecastData(forecastId) {
       pg.averageHandleTimeSecondsPerInterval.slice(0, 672);
   });
 
+  // temp logging
+  console.warn(
+    "[OFG] getInboundForecastData completed with data",
+    JSON.parse(JSON.stringify(forecastData.result))
+  );
   return forecastData.result;
 }
 
