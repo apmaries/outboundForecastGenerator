@@ -2,6 +2,7 @@
 import { handleApiCalls } from "./apiHandler.js";
 import { NotificationHandler } from "../src/notificationHandler.js";
 import { sharedState } from "./main.js";
+import { handleError } from "./errorHandler.js";
 
 // Declare global variables
 let generateOperationId;
@@ -79,7 +80,7 @@ async function getInboundForecastData(forecastId) {
       forecastId
     );
   } catch (error) {
-    console.error("[OFG] Inbound forecast data retrieval failed: ", error);
+    handleError(error, "getInboundForecastData");
     throw error;
   }
 
@@ -142,7 +143,7 @@ async function generateAbmForecast(buId, weekStart, description) {
       throw generateResponse; // Rethrow or handle error appropriately
     }
   } catch (error) {
-    console.error("[OFG] Inbound forecast generation failed: ", error);
+    handleError(error, "generateAbmForecast");
     throw error; // Rethrow or handle error appropriately
   }
 }
@@ -257,8 +258,9 @@ async function handleInboundForecastNotification(notification) {
 }
 
 export function deleteInboundForecast() {
-  console.log("[OFG] Deleting inbound forecast");
-  console.log("[OFG] Inbound forecast ID: ", sharedState.inboundForecastId);
+  console.log(
+    `[OFG] Deleting inbound forecast with id: ${sharedState.inboundForecastId}`
+  );
 
   const buId = sharedState.userInputs.businessUnit.id;
   const weekStart = sharedState.userInputs.forecastParameters.weekStart;
@@ -275,13 +277,18 @@ export function deleteInboundForecast() {
     return;
   }
 
-  // Delete the forecast
-  let delResponse = handleApiCalls(
-    "WorkforceManagementApi.deleteWorkforcemanagementBusinessunitWeekShorttermforecast",
-    buId,
-    weekStart,
-    forecastId
-  );
+  try {
+    // Delete the forecast
+    let delResponse = handleApiCalls(
+      "WorkforceManagementApi.deleteWorkforcemanagementBusinessunitWeekShorttermforecast",
+      buId,
+      weekStart,
+      forecastId
+    );
+  } catch (error) {
+    handleError(error, "deleteInboundForecast");
+    throw error;
+  }
 
   // Reset the forecast ID
   sharedState.inboundForecastId = null;

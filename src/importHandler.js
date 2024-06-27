@@ -1,5 +1,6 @@
 import { handleApiCalls } from "./apiHandler.js";
 import { calculateWeightedAverages } from "./numberHandler.js";
+import { handleError } from "./errorHandler.js";
 
 export async function prepFcImportBody(groups, buStartDayOfWeek, description) {
   console.log("[OFG] Preparing Forecast Import Body and encoding to gzip");
@@ -38,10 +39,6 @@ export async function prepFcImportBody(groups, buStartDayOfWeek, description) {
     const nContacts = forecastData.nContacts;
     const tHandle = forecastData.tHandle;
     const nHandled = forecastData.nHandled;
-
-    console.warn(`[OFG] [${planningGroup.name}] nContacts: `, nContacts);
-    console.warn(`[OFG] [${planningGroup.name}] tHandle: `, tHandle);
-    console.warn(`[OFG] [${planningGroup.name}] nHandled: `, nHandled);
 
     const weightedAverages = calculateWeightedAverages(tHandle, nHandled);
     const aHandleTime = weightedAverages.intervalAverages;
@@ -135,14 +132,20 @@ export async function generateUrl(
   console.log("[OFG] Generating URL for import");
   console.debug("[OFG] Content Length Bytes: " + contentLengthBytes);
 
-  const importUrl = await handleApiCalls(
-    "WorkforceManagementApi.postWorkforcemanagementBusinessunitWeekShorttermforecastsImportUploadurl",
-    businessUnitId, // Pass selected Business Unit ID
-    weekDateId, // Pass selected Week Date ID
-    {
-      "contentLengthBytes": contentLengthBytes,
-    }
-  );
+  let importUrl = null;
+  try {
+    importUrl = await handleApiCalls(
+      "WorkforceManagementApi.postWorkforcemanagementBusinessunitWeekShorttermforecastsImportUploadurl",
+      businessUnitId, // Pass selected Business Unit ID
+      weekDateId, // Pass selected Week Date ID
+      {
+        "contentLengthBytes": contentLengthBytes,
+      }
+    );
+  } catch (error) {
+    handleError(error, "generateUrl");
+    throw error;
+  }
 
   return importUrl;
 }
@@ -176,7 +179,8 @@ export async function invokeGCF(uploadAttributes, forecastData) {
   });
 
   if (!response.ok) {
-    console.error(`[OFG]: HTTP error! status: ${response.status}`);
+    handleError(error, "invokeGCF");
+    console.error(`[OFG] GCF HTTP error! status: ${response.status}`);
     return null;
   }
 
@@ -187,14 +191,20 @@ export async function invokeGCF(uploadAttributes, forecastData) {
 export async function importFc(businessUnitId, weekDateId, uploadKey) {
   console.log("[OFG] Importing forecast");
 
-  const importResponse = await handleApiCalls(
-    "WorkforceManagementApi.postWorkforcemanagementBusinessunitWeekShorttermforecastsImport",
-    businessUnitId, // Pass selected Business Unit ID
-    weekDateId, // Pass selected Week Date ID
-    {
-      "uploadKey": uploadKey,
-    }
-  );
+  let importResponse = null;
+  try {
+    importResponse = await handleApiCalls(
+      "WorkforceManagementApi.postWorkforcemanagementBusinessunitWeekShorttermforecastsImport",
+      businessUnitId, // Pass selected Business Unit ID
+      weekDateId, // Pass selected Week Date ID
+      {
+        "uploadKey": uploadKey,
+      }
+    );
+  } catch (error) {
+    handleError(error, "importFc");
+    throw error;
+  }
 
   console.log("[OFG] Import response: ", importResponse);
   console.log("[OFG] Forecast import complete");

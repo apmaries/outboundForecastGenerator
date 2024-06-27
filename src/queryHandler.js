@@ -1,4 +1,5 @@
 import { handleApiCalls } from "./apiHandler.js";
+import { handleError } from "./errorHandler.js";
 import { sharedState } from "./main.js";
 
 const testMode = window.ofg.isTesting;
@@ -185,7 +186,7 @@ export async function executeQueries(body, intervals) {
         }
           */
       } catch (error) {
-        console.error("[OFG] Query execution failed: ", error);
+        handleError(error, "executeQueries");
         throw error;
       }
     }

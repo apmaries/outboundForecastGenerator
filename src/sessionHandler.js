@@ -1,8 +1,9 @@
 import { handleApiCalls, toastUser } from "./apiHandler.js";
+import { handleError } from "./errorHandler.js";
 
 // Declare global variables
 const indexPage = "./not-authorized.html";
-const isTesting = window.ofg.isTesting;
+const testMode = window.ofg.isTesting;
 
 // Function to check if user is authorised
 async function internalUserCheck(emailAddress) {
@@ -22,7 +23,7 @@ async function getUser() {
   // Get user welcome div in page
   let userWelcome = document.getElementById("user-welcome");
 
-  if (isTesting) {
+  if (testMode) {
     console.log("[OFG] Testing mode enabled. Skipping user details");
     userWelcome.innerHTML = `Welcome, Test User!`;
   } else {
@@ -50,7 +51,7 @@ async function getUser() {
         throw new Error("Error getting user details");
       }
     } catch (error) {
-      console.error(`[OFG] Error getting user`, error);
+      handleError(error, "getUser");
       window.location.replace(indexPage);
       throw error;
     }
@@ -60,21 +61,24 @@ async function getUser() {
 
 // Function to open notification channel
 async function openNotificationsChannel() {
-  if (!isTesting) {
+  if (!testMode) {
     console.log("[OFG] Opening notifications channel");
-    let channel = await handleApiCalls(
-      "NotificationsApi.postNotificationsChannels"
-    );
 
-    if (channel) {
-      console.log("[OFG] Notifications channel opened");
-      const notificationsUri = channel.connectUri;
-      const notificationsId = channel.id;
-      sessionStorage.setItem("notifications_uri", notificationsUri);
-      sessionStorage.setItem("notifications_id", notificationsId);
-    } else {
-      console.error(`[OFG] Error creating notifications channel`);
+    let channel = null;
+    try {
+      channel = await handleApiCalls(
+        "NotificationsApi.postNotificationsChannels"
+      );
+    } catch (error) {
+      handleError(error, "openNotificationsChannel");
+      throw error;
     }
+
+    console.log("[OFG] Notifications channel opened");
+    const notificationsUri = channel.connectUri;
+    const notificationsId = channel.id;
+    sessionStorage.setItem("notifications_uri", notificationsUri);
+    sessionStorage.setItem("notifications_id", notificationsId);
   }
 }
 

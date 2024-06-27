@@ -1,3 +1,4 @@
+import { globalErrorHandler, handleError } from "./errorHandler.js";
 import {
   downloadJson,
   hideLoadingSpinner,
@@ -28,6 +29,9 @@ import {
   importFc, // importFc makes a PUT request to the upload URL - need CORS fixed before being able to switch to this
 } from "./importHandler.js";
 import { NotificationHandler } from "../src/notificationHandler.js";
+
+// Set the global error handler
+window.onerror = globalErrorHandler;
 
 // Define and export shared state object
 export let sharedState = {

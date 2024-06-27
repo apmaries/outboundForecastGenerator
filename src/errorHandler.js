@@ -1,5 +1,5 @@
 // Define a global error handler function
-function globalErrorHandler(message, source, lineno, colno, error) {
+export function globalErrorHandler(message, source, lineno, colno, error) {
   let body = {
     source,
     lineno,
@@ -11,5 +11,11 @@ function globalErrorHandler(message, source, lineno, colno, error) {
     },
   };
 
-  console.error(`OFG: An uncaught error occurred: ${message}`, body);
+  console.error(`[OFG] An uncaught error occurred: ${message}`, body);
+}
+
+// Define a standard error handling function
+export function handleError(error, context) {
+  console.error(`[OFG] Error in ${context}: `, error);
+  // Additional error handling logic can be added here
 }

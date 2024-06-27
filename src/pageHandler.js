@@ -1,6 +1,7 @@
 import { handleApiCalls, globalPageOpts } from "./apiHandler.js";
 import { sharedState } from "./main.js";
 import { PlanningGroup } from "./classHandler.js";
+import { handleError } from "./errorHandler.js";
 
 // Global variables
 const testMode = window.ofg.isTesting;
@@ -151,14 +152,19 @@ export async function getBusinessUnit() {
   } else {
     // Production mode
     const selectedBuId = businessUnitListbox.value;
-    businessUnitData = await handleApiCalls(
-      "WorkforceManagementApi.getWorkforcemanagementBusinessunit",
-      selectedBuId, // Pass selected Business Unit ID
-      {
-        "expand": ["settings.timeZone, settings.startDayOfWeek"], // [String] | Include to access additional data on the business unit
-      }
-    );
-    console.log(`[OFG] Business Unit '${businessUnitData.name}' loaded`);
+    try {
+      businessUnitData = await handleApiCalls(
+        "WorkforceManagementApi.getWorkforcemanagementBusinessunit",
+        selectedBuId, // Pass selected Business Unit ID
+        {
+          "expand": ["settings.timeZone, settings.startDayOfWeek"], // [String] | Include to access additional data on the business unit
+        }
+      );
+      console.log(`[OFG] Business Unit '${businessUnitData.name}' loaded`);
+    } catch (error) {
+      handleError(error, "getBusinessUnit");
+      throw error;
+    }
   }
 
   const dayNameToNumber = {
@@ -224,7 +230,8 @@ export async function loadPageOne() {
         businessUnits
       );
     } catch (error) {
-      console.error("[OFG] Error loading business units", error);
+      handleError(error, "getBusinessUnits");
+      throw error;
     }
   }
 
@@ -264,13 +271,15 @@ export async function loadPageTwo() {
           await window.ofg.PlatformClient.MockWfmApi.getPlanningGroups();
       } else {
         // Production mode
+
         planningGroups = await handleApiCalls(
           "WorkforceManagementApi.getWorkforcemanagementBusinessunitPlanninggroups",
           selectedBuId
         );
       }
     } catch (error) {
-      console.error("[OFG] Error loading planning groups", error);
+      handleError(error, "getPlanningGroups");
+      throw error;
     }
 
     if (!planningGroups || planningGroups.length === 0) {
@@ -325,7 +334,8 @@ export async function loadPageTwo() {
           globalPageOpts
         );
       } catch (error) {
-        console.error("[OFG] Error loading campaigns", error);
+        handleError(error, "getCampaigns");
+        throw error;
       }
     }
 
