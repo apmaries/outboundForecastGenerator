@@ -157,7 +157,7 @@ async function generateAbmForecast(buId, weekStart, description) {
       */
   } catch (error) {
     handleError(error, "generateAbmForecast");
-    throw error; // Rethrow or handle error appropriately
+    throw error;
   }
 
   return generateResponse;
@@ -251,10 +251,21 @@ export async function generateInboundForecast() {
   }
 
   // Generate the forecast and immediately check its status
-  const initialStatus = await generateAbmForecast(buId, weekStart, description);
-  if (initialStatus === "Complete") {
+  const generateResponse = await generateAbmForecast(
+    buId,
+    weekStart,
+    description
+  );
+
+  // temp logging
+  console.warn(
+    "[OFG] generateInboundForecast generateResponse",
+    JSON.parse(JSON.stringify(generateResponse))
+  );
+
+  if (generateResponse.status === "Complete") {
     // Synchronous handling if the forecast is already complete
-    const forecastId = initialStatus.result.id;
+    const forecastId = generateResponse.result.id;
     sharedState.inboundForecastId = forecastId;
     const inboundForecastData = await getInboundForecastData(forecastId);
     await transformInboundForecastData(inboundForecastData);
@@ -263,13 +274,13 @@ export async function generateInboundForecast() {
       inboundForecastData
     );
     return inboundForecastData;
-  } else if (initialStatus === "Processing") {
+  } else if (generateResponse === "Processing") {
     // Asynchronous handling through notifications
     return handleAsyncForecastGeneration(buId);
   } else {
     console.error(
       "[OFG] Inbound forecast generation failed with initial status: ",
-      initialStatus
+      generateResponse
     );
     throw new Error("Inbound forecast generation failed");
   }
