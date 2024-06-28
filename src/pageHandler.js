@@ -225,6 +225,31 @@ export async function loadPageOne() {
   cleanListBox(businessUnitListbox);
   cleanListBox(planningGroupsListbox);
 
+  // Reset sharedState
+  sharedState = {
+    completedForecast: null,
+    modifiedForecast: null,
+    userInputs: {
+      businessUnit: {
+        name: null,
+        id: null,
+        settings: null,
+      },
+      forecastParameters: {
+        weekStart: null,
+        historicalWeeks: null,
+        description: null,
+      },
+      forecastOptions: {
+        ignoreZeroes: null,
+        resolveContactsAhtMode: null,
+        generateInbound: null,
+        retainInbound: null,
+      },
+      planningGroups: [],
+    },
+  };
+
   if (testMode) {
     // Testing mode - Get Business Units from mock PlatformClient
     businessUnits =
@@ -245,9 +270,6 @@ export async function loadPageOne() {
       throw error;
     }
   }
-
-  // Remove existing planning group gux-option elements from page three
-  planningGroupsListbox.innerHTML = "";
 
   // Hide inbound-forecast-div
   document.getElementById("inbound-forecast-div").style.display = "none";
