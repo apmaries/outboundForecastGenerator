@@ -58,6 +58,33 @@ export let sharedState = {
   },
 };
 
+// Function to reset sharedState without reassigning it
+export function resetSharedState() {
+  // Resetting primitive values and arrays directly
+  sharedState.completedForecast = null;
+  sharedState.modifiedForecast = null;
+
+  // Resetting nested objects
+  const resetObject = (obj) => {
+    Object.keys(obj).forEach((key) => {
+      if (
+        typeof obj[key] === "object" &&
+        obj[key] !== null &&
+        !Array.isArray(obj[key])
+      ) {
+        resetObject(obj[key]); // Recurse for nested objects
+      } else if (Array.isArray(obj[key])) {
+        obj[key] = []; // Reset arrays
+      } else {
+        obj[key] = null; // Reset primitive values
+      }
+    });
+  };
+
+  // Apply reset logic to nested objects within sharedState
+  resetObject(sharedState.userInputs);
+}
+
 /* FUNCTIONS START */
 // Generate outbound forecast data
 export async function generateForecast() {

@@ -1,5 +1,5 @@
 import { handleApiCalls, globalPageOpts } from "./apiHandler.js";
-import { sharedState } from "./main.js";
+import { resetSharedState, sharedState } from "./main.js";
 import { PlanningGroup } from "./classHandler.js";
 import { handleError } from "./errorHandler.js";
 
@@ -226,29 +226,7 @@ export async function loadPageOne() {
   cleanListBox(planningGroupsListbox);
 
   // Reset sharedState
-  sharedState = {
-    completedForecast: null,
-    modifiedForecast: null,
-    userInputs: {
-      businessUnit: {
-        name: null,
-        id: null,
-        settings: null,
-      },
-      forecastParameters: {
-        weekStart: null,
-        historicalWeeks: null,
-        description: null,
-      },
-      forecastOptions: {
-        ignoreZeroes: null,
-        resolveContactsAhtMode: null,
-        generateInbound: null,
-        retainInbound: null,
-      },
-      planningGroups: [],
-    },
-  };
+  resetSharedState();
 
   if (testMode) {
     // Testing mode - Get Business Units from mock PlatformClient
