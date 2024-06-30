@@ -604,7 +604,7 @@ async function applyModification(data, modToRun) {
 
 // Function to reset data
 async function reset(data) {
-  let modifiedData = { ...data };
+  //let modifiedData = { ...data };
 
   // Get a deep copy of the original data
   let originalData = JSON.parse(
