@@ -566,7 +566,7 @@
         console.log("[OFG] gc_region", gc_region);
         console.log("[OFG] gc_clientId", gc_clientId);
 
-        if (!gc_clientId || !environment) {
+        if (!gc_clientId || !gc_region) {
           console.error(
             "[OFG] Check gc_clientId and gc_region in URL query parameters",
             window.location
