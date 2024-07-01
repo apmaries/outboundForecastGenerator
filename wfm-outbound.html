@@ -593,10 +593,6 @@
             let gc_region = url.searchParams.get("gc_region");
             let gc_clientId = url.searchParams.get("gc_clientId");
 
-            const urlParams = new URLSearchParams(window.location.search);
-            const clientId = urlParams.get("clientId");
-            const environment = urlParams.get("environment");
-
             if (!gc_clientId || !environment) {
               console.error(
                 "[OFG] Check gc_clientId and gc_region in URL query parameters",
