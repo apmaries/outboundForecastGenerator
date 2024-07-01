@@ -563,6 +563,8 @@
         console.log("[OFG] URL", url);
         let gc_region = url.searchParams.get("gc_region");
         let gc_clientId = url.searchParams.get("gc_clientId");
+        console.log("[OFG] gc_region", gc_region);
+        console.log("[OFG] gc_clientId", gc_clientId);
 
         if (!gc_clientId || !environment) {
           console.error(
