@@ -339,6 +339,7 @@
               </div>
               <div>
                 <fieldset>
+                  <!-- Ignores full days of zero contacts (e.g. public holidays) -->
                   <legend>Outbound options</legend>
                   <label for="ignore-zeroes"
                     >Ignore zero days when generating averages?
@@ -358,7 +359,8 @@
                     unchecked-label="No"
                     checked
                   ></gux-toggle>
-
+                  <!-- Applies the daily AHT value to any interval with forecast offered but no AHT forecast -->
+                  <!-- Not currently needed
                   <label for="resolve-contacts-aht"
                     >Resolve AHT forecast to Contacts?
                     <gux-icon
@@ -371,13 +373,15 @@
                       forecast offered but no handle time)</gux-tooltip
                     ></label
                   >
-                  <!-- Applies the daily AHT value to any interval with forecast offered but no AHT forecast -->
+                 
+
                   <gux-toggle
                     id="resolve-contacts-aht"
                     checked-label="Yes"
                     unchecked-label="No"
                     checked
                   ></gux-toggle>
+                  -->
                 </fieldset>
                 <div id="inbound-forecast-div" style="display: none">
                   <!-- Hidden until Planning Groups identified with no matching Campaign -->
@@ -469,16 +473,7 @@
                   placeholder="Select a Planning Group"
                   disabled
                 >
-                  <gux-listbox id="week-day-listbox">
-                    <gux-option value="99">All</gux-option>
-                    <gux-option value="1">Monday</gux-option>
-                    <gux-option value="2">Tuesday</gux-option>
-                    <gux-option value="3">Wednesday</gux-option>
-                    <gux-option value="4">Thursday</gux-option>
-                    <gux-option value="5">Friday</gux-option>
-                    <gux-option value="6">Saturday</gux-option>
-                    <gux-option value="0">Sunday</gux-option>
-                  </gux-listbox>
+                  <gux-listbox id="week-day-listbox"> </gux-listbox>
                 </gux-dropdown>
                 <label slot="label">Day of Week</label>
               </gux-form-field-dropdown>
@@ -767,8 +762,6 @@
 
     <!-- Script to login with Cloud -->
     <script type="module">
-      import { initializeEventListeners } from "./src/eventHandler.js";
-
       import { startSession } from "./src/sessionHandler.js";
       import { loadPageOne } from "./src/pageHandler.js";
 
@@ -798,9 +791,6 @@
         }
         await startSession();
         loadPageOne();
-
-        // Set up event listeners
-        initializeEventListeners();
       });
     </script>
 

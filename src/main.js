@@ -3,7 +3,6 @@ import {
   downloadJson,
   hideLoadingSpinner,
   updateLoadingMessage,
-  switchPages,
   loadPageOne,
   loadPageThree,
   loadPageFour,
@@ -29,13 +28,15 @@ import {
   importFc, // importFc makes a PUT request to the upload URL - need CORS fixed before being able to switch to this
 } from "./importHandler.js";
 import { NotificationHandler } from "../src/notificationHandler.js";
+import { toastUser } from "./apiHandler.js";
 
-// Set the global error handler
+// Set global variables
 window.onerror = globalErrorHandler;
+window.ofg.isInboundForecastMode = false; // Default to false - will be updated to true if inbound planning groups are found
 
 // Define and export shared state object
 export let sharedState = {
-  completedForecast: null,
+  generatedForecast: null,
   modifiedForecast: null,
   userInputs: {
     businessUnit: {
@@ -61,7 +62,7 @@ export let sharedState = {
 // Function to reset sharedState without reassigning it
 export function resetSharedState() {
   // Resetting primitive values and arrays directly
-  sharedState.completedForecast = null;
+  sharedState.generatedForecast = null;
   sharedState.modifiedForecast = null;
 
   // Resetting nested objects
@@ -89,12 +90,11 @@ export function resetSharedState() {
 // Generate outbound forecast data
 export async function generateForecast() {
   console.info("[OFG] Forecast generation initiated");
-  switchPages("page-two", "page-three");
 
   console.log("[OFG] User selections:", sharedState.userInputs);
 
-  // Create each planning group in the sharedState.completedForecast object
-  sharedState.completedForecast = sharedState.userInputs.planningGroups.map(
+  // Create each planning group in the sharedState.generatedForecast object
+  sharedState.generatedForecast = sharedState.userInputs.planningGroups.map(
     (pg) => {
       let obj = {
         planningGroup: { ...pg.planningGroup },
@@ -151,7 +151,7 @@ export async function generateForecast() {
   // Process query results
   async function processQueryResults(results) {
     console.log(`[OFG] Processing ${results.length} groups in query results`);
-    const completedForecast = sharedState.completedForecast;
+    const generatedForecast = sharedState.generatedForecast;
 
     // Loop through results and crunch numbers
     for (let i = 0; i < results.length; i++) {
@@ -161,8 +161,8 @@ export async function generateForecast() {
       var data = resultsGrouping.data;
       var campaignId = group.outboundCampaignId;
 
-      // Find matching planning group in sharedState.completedForecast
-      var planningGroupIndex = completedForecast.findIndex(
+      // Find matching planning group in sharedState.generatedForecast
+      var planningGroupIndex = generatedForecast.findIndex(
         (pg) => pg.campaign.id === campaignId
       );
 
@@ -204,7 +204,7 @@ export async function generateForecast() {
         const intervalDuration = 15;
         const intervalIndex = Math.floor(totalMinutes / intervalDuration);
 
-        // Skip processing if completedForecast does not contain planningGroupIndex
+        // Skip processing if generatedForecast does not contain planningGroupIndex
         if (planningGroupIndex === -1) {
           console.warn(
             `[OFG] Campaign id ${campaignId} not found in Planning Groups. Skipping...`
@@ -214,7 +214,7 @@ export async function generateForecast() {
 
         // Skip processing if weekNumber is not found (e.g. no contacts have been forecast for PG)
         const historicalWeeks =
-          completedForecast[planningGroupIndex].historicalWeeks;
+          generatedForecast[planningGroupIndex].historicalWeeks;
         if (!historicalWeeks) {
           continue;
         }
@@ -269,16 +269,16 @@ export async function generateForecast() {
 
     console.log(
       "[OFG] Query results processed",
-      JSON.parse(JSON.stringify(completedForecast))
+      JSON.parse(JSON.stringify(generatedForecast))
     );
   }
 
   // Validate and update PG's if no historical data is found
   function validateHistoricalData() {
-    const completedForecast = sharedState.completedForecast;
+    const generatedForecast = sharedState.generatedForecast;
 
-    for (let i = 0; i < completedForecast.length; i++) {
-      const group = completedForecast[i];
+    for (let i = 0; i < generatedForecast.length; i++) {
+      const group = generatedForecast[i];
       const pgName = group.planningGroup.name;
       const forecastMode = group.metadata.forecastMode;
 
@@ -333,8 +333,8 @@ export async function generateForecast() {
     ];
 
     //
-    const completedForecast = sharedState.completedForecast;
-    let fcPrepPromises = completedForecast
+    const generatedForecast = sharedState.generatedForecast;
+    let fcPrepPromises = generatedForecast
       .filter((group) => group.metadata.forecastStatus.isForecast === true)
       .map(async (group) => {
         const pgName = group.planningGroup.name;
@@ -405,7 +405,6 @@ export async function generateForecast() {
     // Add event listener to restart button
     restartButton.addEventListener("click", (event) => {
       console.log("[OFG] Restarting...");
-      switchPages("page-four", "page-one");
       loadPageOne();
     });
 
@@ -442,8 +441,8 @@ export async function generateForecast() {
       "Generating inbound forecast"
     );
 
-    // Update inbound planning groups in completedForecast with metadata.forecastStatus.isForecast = true
-    sharedState.completedForecast.forEach((pg) => {
+    // Update inbound planning groups in generatedForecast with metadata.forecastStatus.isForecast = true
+    sharedState.generatedForecast.forEach((pg) => {
       const forecastMode = pg.metadata.forecastMode;
       if (forecastMode === "inbound") {
         pg.metadata.forecastStatus = { isForecast: true };
@@ -458,7 +457,7 @@ export async function generateForecast() {
 
     console.log(
       "[OFG] Inbound Planning Groups have been processed.",
-      JSON.parse(JSON.stringify(sharedState.completedForecast))
+      JSON.parse(JSON.stringify(sharedState.generatedForecast))
     );
   }
   loadPageThree();
@@ -567,39 +566,21 @@ export async function importForecast() {
       restartButton.className = "align-left";
       restartButton.textContent = "Restart";
 
-      // Create a button to open forecast
-      /* 
-      TODO: Find a way to allow user to navigate main GC browser window to new forecast
-      const openForecastButton = document.createElement("gux-button");
-      openForecastButton.id = "open-forecast-button";
-      openForecastButton.setAttribute("accent", "primary");
-      openForecastButton.setAttribute("disabled", "true");
-      openForecastButton.className = "align-right";
-      openForecastButton.textContent = "Open Forecast";
-      */
+      // TODO: Find a way to allow user to navigate main GC browser window to new forecast
 
       // Add event listener to restart button
       restartButton.addEventListener("click", (event) => {
-        switchPages("page-four", "page-one");
         loadPageOne();
       });
 
       let message;
       if (status === "Complete") {
         console.log("[OFG] Forecast import completed successfully!");
+        toastUser("Forecast imported successfully!");
 
         const forecastId = notification.eventBody.result.id;
 
-        // Add event listener to open forecast button
-        /*
-        TODO: Find a way to allow user to navigate main GC browser window to new forecast
-        openForecastButton.addEventListener("click", (event) => {
-          window.top.location.href = `/directory/#/admin/wfm/forecasts/${globalBusinessUnitId}/update/${globalWeekStart}${forecastId}`;
-        });
-        */
-
-        // Enable open forecast button
-        //openForecastButton.removeAttribute("disabled");
+        // TODO: Find a way to allow user to navigate main GC browser window to new forecast
 
         // Insert div to id="results-container" with success message
         message = document.createElement("div");
@@ -608,6 +589,7 @@ export async function importForecast() {
         resultsContainer.appendChild(message);
       } else if (status === "Error" || status === "Canceled") {
         console.error("[OFG] Forecast import failed.", notification);
+        toastUser("Forecast import failed!");
         const userMessage = notification.metadata.errorInfo.userMessage;
 
         // Insert div to id="results-container" with error message

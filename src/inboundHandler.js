@@ -11,13 +11,13 @@ const testMode = window.ofg.isTesting;
 async function transformAndLoadInboundForecast(inboundFcData) {
   const weekStart = sharedState.userInputs.forecastParameters.weekStart;
 
-  // Add inbound forecast data to sharedState.completedForecast if pgId not already present
+  // Add inbound forecast data to sharedState.generatedForecast if pgId not already present
   console.log("[OFG] Merging inbound forecast data with completed forecast");
 
   // Process each planning group in inbound forecast data
   inboundFcData.result.planningGroups.forEach((pg) => {
-    // Find the planning group in sharedState.completedForecast
-    const completedFcPg = sharedState.completedForecast.find(
+    // Find the planning group in sharedState.generatedForecast
+    const completedFcPg = sharedState.generatedForecast.find(
       (pgForecast) => pgForecast.planningGroup.id === pg.planningGroupId
     );
     const isInbound = completedFcPg.metadata.forecastMode === "inbound";

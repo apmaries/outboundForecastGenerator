@@ -7,7 +7,7 @@ const testMode = window.ofg.isTesting;
 // Function to build query body
 export async function queryBuilder() {
   // Get variables from sharedState
-  const forecastPlanningGroups = sharedState.completedForecast;
+  const forecastPlanningGroups = sharedState.generatedForecast;
   const timeZone = sharedState.userInputs.businessUnit.settings.timeZone;
 
   // Log to console
@@ -213,7 +213,7 @@ export async function executeQueries(body, intervals) {
     console.warn("[OFG] No results found.");
   } else {
     // Get variables from sharedState
-    const forcastPlanningGroups = sharedState.completedForecast;
+    const forcastPlanningGroups = sharedState.generatedForecast;
 
     // Return only the data for the campaigns in the forcastPlanningGroups where pg.isForecast is true
     results = results.filter((result) => {

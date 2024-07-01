@@ -265,11 +265,8 @@ export async function handleApiCalls(apiFunctionStr, ...args) {
   );
 }
 
-export async function toastUser() {
+export async function toastUser(message) {
   //console.log("[OFG] Toasting user");
 
-  ClientApp.alerting.showToastPopup(
-    `Hi!`,
-    "Never gonna give you up, never gonna let you down 😊"
-  );
+  ClientApp.alerting.showToastPopup(`Hi!`, message);
 }

@@ -1,6 +1,43 @@
 import { sharedState } from "./main.js";
 import { calculateTotals, calculateWeightedAverages } from "./numberHandler.js";
 
+export function initializeModificationHandler() {
+  // Event listener for planning group dropdown
+  const planningGroupDropdown = document.getElementById(
+    "planning-group-dropdown"
+  );
+  const weekDayDropdown = document.getElementById("week-day-dropdown");
+
+  if (planningGroupDropdown && weekDayDropdown) {
+    planningGroupDropdown.addEventListener("change", async () => {
+      // Remove disabled attribute from "week-day-dropdown"
+      weekDayDropdown.removeAttribute("disabled");
+
+      // set weekDayDropdown placeholder
+      weekDayDropdown.placeholder = "Select a week day";
+
+      // Check if weekDayDropdown has a value
+      if (weekDayDropdown.value) {
+        // Get Planning Group forecast data for week day
+        const pgData = await getSelectedPgForecastData();
+        populateGraphAndTable(pgData);
+      }
+    });
+
+    // Add event listener to "week-day-dropdown"
+    weekDayDropdown.addEventListener("change", async () => {
+      // Check if planningGroupDropdown has a value
+      if (planningGroupDropdown.value) {
+        // Get Planning Group forecast data for week day
+        const pgData = await getSelectedPgForecastData();
+        populateGraphAndTable(pgData);
+      }
+    });
+  } else {
+    console.error("[OFG] Dropdowns not found");
+  }
+}
+
 /* HELPER FUNCTIONS START */
 // Function to rotate arrays based on the week start day
 function rotateArrays(array) {
@@ -162,11 +199,7 @@ function scale2DArrayByDay(original2DArray, modifiedTotals) {
 export async function getSelectedPgForecastData(
   forecastType = "modifiedForecast"
 ) {
-  const planningGroupDropdown = document.getElementById(
-    "planning-group-dropdown"
-  );
-
-  // Assuming you have the container's ID, get the element
+  // Get the listbox
   const listBox = document.getElementById("planning-group-listbox");
 
   // Find the selected option within the list box
@@ -480,7 +513,6 @@ function replaceButton(oldButton) {
 
 // Function to apply modifications
 async function applyModification(data, modToRun) {
-  // TODO: This works for smooth but needs attention for normalize and flatten
   const metricSelect = document.getElementById("metric-select").value;
   let modifiedData = { ...data };
   const weeklyMode = data.selectedWeekDay === "99";
@@ -604,11 +636,11 @@ async function applyModification(data, modToRun) {
 
 // Function to reset data
 async function reset(data) {
-  //let modifiedData = { ...data };
+  let modifiedData = { ...data };
 
   // Get a deep copy of the original data
   let originalData = JSON.parse(
-    JSON.stringify(await getSelectedPgForecastData("completedForecast"))
+    JSON.stringify(await getSelectedPgForecastData("generatedForecast"))
   );
 
   let originalFcValues = originalData.fcValues;
