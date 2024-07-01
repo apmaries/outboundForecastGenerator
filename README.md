@@ -13,13 +13,5 @@
 
 ## Items to do
 
-- Dynamically get environment & client id (wfm-outbound.html)
 - Allow navigation to generated forecast in main browser window, or open to new tab (main.js)
 - Fix problem with week start populating on page one - should default to next instance of BU's start day of week (e.g. Monday)
-
-## Navigation to fix
-
--- update loadPageX functions to handle only loading
--- add reset functions for each page
--- add the event listeners to each page's loading
--- remove event listeners when no longer needed
