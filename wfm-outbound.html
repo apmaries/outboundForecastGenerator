@@ -589,15 +589,17 @@
 
       document.addEventListener("DOMContentLoaded", async function () {
         if (!window.ofg.isTesting) {
-          // TODO: Need to be able to get the environment from the parent window
+          // Extract clientId and environment from URL query parameters
+          const urlParams = new URLSearchParams(window.location.search);
+          const clientId = urlParams.get("clientId");
+          const environment = urlParams.get("environment");
 
-          //USW2
-          //var clientId = "6f99c63b-3dfb-43cf-9792-a9b5c295d0ca";
-          //var environment = "usw2.pure.cloud";
-
-          //SCO
-          var clientId = "f8083a5d-f18a-4b45-93bb-994a88243c23";
-          var environment = "mypurecloud.com.au";
+          if (!clientId || !environment) {
+            console.error(
+              "[OFG] Check clientId and environment in URL query parameters"
+            );
+            return;
+          }
 
           try {
             await window.ofg.PlatformClient.ApiClient.instance.loginImplicitGrant(
