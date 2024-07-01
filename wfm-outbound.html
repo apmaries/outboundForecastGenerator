@@ -453,7 +453,7 @@
     <script src="https://sdk-cdn.mypurecloud.com/client-apps/2.6.6/purecloud-client-app-sdk.js"></script>
 
     <!-- Define the Clients -->
-    <script type="module">
+    <script>
       // TODO: Need to be able to get the environment from the parent window
       //var environment = "mypurecloud.com.au";
 
@@ -560,6 +560,7 @@
 
         // Extract gc_clientId and gc_region from URL query parameters
         let url = new URL(document.location.href);
+        console.log("[OFG] URL", url);
         let gc_region = url.searchParams.get("gc_region");
         let gc_clientId = url.searchParams.get("gc_clientId");
 
