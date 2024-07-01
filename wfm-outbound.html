@@ -596,7 +596,8 @@
 
           if (!clientId || !environment) {
             console.error(
-              "[OFG] Check clientId and environment in URL query parameters"
+              "[OFG] Check clientId and environment in URL query parameters",
+              window.location
             );
             alert(
               "Please provide clientId and environment in the URL query parameters"
