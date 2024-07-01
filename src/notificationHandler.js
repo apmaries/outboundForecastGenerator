@@ -1,5 +1,3 @@
-// notificationHandler.js
-
 import { loadPageFour } from "./pageHandler.js";
 
 // Define global variables
@@ -14,25 +12,23 @@ export class NotificationHandler {
     this.uri = notificationsUri;
     this.id = notificationsId;
 
+    let resultsContainer = document.getElementById("import-results-container");
+    let message = document.createElement("div");
+
     if ((!this.uri || !this.id) && !testMode) {
       alert("An error occurred. Please refresh the page and try again.");
-
       loadPageFour();
-      // Insert div to id="import-results-container" with error message
 
-      let resultsContainer = document.getElementById(
-        "import-results-container"
-      );
-      let message = document.createElement("div");
+      // Insert div to id="import-results-container" with error message
       message.className = "alert-danger";
       message.innerHTML =
         "Something went wrong :(<br>Please refresh the page and try again.";
       resultsContainer.appendChild(message);
 
-      const errorReason = document.createElement("div");
+      const reason = document.createElement("div");
 
-      errorReason.innerHTML = userMessage;
-      resultsContainer.appendChild(errorReason);
+      reason.innerHTML = "Missing required session storage items";
+      resultsContainer.appendChild(reason);
 
       throw new Error("Missing required session storage items");
     }
@@ -69,37 +65,43 @@ export class NotificationHandler {
 
   subscribeToNotifications() {
     console.info("[OFG] Subscribing to forecast notifications");
-    let apiInstance = new window.ofg.PlatformClient.NotificationsApi();
 
-    let body = this.topics.map((topic) => ({
-      "id": `v2.workforcemanagement.businessunits.${this.buId}.${topic}`,
-    }));
+    if (testMode) {
+      console.log("[OFG] Skipping subscription in test mode");
+      return;
+    } else {
+      let apiInstance = new window.ofg.PlatformClient.NotificationsApi();
 
-    let opts = {
-      "ignoreErrors": false, // Boolean | Optionally prevent throwing of errors for failed permissions checks.
-    };
+      let body = this.topics.map((topic) => ({
+        "id": `v2.workforcemanagement.businessunits.${this.buId}.${topic}`,
+      }));
 
-    // Add a list of subscriptions to the existing list of subscriptions
-    body.forEach((topicObj) => {
-      let topic = topicObj.id.split(".").pop();
-      apiInstance
-        .postNotificationsChannelSubscriptions(this.id, [topicObj], opts)
-        .then((data) => {
-          console.debug(
-            `[OFG] Subscribed to ${topic} notifications in BU ${this.buId}: `,
-            data
-          );
-          if (this.onSubscribed) {
-            this.onSubscribed();
-          }
-        })
-        .catch((err) => {
-          console.error(
-            `[OFG] Error subscribing to ${topic} notifications in BU ${this.buId}: `,
-            err
-          );
-        });
-    });
+      let opts = {
+        "ignoreErrors": false, // Boolean | Optionally prevent throwing of errors for failed permissions checks.
+      };
+
+      // Add a list of subscriptions to the existing list of subscriptions
+      body.forEach((topicObj) => {
+        let topic = topicObj.id.split(".").pop();
+        apiInstance
+          .postNotificationsChannelSubscriptions(this.id, [topicObj], opts)
+          .then((data) => {
+            console.debug(
+              `[OFG] Subscribed to ${topic} notifications in BU ${this.buId}: `,
+              data
+            );
+            if (this.onSubscribed) {
+              this.onSubscribed();
+            }
+          })
+          .catch((err) => {
+            console.error(
+              `[OFG] Error subscribing to ${topic} notifications in BU ${this.buId}: `,
+              err
+            );
+          });
+      });
+    }
   }
 
   handleMessage(event) {

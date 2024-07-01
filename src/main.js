@@ -6,6 +6,7 @@ import {
   loadPageOne,
   loadPageThree,
   loadPageFour,
+  populateMessage,
 } from "./pageHandler.js";
 import {
   queryBuilder,
@@ -33,6 +34,7 @@ import { toastUser } from "./apiHandler.js";
 // Set global variables
 window.onerror = globalErrorHandler;
 window.ofg.isInboundForecastMode = false; // Default to false - will be updated to true if inbound planning groups are found
+const testMode = window.ofg.isTesting;
 
 // Define and export shared state object
 export let sharedState = {
@@ -490,136 +492,104 @@ export async function importForecast() {
   // Log the forecast import body
   console.log("[OFG] Forecast import body:", fcImportBody);
 
-  // Declare variables
-  let importOperationId = null;
+  if (testMode) {
+    console.log("[OFG] Test mode enabled. Skipping import.");
+    populateMessage("alert-success", "Forecast tested successfully!", null);
+  } else {
+    // Declare variables
+    let importOperationId = null;
 
-  let topics = ["shorttermforecasts.import"];
+    let topics = ["shorttermforecasts.import"];
 
-  let importNotifications = new NotificationHandler(
-    topics,
-    buId,
-    runImport,
-    handleImportNotification
-  );
-  importNotifications.connect();
-  importNotifications.subscribeToNotifications();
+    let importNotifications = new NotificationHandler(
+      topics,
+      buId,
+      runImport,
+      handleImportNotification
+    );
+    importNotifications.connect();
+    importNotifications.subscribeToNotifications();
 
-  // Main import function
-  async function runImport() {
-    // Generate URL for upload
-    updateLoadingMessage("import-loading-message", "Generating URL for upload");
-    let uploadAttributes = await generateUrl(buId, weekStart, contentLength);
-
-    // Upload forecast
-    updateLoadingMessage("import-loading-message", "Uploading forecast");
-    /* GCF function being used until CORS blocking removed */
-    // importFc(buId, globalWeekStart, importGzip, uploadAttributes);
-    const uploadResponse = await invokeGCF(uploadAttributes, fcImportBody);
-
-    // Check if upload was successful
-    if (uploadResponse === 200) {
-      const uploadKey = uploadAttributes.uploadKey;
-      console.log(
-        "[OFG] Forecast uploaded successfully! Calling import method."
+    // Main import function
+    async function runImport() {
+      // Generate URL for upload
+      updateLoadingMessage(
+        "import-loading-message",
+        "Generating URL for upload"
       );
+      let uploadAttributes = await generateUrl(buId, weekStart, contentLength);
 
-      // Import forecast
-      updateLoadingMessage("import-loading-message", "Importing forecast");
-      const importResponse = await importFc(buId, weekStart, uploadKey);
+      // Upload forecast
+      updateLoadingMessage("import-loading-message", "Uploading forecast");
+      /* GCF function being used until CORS blocking removed */
+      // importFc(buId, globalWeekStart, importGzip, uploadAttributes);
+      const uploadResponse = await invokeGCF(uploadAttributes, fcImportBody);
 
-      // Check if operation id is in response
-      if (importResponse) {
-        importOperationId = importResponse.operationId;
+      // Check if upload was successful
+      if (uploadResponse === 200) {
+        const uploadKey = uploadAttributes.uploadKey;
         console.log(
-          `[OFG] Forecast import initiated. Operation ID: ${importOperationId}`
+          "[OFG] Forecast uploaded successfully! Calling import method."
         );
 
-        // Assign operationId to global importOperationId variable
-        importOperationId = importResponse.operationId;
-      } else {
-        console.error("[OFG] Forecast import failed.");
+        // Import forecast
+        updateLoadingMessage("import-loading-message", "Importing forecast");
+        const importResponse = await importFc(buId, weekStart, uploadKey);
+
+        // Check if operation id is in response
+        if (importResponse) {
+          importOperationId = importResponse.operationId;
+          console.log(
+            `[OFG] Forecast import initiated. Operation ID: ${importOperationId}`
+          );
+
+          // Assign operationId to global importOperationId variable
+          importOperationId = importResponse.operationId;
+        } else {
+          console.error("[OFG] Forecast import failed.");
+        }
       }
     }
-  }
 
-  // Handle notification messages
-  async function handleImportNotification(notification) {
-    console.debug("[OFG] Message from server: ", notification);
-    if (
-      notification.eventBody &&
-      notification.eventBody.operationId === importOperationId
-    ) {
-      const status = notification.eventBody.status;
-      console.log(`[OFG] Forecast import status updated <${status}>`);
+    // Handle notification messages
+    async function handleImportNotification(notification) {
+      console.debug("[OFG] Message from server: ", notification);
+      if (
+        notification.eventBody &&
+        notification.eventBody.operationId === importOperationId
+      ) {
+        const status = notification.eventBody.status;
+        console.log(`[OFG] Forecast import status updated <${status}>`);
 
-      // Hide loading spinner div
-      hideLoadingSpinner("import-results-container", "import-loading-div");
+        if (status === "Complete") {
+          const forecastId = notification.eventBody.result.id;
 
-      const resultsContainer = document.getElementById(
-        "import-results-container"
-      );
+          console.log(
+            `[OFG] Forecast import completed successfully! ID: ${forecastId}`
+          );
+          toastUser(`Forecast imported successfully! ID: ${forecastId}`);
 
-      // Create a button to restart the process
-      const restartButton = document.createElement("gux-button");
-      restartButton.id = "restart-button";
-      restartButton.setAttribute("accent", "secondary");
-      restartButton.className = "align-left";
-      restartButton.textContent = "Restart";
+          // Insert div to id="results-container" with success message
+          populateMessage(
+            "alert-success",
+            "Forecast imported successfully!",
+            null
+          );
+        } else if (status === "Error" || status === "Canceled") {
+          console.error("[OFG] Forecast import failed.", notification);
+          toastUser("Forecast import failed!");
+          const userMessage = notification.metadata.errorInfo.userMessage;
 
-      // TODO: Find a way to allow user to navigate main GC browser window to new forecast
-
-      // Add event listener to restart button
-      restartButton.addEventListener("click", (event) => {
-        loadPageOne();
-      });
-
-      let message;
-      if (status === "Complete") {
-        console.log("[OFG] Forecast import completed successfully!");
-        toastUser("Forecast imported successfully!");
-
-        const forecastId = notification.eventBody.result.id;
-
-        // TODO: Find a way to allow user to navigate main GC browser window to new forecast
-
-        // Insert div to id="results-container" with success message
-        message = document.createElement("div");
-        message.className = "alert-success";
-        message.innerHTML = "Forecast imported successfully!";
-        resultsContainer.appendChild(message);
-      } else if (status === "Error" || status === "Canceled") {
-        console.error("[OFG] Forecast import failed.", notification);
-        toastUser("Forecast import failed!");
-        const userMessage = notification.metadata.errorInfo.userMessage;
-
-        // Insert div to id="results-container" with error message
-
-        message = document.createElement("div");
-        message.className = "alert-danger";
-        message.innerHTML = "Forecast import failed!";
-        resultsContainer.appendChild(message);
-
-        const errorReason = document.createElement("div");
-
-        errorReason.innerHTML = userMessage;
-        resultsContainer.appendChild(errorReason);
+          // Insert div to id="results-container" with error message
+          populateMessage(
+            "alert-danger",
+            "Forecast import failed!",
+            userMessage
+          );
+        }
+      } else {
+        console.log("[OFG] Message from server: ", notification);
       }
-      // Create a new div
-      const buttonsContainer = document.createElement("div");
-
-      // Set the id, class, and style attributes
-      buttonsContainer.id = "page-three-buttons";
-      buttonsContainer.className = "row";
-      buttonsContainer.style.paddingTop = "20px";
-
-      // Append buttons to the results container
-      buttonsContainer.appendChild(restartButton);
-      //buttonsContainer.appendChild(openForecastButton);
-
-      // Append the buttonsContainer
-      resultsContainer.appendChild(buttonsContainer);
-    } else {
-      console.log("[OFG] Message from server: ", notification);
     }
   }
 }

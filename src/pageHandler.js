@@ -842,3 +842,54 @@ export async function loadPageFour() {
   await switchPages("page-three", "page-four");
 }
 /* PAGE LOAD FUNCTIONS END */
+
+export function populateMessage(className, innerHTML, reason) {
+  // Hide loading spinner div
+  hideLoadingSpinner("import-results-container", "import-loading-div");
+
+  const resultsContainer = document.getElementById("import-results-container");
+
+  let message = document.createElement("div");
+  message.className = className;
+  message.innerHTML = innerHTML;
+  resultsContainer.appendChild(message);
+
+  if (reason) {
+    const errorReason = document.createElement("div");
+    errorReason.innerHTML = reason;
+    resultsContainer.appendChild(errorReason);
+  }
+
+  // TODO: Find a way to allow user to navigate main GC browser window to new forecast
+
+  // Create a button to restart the process
+  const restartButton = document.createElement("gux-button");
+  restartButton.id = "restart-button";
+  restartButton.setAttribute("accent", "secondary");
+  restartButton.className = "align-left";
+  restartButton.textContent = "Restart";
+
+  // Create a new div
+  const buttonsContainer = document.createElement("div");
+
+  // Set the id, class, and style attributes
+  buttonsContainer.id = "page-three-buttons";
+  buttonsContainer.className = "row";
+  buttonsContainer.style.paddingTop = "20px";
+
+  // Append buttons to the results container
+  buttonsContainer.appendChild(restartButton);
+  //buttonsContainer.appendChild(openForecastButton);
+
+  // Append the buttonsContainer
+  resultsContainer.appendChild(buttonsContainer);
+
+  if (!window.ofg.pageFourEventListenersAdded) {
+    // Add event listener to restart button
+    restartButton.addEventListener("click", (event) => {
+      loadPageOne();
+      switchPages("page-four", "page-one");
+    });
+    window.ofg.pageFourEventListenersAdded = true;
+  }
+}
