@@ -453,7 +453,14 @@
     <script src="https://sdk-cdn.mypurecloud.com/client-apps/2.6.6/purecloud-client-app-sdk.js"></script>
 
     <!-- Define the Clients -->
-    <script>
+    <script type="module">
+      import { startSession } from "./src/sessionHandler.js";
+      import { loadPageOne } from "./src/pageHandler.js";
+      // Extract gc_clientId and gc_region from URL query parameters
+      let url = new URL(document.location.href);
+      let gc_region = url.searchParams.get("gc_region");
+      let gc_clientId = url.searchParams.get("gc_clientId");
+
       // TODO: Need to be able to get the environment from the parent window
       var environment = "mypurecloud.com.au";
 
@@ -563,9 +570,7 @@
 
         // Configure Platform Client
         window.ofg.PlatformClient = platformClientModule;
-        window.ofg.PlatformClient.ApiClient.instance.setEnvironment(
-          environment
-        );
+        window.ofg.PlatformClient.ApiClient.instance.setEnvironment(gc_region);
         window.ofg.PlatformClient.ApiClient.instance.setReturnExtendedResponses(
           true
         );
@@ -577,50 +582,52 @@
         // Configure Client App
         let ClientAppModule = window.purecloud.apps.ClientApp;
         window.ofg.ClientApp = new ClientAppModule({
-          pcEnvironment: environment,
+          pcEnvironment: gc_region,
+        });
+
+        // Log in to Genesys Cloud
+        document.addEventListener("DOMContentLoaded", async function () {
+          if (!window.ofg.isTesting) {
+            // Extract gc_clientId and gc_region from URL query parameters
+            let url = new URL(document.location.href);
+            let gc_region = url.searchParams.get("gc_region");
+            let gc_clientId = url.searchParams.get("gc_clientId");
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const clientId = urlParams.get("clientId");
+            const environment = urlParams.get("environment");
+
+            if (!gc_clientId || !environment) {
+              console.error(
+                "[OFG] Check gc_clientId and gc_region in URL query parameters",
+                window.location
+              );
+              alert(
+                "Please provide gc_clientId and gc_region in the URL query parameters"
+              );
+              return;
+            }
+
+            try {
+              await window.ofg.PlatformClient.ApiClient.instance.loginImplicitGrant(
+                gc_clientId,
+                "https://apmaries.github.io/outboundForecastGenerator/wfm-outbound.html"
+              );
+              sessionStorage.setItem("oauth_client", gc_clientId);
+              sessionStorage.setItem("org_env", gc_region);
+              console.log("[OFG] Logged in to Genesys Cloud");
+            } catch (e) {
+              console.error("[OFG] Error logging in", e);
+            }
+          }
+          await startSession();
+          loadPageOne();
         });
       }
     </script>
 
     <!-- Script to login with Cloud -->
-    <script type="module">
-      import { startSession } from "./src/sessionHandler.js";
-      import { loadPageOne } from "./src/pageHandler.js";
-
-      document.addEventListener("DOMContentLoaded", async function () {
-        if (!window.ofg.isTesting) {
-          // Extract clientId and environment from URL query parameters
-          const urlParams = new URLSearchParams(window.location.search);
-          const clientId = urlParams.get("clientId");
-          const environment = urlParams.get("environment");
-
-          if (!clientId || !environment) {
-            console.error(
-              "[OFG] Check clientId and environment in URL query parameters",
-              window.location
-            );
-            alert(
-              "Please provide clientId and environment in the URL query parameters"
-            );
-            return;
-          }
-
-          try {
-            await window.ofg.PlatformClient.ApiClient.instance.loginImplicitGrant(
-              clientId,
-              "https://apmaries.github.io/outboundForecastGenerator/wfm-outbound.html"
-            );
-            sessionStorage.setItem("oauth_client", clientId);
-            sessionStorage.setItem("org_env", environment);
-            console.log("[OFG] Logged in to Genesys Cloud");
-          } catch (e) {
-            console.error("[OFG] Error logging in", e);
-          }
-        }
-        await startSession();
-        loadPageOne();
-      });
-    </script>
+    <script type="module"></script>
 
     <!-- Main project module -->
     <script type="module" src="/outboundForecastGenerator/src/main.js"></script>
